@@ -1,0 +1,1280 @@
+---
+title: "Stool 2.0"
+author: "Amedeo Gagliardi, Antonio Francavilla, Beatrice Piaggeschi"
+date: "26/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r loading libraries, message=FALSE, warning=FALSE, include=FALSE}
+library(umap)
+library(factoextra)
+library(tidyverse)
+library(kableExtra)
+library(table1)
+library(DESeq2)
+library(plotly)
+library(png)
+library(pheatmap)
+library(RColorBrewer)
+library(ReportingTools)
+library(ComplexHeatmap)
+library(DT)
+library(apeglm)
+library(vsn)
+library(hexbin)
+```
+
+```{r loading data and parameters, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_Projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds") 
+coldata <- readRDS(covar.path)
+rawCount <- readRDS(count.path)
+n_study <- table(coldata$study)
+```
+
+Last compiled on `r format(Sys.time(), '%d %B, %Y')`
+
+Introduction
+
+MicroRNAs are a class of small non-coding RNAs widely studied as potential biomarkers of different diseases and conditions. Indeed, they represent optimal biomarkers for several reasons including their stability and  detectability in different body fluids types. However, fewer studies investigated their expression according to covariates such as gender, age or smoke and alcohol consumption. 
+
+Aim of this work was to investigate microRNA expression levels in healthy subjects in relation to age, sex, Body Mass Index (BMI), smoke, alcohol consumption and physical activity.
+
+For this purpose, we analyzed Small RNA-seq data from `r length(rownames(coldata))` stool samples of  healthy subjects and ran differential expression analyses using DESeq2 package for R software.
+
+Samples were healthy subjects from three different studies: Celiac (n= `r n_study[[1]]`), CRC (n= `r n_study[[2]]`) and VOV (n= `r n_study[[3]]`).
+
+
+The table below describe the population used in this study.
+
+```{r Table1, echo=FALSE}
+coldata <- readRDS(covar.path)
+df <- coldata
+
+df <- df[,c("id_old","study","library","id_pat","age","sex","smoke", "alcool", "bmi_cat", "phys_act")]
+colnames(df)[c(2,5,6,7,8,9,10)] <- c("Study","Age","Sex","Smoke","Alcohol", "BMI", "Phys_act")
+
+levels(df$BMI) <- c("Underweight", "Normal", "Overweight", "Obese")
+levels(df$Smoke) <- c("Non smoker", "Ex smoker", "Smoker")
+levels(df$Study) <- c("Celiac", "CRC", "VOV")
+df$Alcohol <- as.factor(df$Alcohol)
+levels(df$Alcohol) <- c("Abstemious", "Light", "Heavy")
+levels(df$Sex) <- c("Female", "Male")
+levels(df$Phys_act) <- c("Inactive", "Moderately inactive", "Moderately active", "Active")
+
+table1::units(df$Age) <- "Years"
+table1::table1(~ Age + BMI + Smoke + Alcohol + Phys_act + Study | Sex, data = df, topclass = "Rtable1-zebra",
+               footnote = "BMI: Underweight < 18, Normal 18-25, Overweight 25-30, Obese > 30 -- Alcohol: Abstemious 0 gr/day, Light 0.1-18.5 gr/day, Heavy > 18.5 gr/day -- Physical activity:")
+
+rm(df)
+
+```
+
+# Exploratory data anlyses and quality controls.
+
+# PCA Analyses {.tabset .tabset-fade .tabset-pills}
+
+We performed PCA analyses to assess technical covariates effects.
+
+## Study {.tabset}
+
+Patients from the celiac cohort show a different pattern from ones from CRC and VOV studies. Since 3 patients from the VOV study have the same pattern we further investigated to see if the differences are due to technical bias rather than the cohort of origin.
+
+```{r PCA Study, echo=FALSE, fig.show="hold", message=FALSE, warning=FALSE, out.width="50%"}
+
+rawCount <- as.data.frame(readRDS(count.path))
+coldata <- as.data.frame(readRDS(covar.path))
+
+count.pca <- prcomp(log(rawCount+1))                     
+tmp <- as.data.frame(count.pca$rotation[,c(1,2,3,4)])
+
+colnames(tmp) <- c("PC1","PC2","PC3","PC4")
+
+i <- intersect(rownames(tmp), rownames(coldata))
+tmp <- tmp[i,]
+coldata <- coldata[i,]
+
+tmp[,"smoke"] <- coldata[match(rownames(tmp), rownames(coldata), nomatch=0),"smoke"]
+tmp[,"age_cat"] <- coldata[match(rownames(tmp), rownames(coldata), nomatch=0),"age_cat"]
+tmp[,"sex"] <- coldata[match(rownames(tmp), rownames(coldata), nomatch=0),"sex"]
+tmp[,"study"] <- coldata[match(rownames(tmp), rownames(coldata), nomatch=0),"study"]
+tmp[,"library"] <- coldata[match(rownames(tmp), rownames(coldata), nomatch=0),"library"]
+tmp[,"pat"] <- coldata[match(rownames(tmp), rownames(coldata), nomatch=0), "id_pat"]
+
+ggplot2::ggplot(data = tmp, ggplot2::aes(x=PC1, y=PC2)) +
+  geom_point(aes(color=study, shape=pat))
+
+fviz_eig(count.pca)
+
+```
+
+
+## Library {.tabset}
+
+```{r VOV in CEL, include=FALSE}
+xx <- which(coldata$library == "Library CEL stool 2" & coldata$study == "VOV")
+yy <- rownames(coldata)[xx]
+zz <- paste(yy, collapse = ", ")
+```
+
+The differences are due to the different libraries. `r zz` were sequenced in a Celiac library and separate with those samples in the PCA plot. So we decided to use the library covariate as adjustment in our models.
+
+```{r PCA Library, echo=FALSE}
+ggplot2::ggplot(data = tmp, ggplot2::aes(x=PC1, y=PC2)) +
+  geom_point(ggplot2::aes(color=library))
+
+
+```
+
+
+## Condition {.tabset}
+
+There are no technical differences in patients from the same cohort,
+
+```{r PCA pathology, echo=FALSE}
+ggplot2::ggplot(data = tmp, ggplot2::aes(x=PC1, y=PC2)) +
+  geom_point(ggplot2::aes(color=study, shape=pat))
+
+rm(xx,yy,zz,tmp, count.pca, df)
+```
+
+
+# Heatmap of count matrix
+
+Then we built an heatmap based on the normalized count of the count matrix to check the clustering and similarity of the samples.
+
+```{r Deseq object building for heatmap, warning=FALSE, include=FALSE}
+
+check <- all(colnames(rawCount) == rownames(coldata))
+if(check == FALSE){
+  i <- intersect(rownames(coldata), colnames(rawCount))
+  coldata <- coldata[i,]
+  rawCount <- rawCount[,i]
+}
+all(colnames(rawCount) == rownames(coldata))
+
+covars <- c("age_cat", "study", "sex")
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+  i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+  rawCount <- rawCount[,i]                              
+  coldata <- coldata[i,]
+  all.equal(colnames(rawCount), rownames(coldata))
+}
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+rm(covar.path, count.path, i, m, n, check, covars, n.na)
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+
+```
+
+```{r heatmap1, echo=FALSE, fig.show="hold", warning=FALSE}
+
+vst <- varianceStabilizingTransformation(dds, blind=TRUE) # Transformation for data visualization
+
+vst_mat <- assay(vst) # Extract the vst matrix from PCA
+
+vst_cor <- cor(vst_mat) # Compute pairwise correlation values
+
+breaksList = seq(0, 1, by = 0.1)
+
+pheatmap(vst_cor,
+         color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), 
+         breaks = breaksList,
+         fontsize_row = 5,
+         fontsize_col = 5,
+         main = "All samples",
+         cutree_rows = 3,
+         show_colnames = FALSE,
+         show_rownames = FALSE)
+
+xx <- which(coldata$id == "VOV114")
+yy <- which(colnames(rawCount) == "VOV114")
+coldata2 <- coldata[-xx,]
+rawCount2 <- rawCount[,-yy]
+dds2 <- DESeqDataSetFromMatrix(countData = rawCount2,
+                               colData = coldata2,
+                               design = model)
+
+vst2 <- varianceStabilizingTransformation(dds2, blind=TRUE) # Transformation for data visualization
+
+vst_mat2 <- assay(vst2) # Extract the vst matrix from PCA
+
+vst_cor2 <- cor(vst_mat2)
+
+
+pheatmap(vst_cor2,
+         color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)),
+         breaks = breaksList,
+         fontsize_row = 5,
+         fontsize_col = 5,
+         main = "Filtered",
+         cutree_rows = 2,
+         show_colnames = FALSE,
+         show_rownames = FALSE)
+
+rm(dds, dds2, vst, vst2, vst_cor, vst_cor2, vst_mat, vst_mat2, xx, yy, breaksList, coldata, rawCount, coldata2)
+
+```
+
+We removed VOV 114 from the downstream analyses because it clustered alone, showing too high differences in counts from the other samples.
+
+
+
+# miRNA differential expression analyses. {.tabset .tabset-fade .tabset-pills}
+
+We designed several models for DE analyses:
+
+1 - Smoke: ~age + sex + library + smoke. Age and sex used as adjustment variables. Smoke was coded as non-smoker (0), ex-smoker (1) and smoker (2). 
+
+2 – N. cigarettes/day : ~age + sex + library + N. cigarettes/day.  The smokers category was further stratified according to the number of cigarettes per day in light smoker (<16 cigarettes/day) and heavy smokers (>=16 cigarettes/day) 
+
+3 - BMI: ~age + sex + bmi. Age and sex used as adjustment variables. BMI was coded as normal weight (0), underweight (1), overweight (2) and obese (3).
+
+4 - Alcohol: ~age + sex + library + alcohol. Age and sex used as adjustment variables. Alcohol was coded according to gr/day of alcohol intake and categorized in abstemious (0 - 0 gr/day), mild drinker (0.1 – 18.5 gr/day), heavy drinker (>18.5 gr/day).
+
+5 – Wine: ~age + sex + library + alcohol . Since the analyzed cohort is mainly composed by wine drinkers, miRNA expression levels were also investigated according to only wine consumption. The categories investigated were abstemious (0 - 0 gr/day), light drinker (12.50 gr/day) and heavy drinker (>12.50 gr/day)
+
+6 - Physical activity: ~age + sex + library + phys_act. Physical activity was categorized using the EPIC guidelines. Total MET was calculated based on the different sources of physical activity selfreported on the questionnaires. Each patients was the assigned to one of four different group: inactive, moderately inactive, moderately active, active.
+
+## Sex {.tabset}
+
+```{r sex, warning=FALSE, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- which(coldata$id == "VOV114")
+coldata <- coldata[-rm,]
+
+covars <- c("library","age_cat","sex")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("sex","uomo", "donna"), alpha = 0.01)
+res$miRNA <- rownames(res)
+res <- as_tibble(res) %>% 
+  dplyr::relocate("miRNA", .before = "baseMean") %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "M_F")
+  
+
+```
+
+```{r sex table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r sex volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05 & df$baseMean >=15
+df$treshold <- treshold
+df$treshold <- as.factor(df$treshold)
+levels(df$treshold) <- c("Non significative", "Significative [BaseMean > 15 ; padj <0.05")
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold, colors = c("#FF5733","#4FFF03"),
+        hoverinfo = 'text',
+        text = ~paste(miRNA, '\n Padj: ', padj, '\n Log2FC: ', logFC, '\n BaseMean', baseMean))
+
+```
+
+```{r sex boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+aa <- round((length(colnames(countData)) - 1)/3)
+bb <- aa+aa
+cc <- aa+((length(colnames(countData))) - aa)
+
+countData.aa <- countData[,1:aa]
+countData.bb <- countData[,c(1,(aa+1):bb)]
+countData.cc <- countData[,c(1,(bb+1):cc)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+```
+
+
+
+## Age {.tabset}
+
+```{r age, warning=FALSE, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- which(coldata$id == "VOV114")
+coldata <- coldata[-rm,]
+
+covars <- c("library","sex", "age_cat")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("age_cat","40_60", "_40"), alpha = 0.01)
+res$miRNA <- rownames(res)
+res <- as_tibble(res) %>% 
+  dplyr::relocate("miRNA", .before = "baseMean") %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0")
+  
+
+```
+
+```{r age table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r age volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r age boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+aa <- round((length(colnames(countData)) - 1)/3)
+bb <- aa+aa
+cc <- aa+((length(colnames(countData))) - aa)
+
+countData.aa <- countData[,1:aa]
+countData.bb <- countData[,c(1,(aa+1):bb)]
+countData.cc <- countData[,c(1,(bb+1):cc)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+```
+
+
+
+## Smoke {.tabset}
+
+```{r smoke, warning=FALSE, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+covars <- c("age_cat","sex", "library", "smoke")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res_1 <- results(dds, contrast = c("smoke","ex_fumatore", "non_fumatore"), alpha = 0.01)
+res_1$miRNA <- rownames(res_1)
+res_1 <- as_tibble(res_1) %>% 
+  dplyr::relocate("miRNA", .before = "baseMean") %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0")
+
+res_2 <- results(dds, contrast = c("smoke","fumatore", "non_fumatore"), alpha = 0.01)
+res_2$miRNA <- rownames(res_2)
+res_2 <- as_tibble(res_2) %>% 
+  dplyr::relocate("miRNA", .before = "baseMean") %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_0")
+
+
+res <- bind_rows(res_1, res_2) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::distinct(miRNA, .keep_all = TRUE)
+  
+
+```
+
+```{r smoke table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r smoke volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r smoke boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+# aa <- round((length(colnames(countData)) - 1)/3)
+# bb <- aa+aa
+# cc <- aa+((length(colnames(countData))) - aa)
+# 
+# countData.aa <- countData[,1:aa]
+# countData.bb <- countData[,c(1,(aa+1):bb)]
+# countData.cc <- countData[,c(1,(bb+1):cc)]
+# 
+# countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+# countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+# countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+ countData.m <- pivot_longer(countData, c(2:length(colnames(countData))), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.m, aes(x=miRNA, y=log2(count))) + 
+       geom_boxplot(aes(fill=study))+
+       facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+```
+
+
+
+## Number of cigs {.tabset}
+
+```{r ncigs, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/smoker.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- c("VOV114")
+check <- rm %in% rownames(coldata)
+
+if(check == TRUE){
+  xx <- which(coldata$id == "VOV114")
+  coldata <- coldata[-xx,]
+}
+
+covars <- c("age_cat","sex", "library", "curr_day_cat")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n,check,n.na,rm)
+
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("curr_day_cat","1", "0"), alpha = 0.01)
+res$miRNA <- rownames(res)
+res <- as_tibble(res) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+```
+
+```{r cigs table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r cigs volcano, echo=FALSE, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r cigs boxplot, echo=FALSE, warning=FALSE}
+
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+aa <- round((length(colnames(countData)) - 1)/3)
+bb <- aa+aa
+cc <- aa+((length(colnames(countData))) - aa)
+
+countData.aa <- countData[,1:aa]
+countData.bb <- countData[,c(1,(aa+1):bb)]
+countData.cc <- countData[,c(1,(bb+1):cc)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+
+```
+
+
+
+## BMI {.tabset}
+
+In the analyses of DE miRNA using BMI as the variable of interest we decide to group together overweight and obese samples due to the little sample size of the groups if considered alone. Underweight samples are not considered for now, so the only comparison is between BMI > 25 and normal BMI samples.
+
+```{r bmi, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- c("VOV114")
+check <- rm %in% rownames(coldata)
+
+if(check == TRUE){
+  xx <- which(coldata$id == "VOV114")
+  coldata <- coldata[-xx,]
+}
+
+levels(coldata$bmi_cat) <- c("1","0","2","2") ## solo per analisi bmi
+coldata <- coldata[which(coldata$bmi_cat != "1"),]
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+covars <- c("age_cat","sex", "library", "bmi_cat")
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n,check, rm, n.na, xx)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("bmi_cat","2", "0"), alpha = 0.01)
+res$miRNA <- rownames(res)
+res <- as_tibble(res) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+```
+
+```{r bmi table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r bmi volcano, echo=FALSE, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r bmi boxplot}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+aa <- round((length(colnames(countData)) - 1)/3)
+bb <- aa+aa
+cc <- aa+((length(colnames(countData))) - aa)
+
+countData.aa <- countData[,1:aa]
+countData.bb <- countData[,c(1,(aa+1):bb)]
+countData.cc <- countData[,c(1,(bb+1):cc)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+
+```
+
+
+## Alcohol consumption {.tabset}
+
+```{r alcohol, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- c("VOV114")
+check <- rm %in% rownames(coldata)
+if(check == TRUE){
+  xx <- which(coldata$id == "VOV114")
+  coldata <- coldata[-xx,]
+}
+
+covars <- c("age_cat","sex", "library", "alcool")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n,check, rm, n.na, xx)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res_1 <- results(dds, contrast = c("alcool","1", "0"), alpha = 0.01)
+res_1$miRNA <- rownames(res_1)
+res_1 <- as_tibble(res_1) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res_2 <- results(dds, contrast = c("alcool","2", "0"), alpha = 0.01)
+res_2$miRNA <- rownames(res_2)
+res_2 <- as_tibble(res_2) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res_3 <- results(dds, contrast = c("alcool","2", "1"), alpha = 0.01)
+res_3$miRNA <- rownames(res_3)
+res_3 <- as_tibble(res_3) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_1") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res <- bind_rows(res_1, res_2, res_3) %>% 
+  dplyr::arrange(padj) %>% 
+  distinct(miRNA, .keep_all = TRUE )
+
+```
+
+```{r alcohol table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r alcohol volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r alcohol boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+
+# aa <- round((length(colnames(countData)) - 1)/3)
+# bb <- aa+aa
+# cc <- aa+((length(colnames(countData))) - aa)
+# 
+# countData.aa <- countData[,1:aa]
+# countData.bb <- countData[,c(1,(aa+1):bb)]
+# countData.cc <- countData[,c(1,(bb+1):cc)]
+# 
+# countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+# countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+# countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.m <- pivot_longer(countData, c(2:length(colnames(countData))), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+
+```
+
+
+## Wine consumption {.tabset}
+
+```{r wine, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- c("VOV114")
+check <- rm %in% rownames(coldata)
+if(check == TRUE){
+  xx <- which(coldata$id == "VOV114")
+  coldata <- coldata[-xx,]
+}
+
+covars <- c("age_cat","sex", "library", "wine")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n,check, rm, n.na, xx)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res_1 <- results(dds, contrast = c("wine","1", "0"), alpha = 0.01)
+res_1$miRNA <- rownames(res_1)
+res_1 <- as_tibble(res_1) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res_2 <- results(dds, contrast = c("wine","2", "0"), alpha = 0.01)
+res_2$miRNA <- rownames(res_2)
+res_2 <- as_tibble(res_2) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res_3 <- results(dds, contrast = c("wine","2", "1"), alpha = 0.01)
+res_3$miRNA <- rownames(res_3)
+res_3 <- as_tibble(res_3) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_1") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res <- bind_rows(res_1, res_2, res_3) %>% 
+  dplyr::arrange(padj) %>% 
+  distinct(miRNA, .keep_all = TRUE )
+
+```
+
+```{r wine table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r wine volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r wine boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+# colnames(coldata)[1] <- "id"
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+xx <- grepl(paste0("(?=.*", "hsa|id_pat", ")", collapse=""), colnames(countData), perl=TRUE)
+countData <- countData[,xx]
+countData.m <- pivot_longer(countData, c(1:length(colnames(countData)) - 1), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.m, aes(x=miRNA, y=count)) + 
+       geom_boxplot(aes(fill=id_pat)) +
+       facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
+
+```
+
+## Physical activity {.tabset}
+
+```{r phys_act, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/sdv_redo/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- c("VOV114")
+check <- rm %in% rownames(coldata)
+if(check == TRUE){
+  xx <- which(coldata$id == "VOV114")
+  coldata <- coldata[-xx,]
+}
+
+covars <- c("age_cat","sex", "library", "phys_act")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+rawCount <- rawCount[,i]                              
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n,check, rm, n.na, xx)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res_1 <- results(dds, contrast = c("phys_act","1", "0"), alpha = 0.01)
+res_1$miRNA <- rownames(res_1)
+res_1 <- as_tibble(res_1) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res_2 <- results(dds, contrast = c("phys_act","2", "0"), alpha = 0.01)
+res_2$miRNA <- rownames(res_2)
+res_2 <- as_tibble(res_2) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res_3 <- results(dds, contrast = c("phys_act","2", "1"), alpha = 0.01)
+res_3$miRNA <- rownames(res_3)
+res_3 <- as_tibble(res_3) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "2_1") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+res <- bind_rows(res_1, res_2, res_3) %>% 
+  dplyr::arrange(padj) %>% 
+  distinct(miRNA, .keep_all = TRUE )
+
+```
+
+```{r phys_act table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r phys_act volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05
+df$treshold <- treshold
+df <- df[complete.cases(df$treshold),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~treshold,
+        hoverinfo = 'text',
+        text = ~paste(miRNA))
+
+# '\n Padj: ', padj,
+# '\n Log2FC: ', logFC)
+
+```
+
+```{r phys_act boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|study", ")", collapse=""), colnames(countData), perl=TRUE)
+
+countData <- countData[,xx]
+# aa <- round((length(colnames(countData)) - 1)/3)
+# bb <- aa+aa
+# cc <- aa+((length(colnames(countData))) - aa)
+# 
+# countData.aa <- countData[,1:aa]
+# countData.bb <- countData[,c(1,(aa+1):bb)]
+# countData.cc <- countData[,c(1,(bb+1):cc)]
+# 
+# countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+# countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+# countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.m <- pivot_longer(countData, c(2:length(colnames(countData))), names_to = "miRNA", values_to = "count")
+# Boxplot
+
+ggplot(data = countData.m, aes(x=miRNA, y=log2(count))) + 
+  geom_boxplot(aes(fill=study))+
+  facet_wrap( ~ miRNA, scales="free")
+
+
+rm(list=ls())
+
+
+```

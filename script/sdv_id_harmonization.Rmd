@@ -1,0 +1,150 @@
+---
+title: "svd_id_patient_harmonization"
+author: "Amedeo"
+date: "15/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(stringr)
+library(stringi)
+```
+
+In questo codice faccio l'armonizzazione tra gli ID dei pazienti nelle matrici delle conte e quelli nei file clinici.
+Inoltre faccio anche un subset della matrice delle conte per incrociarla con i dati di quelli dei questionari
+
+## VOV ##
+
+Nella matrice delle conte VOV modifico la parte numerica dell'ID perché diventi sempre a 3 cifre (es. VOV4 -> VOV004)
+
+```{r}
+vov_cts <- read.table("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/original_count_giulio/raw_count_vov.txt", row.names = 1, header = TRUE)
+vov <- readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/Clinical/vov_cleaned.rds")
+
+colnames(vov_cts) <- stringr::str_remove(colnames(vov_cts), "VOV")
+colnames(vov_cts) <-  stringr::str_pad(colnames(vov_cts), 3, side="left", pad="0")
+colnames(vov_cts) <- stringr::str_c("VOV",colnames(vov_cts))
+
+i <- intersect(rownames(vov), colnames(vov_cts))
+vov <- vov[i,]
+vov_cts <- vov_cts[,i]
+xx <- all.equal(rownames(vov), colnames(vov_cts))
+
+if(xx == TRUE){
+  saveRDS(vov, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/Clinical/vov_cleaned.rds")
+  saveRDS(vov_cts, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/vov_raw_count_harmonized.rds")
+  rm(i,xx,vov,vov_cts)
+}
+
+
+
+```
+
+## CELIACHIA ##
+
+Nella matrice della conte CELIACHIA va inserito un _ tra la parte alfabetica e quella numerica 
+
+```{r}
+cel_cts <- read.table("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/original_count_giulio/raw_count_celiachia.txt", header = TRUE, row.names = 1)
+cel <- readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/Clinical/cel_cleaned.rds")
+
+stri_sub(colnames(cel_cts), 4, 3) <- "_"
+
+i <- intersect(rownames(cel), colnames(cel_cts))
+cel <- cel[i,]
+cel_cts <- cel_cts[,i]
+xx <- all.equal(rownames(cel), colnames(cel_cts))
+
+if(xx == TRUE){
+  saveRDS(cel, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/Clinical/cel_cleaned.rds")
+  saveRDS(cel_cts, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/cel_raw_counts_harmonized.rds")
+  rm(i,xx,cel_cts, cel)
+}
+
+```
+
+## CRC ##
+
+Nel dataset clinico ho eliminato il campione "00TL" perché non c'è nella matrice delle conte.
+Poi ho diviso in due il dataset, uno con quelli di Vercelli (che avevano solo il codice numerico) e uno con quelli del Gradenigo (G).
+Ho aggiunto i caratteri "F0" a quelli del Gradenigo e "VF" a quelli di Vercelli in modo che combaciassero con quelli della matrice conte.
+
+Nella matrice delle conte ho diviso i due dataset come sopra.
+In entrambe ho rimosso l'identificativo GF o VF, ho reso tutte gli ID a 3 cifre (es. 04 -> 004) e poi ho rimesso "GF" o "VF".
+Infine ho riunito i dataset in uno solo CRC.
+
+```{r}
+crc_cts <- read.table("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/original_count_giulio/raw_count_crc.txt", header = TRUE, row.names = 1)
+crc <- readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/crc_cleaned.rds")
+
+## MODIFICA NOMI SU DATASET CLINICO ##
+crc <- crc[which(rownames(crc) != "00TL"),]
+xx <- str_detect(rownames(crc), "G")
+g_crc <- crc[xx,]
+num_crc <- crc[!xx,]
+stri_sub(g_crc$idpaziente, 2, 1) <- "F0"
+stri_sub(num_crc$idpaziente, 1, 0) <- "VF"
+crc <- rbind(g_crc, num_crc)
+rownames(crc) <- crc$idpaziente
+
+## MODIFICA NOMI SU MATRICE CONTE ##
+
+gg <- str_detect(colnames(crc_cts), "GF")
+vv <- str_detect(colnames(crc_cts), "VF")
+g_crc <- crc_cts[,gg]
+v_crc <- crc_cts[,vv]
+
+colnames(g_crc) <- stringr::str_remove(colnames(g_crc), "GF")
+colnames(g_crc) <-  stringr::str_pad(colnames(g_crc), 3, side="left", pad="0")
+colnames(g_crc) <- stringr::str_c("GF",colnames(g_crc))
+
+colnames(v_crc) <- stringr::str_remove(colnames(v_crc), "VF")
+colnames(v_crc) <-  stringr::str_pad(colnames(v_crc), 3, side="left", pad="0")
+colnames(v_crc) <- stringr::str_c("VF",colnames(v_crc))
+
+crc_cts <- cbind(g_crc, v_crc)
+
+i <- intersect(rownames(crc), colnames(crc_cts))
+crc <- crc[i,]
+crc_cts <- crc_cts[,i]
+xx <- all.equal(rownames(crc), colnames(crc_cts))
+
+if(xx == TRUE){
+  saveRDS(crc, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/crc_cleaned.rds")
+  saveRDS(crc_cts, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/crc_raw_count_harmonized.rds")
+  rm(list=ls())
+}
+
+```
+
+```{r}
+
+crc_cts <-readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/crc_raw_count_harmonized.rds")
+vov_cts <-readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/vov_raw_count_harmonized.rds")
+cel_cts <-readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/cel_raw_counts_harmonized.rds")
+
+crc <- readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/crc_cleaned.rds")
+vov <- readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/vov_cleaned.rds")
+cel <- readRDS("C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/cel_cleaned.rds")
+
+xx <- all.equal(rownames(vov_cts), rownames(cel_cts))
+yy <- all.equal(rownames(crc_cts), rownames(cel_cts))
+
+if(xx == TRUE & yy == TRUE){
+  df <- cbind(crc_cts, vov_cts, cel_cts)
+  df2 <- rbind(crc, vov, cel)
+  saveRDS(df, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/ngs_count/merged_count_harmonized.rds")
+  saveRDS(df2, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/merged_study_cleaned_samples.rds")
+  rm(list=ls())
+}
+
+
+```
+
+
+
+

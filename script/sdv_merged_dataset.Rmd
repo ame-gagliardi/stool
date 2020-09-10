@@ -1,0 +1,154 @@
+---
+title: "final_dataset"
+author: "Amedeo"
+date: "19/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+In questo script creo la versione finale dei dataset che useremo per le analisi.
+
+```{r}
+
+uomo <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/stool_vita/data/clinical/uomo_var_coded.rds")
+donna <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/stool_vita/data/clinical/donna_var_coded.rds")
+
+```
+
+Creo due dataset che contengono sia le donne che gli uomini. Le variabili comuni incluse sono:
+
+1 - ID paziente
+2 - Studio
+3 - Library
+4 - ID patologia (per studio)
+5 - Età
+6 - Classe di età 
+7 - BMI
+8 - Categoria BMI
+9 - Sesso
+10 - Stato fumatore
+
+Nel primo dataset tengo tutte le classi delle patologie degli studi e non elimino i ripetuti (VOV e Celiachia).
+Nel secondo invece elimino alcune classi di patologie:
+
+CRC: Polipi, infiammazioni e CRC
+Celiachia: Nuove diagnosi
+VOV: tengo tutte le classi di patologia
+
+```{r, include=FALSE}
+
+i <- intersect(colnames(donna), colnames(uomo))
+xx <- donna[,i]
+xy <- uomo[,i]
+all.equal(colnames(xy), colnames(xx))
+
+## Piccoli aggiustamenti in alcuni dati ##
+
+xx$dis_tumors_age <- as.numeric(as.character(xx$dis_tumors_age))
+xx$dis_tumors_age[56] <- c("45")
+xx$dis_tumors_age <- as.numeric(xx$dis_tumors_age)
+
+###
+
+dfmerged <- bind_rows(xx, xy)  ## Merge di uomo e donna con pacchetto dplyr -> trasforma in caratteri tutte le colonne con un n° di                                 ## livelli diversi
+
+#xx <- xx[,c(1,2,3,4,5,6,7,10,11,24)]
+#xy <- xy[,c(1,2,3,4,5,6,7,10,11,24)]
+
+#dfmerged <- rbind(xx,xy)
+
+dfmerged$Sex <- factor((dfmerged$Sex),
+                       levels = c(0,1),
+                       labels = c("Donna","Uomo"))
+
+dfmerged$smk_smoke_status <- factor((dfmerged$smk_smoke_status),
+                                    levels = c(0,1,2),
+                                    labels = c("Non fumatore","Ex fumatore", "Fumatore"))
+
+dfmerged <- moveMe(dfmerged, c("smk_smoke_status"), "after", "bmi_cat")
+
+colnames(dfmerged)[12] <- c("Smoke")
+
+saveRDS(dfmerged, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/merged_study_whole_samples.rds")
+
+```
+
+
+```{r}
+## Dataset separati per studio ##
+
+crc <- dfmerged[which(dfmerged$Study == "CRC"),]
+vov <- dfmerged[which(dfmerged$Study == "VOV"),]
+cel <- dfmerged[which(dfmerged$Study == "Celiac"),]
+
+
+## Codifico e etichetto l'ID delle patologie ##
+
+crc$id_pat <- factor(crc$id_pat,
+                     levels = c(0,1,2,3,4),
+                     labels = c("Controllo","Polipi","Infiammazione","CRC","Emorroidi"))
+
+vov$id_pat <- factor(vov$id_pat,
+                     levels = c(0,1,2),
+                     labels = c("Onnivori","Vegetariani","Vegani"))
+
+cel$id_pat <- factor(cel$id_pat,
+                     levels = c(0,1,2),
+                     labels = c("Celiaco_dieta","Nuova_diagnosi","Controllo"))  
+
+## ELIMINO POLIPI/INFIAMMAZIONI/TUMORI CRC_DATASET ##
+
+crc <- crc[which(crc$id_pat == "Controllo" | crc$id_pat == "Emorroidi"),]
+crc$id_pat <- droplevels(crc$id_pat)
+
+## ELIMINO RIPETUTI DA VOV ##
+
+#vov$idpaziente <- as.character(vov$idpaziente)
+
+#vov <- vov[which(vov$idpaziente != "VOV085"),]
+#vov <- vov[which(vov$idpaziente != "VOV107"),]
+#vov <- vov[which(vov$idpaziente != "VOV116"),]
+#vov <- vov[which(vov$idpaziente != "VOV119"),]
+#vov <- vov[which(vov$idpaziente != "VOV094"),]
+#vov <- vov[which(vov$idpaziente != "VOV139"),]
+
+## ELIMINO RIPETUTI E NUOVE DIAGNOSI DALLA CELIACHIA ##
+
+cel$idpaziente <- as.character(cel$idpaziente)
+
+cel <- cel[which(cel$idpaziente != "Cii_008"),]
+cel <- cel[which(cel$idpaziente != "Cii_011"),]
+cel <- cel[which(cel$idpaziente != "Cii_014"),]
+cel <- cel[which(cel$idpaziente != "Cii_021"),]
+cel <- cel[which(cel$idpaziente != "Cii_026"),]
+cel <- cel[which(cel$idpaziente != "Cii_035"),]
+cel <- cel[which(cel$idpaziente != "CMa_010"),]
+cel <- cel[which(cel$idpaziente != "CMa_009"),]
+cel <- cel[which(cel$id_pat == "Celiaco_dieta" | cel$id_pat == "Controllo"),]
+
+#ROWNAMES#
+
+rownames(crc) <- crc$idpaziente
+rownames(vov) <- vov$idpaziente
+rownames(cel) <- cel$idpaziente
+
+## SALVO I DATASET SINGOLI ##
+
+saveRDS(vov, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/vov_cleaned.rds")
+saveRDS(crc, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/crc_cleaned.rds")
+saveRDS(cel, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/cel_cleaned.rds")
+
+## SALVO IL DATASET TOTAL PULITO ##
+
+dfmerged <- rbind(crc, vov, cel)
+
+saveRDS(dfmerged, "C:/Users/UappaSguappa/Desktop/R_projects/sdv/data/clinical/merged_study_cleaned_samples.rds")
+```
+

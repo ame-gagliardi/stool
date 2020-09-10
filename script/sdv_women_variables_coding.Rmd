@@ -1,0 +1,335 @@
+---
+title: "sdv_women_variables_coding"
+author: "Amedeo"
+date: "11/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+## Laptop path ##
+donna <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/stool_vita/New data/donna_col_changed.rds")
+
+## Desktop path ##
+#donna <- read.csv("C:/Users/UappaSguappa/Desktop/R_Projects/stool_vita/donna_dataset.csv", sep = "\t")
+```
+
+## VARIABILI RELATIVE ALLE MESTRUAZIONI ##
+
+```{r}
+
+table(donna$mestr_meds_regular)
+levels(donna$mestr_meds_regular) <- c("0", "1")
+table(donna$mestr_meds_regular)
+
+table(donna$mestr_now)
+levels(donna$mestr_now) <- c("0", "1")
+table(donna$mestr_now)
+
+table(donna$mestr_pill)
+levels(donna$mestr_pill) <- c(NA,"0", "1")
+table(donna$mestr_pill)
+
+table(donna$mestr_horm)
+levels(donna$mestr_horm) <- c(NA,"0", "1")
+table(donna$mestr_horm)
+
+table(donna$mestr_no_last_12)
+levels(donna$mestr_no_last_12) <- c(NA,"0", "1")
+table(donna$mestr_no_last_12)
+
+```
+
+## VARIABILI LEGATE ALLA GRAVIDANZA ##
+
+```{r}
+
+table(donna$preg_ever)
+levels(donna$preg_ever) <- c("0", "1")
+table(donna$preg_ever)
+
+table(donna$preg_no_tried)
+levels(donna$preg_no_tried) <- c(NA, "0", "1")
+table(donna$preg_no_tried)
+
+table(donna$preg_misc)
+levels(donna$preg_misc) <- c(NA, "0", "1")
+table(donna$preg_misc)
+
+table(donna$preg_abort)
+levels(donna$preg_abort) <- c(NA, "0", "1")
+table(donna$preg_abort)
+
+table(donna$preg_stillbirth)
+levels(donna$preg_stillbirth) <- c(NA, "1")
+table(donna$preg_stillbirth)
+
+table(donna$preg_live)
+levels(donna$preg_live) <- c(NA, "1", "0")
+table(donna$preg_live)
+
+table(donna$preg_breast)
+levels(donna$preg_breast) <- c(NA,"1", "0")
+table(donna$preg_breast)
+
+table(donna$preg_breast_2)
+levels(donna$preg_breast_2) <- c(NA, "1", "0")
+table(donna$preg_breast_2)
+
+table(donna$preg_breast_3)
+levels(donna$preg_breast_3) <- c(NA, "1", "0")
+table(donna$preg_breast_3)
+
+table(donna$preg_breast_last)
+levels(donna$preg_breast_last) <- c(NA,"0")
+table(donna$preg_breast_last)
+```
+
+
+## VARIABILI RELATIVE ALLA CONTRACCEZIONE, MENOPAUSA E STERILITA' ##
+
+```{r}
+
+table(donna$pill_ever)
+levels(donna$pill_ever) <- c("0", "1")
+table(donna$pill_ever)
+
+table(donna$pill_now)
+levels(donna$pill_now) <- c("0", "1")
+table(donna$pill_now)
+
+table(donna$horm_ever)
+levels(donna$horm_ever) <- c("0", "1")
+table(donna$horm_ever)
+
+table(donna$horm_now)
+levels(donna$horm_now) <- c(NA,"0", "1")
+table(donna$horm_now)
+
+table(donna$horm_coil)
+levels(donna$horm_coil) <- c("0", "1")
+table(donna$horm_coil)
+
+table(donna$horm_coil_now)
+levels(donna$horm_coil_now) <- c(NA, "0", "1")
+table(donna$horm_coil_now)
+
+table(donna$ster_medic)
+levels(donna$ster_medic) <- c("0", "1")
+table(donna$ster_medic)
+
+table(donna$ster_confirmed)
+levels(donna$ster_confirmed) <- c(NA, "0", "1")
+table(donna$ster_confirmed)
+
+table(donna$ster_meds)
+levels(donna$ster_meds) <- c(NA, "0", "1")
+table(donna$ster_meds)
+
+table(donna$ster_surg)
+levels(donna$ster_surg) <- c(NA, "0", "1")
+table(donna$ster_surg)
+
+```
+
+## VARIABILI LEGATE AL FUMO ##
+
+```{r}
+
+table(donna$smk_smoke_status)
+levels(donna$smk_smoke_status) <- c("1", "0", "2")
+table(donna$smk_smoke_status)
+
+table(donna$curr_filtro)
+levels(donna$curr_filtro) <- c(NA,"0")
+table(donna$curr_filtro)
+
+table(donna$curr_aspirazione)
+levels(donna$curr_aspirazione) <- c(NA,"0","1","2")
+table(donna$curr_aspirazione)
+
+table(donna$curr_quit_month)
+levels(donna$curr_quit_month) <-c (NA,"1","0")
+table(donna$curr_quit_month)
+
+table(donna$ex_ever_stop_before)
+levels(donna$ex_ever_stop_before) <- c(NA, "1", "0")
+table(donna$ex_ever_stop_before)
+
+table(donna$nev_ever_tried)
+levels(donna$nev_ever_tried) <- c("0", "1")
+table(donna$nev_ever_tried)
+
+table(donna$nev_evet_tried_occ)
+levels(donna$nev_evet_tried_occ) <- c("0","1")
+table(donna$nev_evet_tried_occ)
+
+table(donna$nev_father_smoke)
+levels(donna$nev_father_smoke) <- c("0","1")
+table(donna$nev_father_smoke)
+
+table(donna$nev_mother_smoke)
+levels(donna$nev_mother_smoke) <- c("0","1")
+table(donna$nev_mother_smoke)
+
+table(donna$nev_childhood_smoke_exp)
+levels(donna$nev_childhood_smoke_exp) <- c("2","3","0","0","1")
+table(donna$nev_childhood_smoke_exp)
+
+table(donna$nev_partner_smoke)
+levels(donna$nev_partner_smoke) <- c("0", "1", "2", "0",NA)
+table(donna$nev_partner_smoke)
+
+table(donna$nev_partner_presence)
+levels(donna$nev_partner_presence) <- c(NA,"0","1")
+table(donna$nev_partner_presence)
+
+table(donna$nev_other_smoke)
+levels(donna$nev_other_smoke) <- c("0","1")
+table(donna$nev_other_smoke)
+
+
+```
+
+## VARIABILI LEGATE ALL'ALCOOL ##
+
+```{r}
+
+table(donna$alc_ever_alcohol)
+levels(donna$alc_ever_alcohol) <- c(NA,"0","1")
+table(donna$alc_ever_alcohol)
+
+table(donna$alc_wine)
+levels(donna$alc_wine) <- c("1","0","2")
+table(donna$alc_wine)
+
+table(donna$alc_beer)
+levels(donna$alc_beer) <- c("1","0","2")
+table(donna$alc_beer)
+
+table(donna$alc_spirits)
+levels(donna$alc_spirits) <- c("1","0","2")
+table(donna$alc_spirits)
+
+```
+
+## VARIABILI LEGATE ALLE MALATTIE ##
+
+```{r}
+
+table(donna$dis_stroke)
+levels(donna$dis_stroke) <- c("0","1")
+table(donna$dis_stroke)
+
+table(donna$dis_angina)
+levels(donna$dis_angina) <- c("0","1")
+table(donna$dis_angina)
+
+table(donna$dis_ictus)
+levels(donna$dis_ictus) <- c("0","1")
+table(donna$dis_ictus)
+
+table(donna$dis_high_pressure)
+levels(donna$dis_high_pressure) <- c("0","1")
+table(donna$dis_high_pressure)
+
+table(donna$dis_high_col)
+levels(donna$dis_high_col) <- c("0","1")
+table(donna$dis_high_col)
+
+table(donna$dis_high_col_meds)
+levels(donna$dis_high_col_meds) <- c("0","1")
+table(donna$dis_high_col_meds)
+
+table(donna$dis_diabetes)
+levels(donna$dis_diabetes) <- c("0","1")
+table(donna$dis_diabetes)
+
+table(donna$dis_diabetes_meds)
+levels(donna$dis_diabetes_meds) <- c("0","1")
+table(donna$dis_diabetes_meds)
+
+table(donna$dis_liver_calc)
+levels(donna$dis_liver_calc) <- c("0","1")
+table(donna$dis_liver_calc)
+
+table(donna$dis_gallbladder_removed)
+levels(donna$dis_gallbladder_removed) <- c("0","1")
+table(donna$dis_gallbladder_removed)
+
+table(donna$dis_kidney_calc)
+levels(donna$dis_kidney_calc) <- c("0","1")
+table(donna$dis_kidney_calc)
+
+table(donna$dis_kidney_calc_meds)
+levels(donna$dis_kidney_calc_meds) <- c("0","1")
+table(donna$dis_kidney_calc_meds)
+
+table(donna$dis_intestin_polyps)
+levels(donna$dis_intestin_polyps) <- c("0","1")
+table(donna$dis_intestin_polyps)
+
+table(donna$dis_tumors)
+levels(donna$dis_tumors) <- c("0","1")
+table(donna$dis_tumors)
+
+table(donna$dis_ulcer)
+levels(donna$dis_ulcer) <- c("0","1")
+table(donna$dis_ulcer)
+
+table(donna$dis_ulcer_meds)
+levels(donna$dis_ulcer_meds) <- c("0","1")
+table(donna$dis_ulcer_meds)
+
+table(donna$dis_ulcer_surg)
+levels(donna$dis_ulcer_surg) <- c("0","1")
+table(donna$dis_ulcer_surg)
+
+table(donna$dis_breast_surg)
+levels(donna$dis_breast_surg) <- c("0","1")
+table(donna$dis_breast_surg)
+
+table(donna$dis_uter_rem)
+levels(donna$dis_uter_rem) <- c("0","1")
+table(donna$dis_uter_rem)
+
+table(donna$dis_ovaries_surg)
+levels(donna$dis_ovaries_surg) <- c("0","1")
+table(donna$dis_ovaries_surg)
+
+table(donna$dis_ovaries_rem)
+levels(donna$dis_ovaries_rem) <- c("0","3","3","1","1","4","3")
+table(donna$dis_ovaries_rem)
+
+```
+
+
+# CODING BMI ED ETA ##
+
+```{r}
+donna$age_cat <- with(donna, cases("_40"= Age<40,
+                                 "40_60"= Age>=40 & Age<60,
+                                 "60_"= Age>=60))
+
+donna <- moveMe(donna, c("age_cat"), "after", "Age")
+
+                                 
+donna$bmi_cat <- with(donna, cases("1" = bmi<18.5,
+                                 "0" = bmi>=18.5 & bmi<25,
+                                 "2" = bmi>=25 & bmi<30,
+                                 "3" = bmi>=30))
+
+donna <- moveMe(donna, c("bmi_cat"), "after", "bmi")
+```
+
+
+
+## CREO IL DATASET DONNE CODIFICATO ##
+```{r}
+
+saveRDS(donna, "C:/Users/amedeo/Desktop/R_Projects/stool/stool_vita/New data/donna_var_coded.rds")
+
+```

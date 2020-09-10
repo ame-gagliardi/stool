@@ -1,0 +1,271 @@
+---
+title: "Stili di vita"
+author: "Amedeo"
+date: "4/5/2020"
+output: html_document
+---
+
+```{r Questionnaires loading}
+svuomo <- read.csv("C:/Users/amedeo/Desktop/R_Projects/stool/stool_vita/data/svuomo_study_merged.csv", sep = ";", header = TRUE)
+```
+
+Nei prossimi passaggi cambio il nome delle colonne per renderli leggibili e comprensibili.
+
+## FUMO GENERALE ##
+
+```{r}
+colnames(svuomo)[11] <- c("smk_sigari_att")
+colnames(svuomo)[12] <- c("smk_sigari_pass")
+colnames(svuomo)[13] <- c("smk_pipa_att")
+colnames(svuomo)[14] <- c("smk_pipa_pass")
+colnames(svuomo)[15] <- c("smk_smoke_status")
+```
+
+## FUMATORI ##
+
+```{r current_smokers}
+colnames(svuomo)[16] <- c("curr_day")
+colnames(svuomo)[17] <- c("curr_filtro")
+colnames(svuomo)[18] <- c("curr_aspirazione")
+colnames(svuomo)[19] <- c("curr_anni_start")
+colnames(svuomo)[20] <- c("curr_day_20_filtro")
+colnames(svuomo)[21] <- c("curr_day_20_no_filtro")
+colnames(svuomo)[22] <- c("curr_day_20_both_filtro")
+colnames(svuomo)[23] <- c("curr_day_30_filtro")
+colnames(svuomo)[24] <- c("curr_day_30_no_filtro")
+colnames(svuomo)[25] <- c("curr_day_30_both_filtro")
+colnames(svuomo)[26] <- c("curr_day_40_filtro")
+colnames(svuomo)[27] <- c("curr_day_40_no_filtro")
+colnames(svuomo)[28] <- c("curr_day_40_both_filtro")
+colnames(svuomo)[29] <- c("curr_day_50_filtro")
+colnames(svuomo)[30] <- c("curr_day_50_no_filtro")
+colnames(svuomo)[31] <- c("curr_day_50_both_filtro")
+colnames(svuomo)[32] <- c("curr_quit_month")
+colnames(svuomo)[33] <- c("curr_quit_long")
+```
+
+## EX FUMATORI ##
+
+```{r ex_smokers}
+colnames(svuomo)[34] <- c("ex_anni_start")
+colnames(svuomo)[35] <- c("ex_anni_stop")
+colnames(svuomo)[36] <- c("ex_day_20_filtro")
+colnames(svuomo)[37] <- c("ex_day_20_no_filtro")
+colnames(svuomo)[38] <- c("ex_day_20_both_filtro")
+colnames(svuomo)[39] <- c("ex_day_30_filtro")
+colnames(svuomo)[40] <- c("ex_day_30_no_filtro")
+colnames(svuomo)[41] <- c("ex_day_30_both_filtro")
+colnames(svuomo)[42] <- c("ex_day_40_filtro")
+colnames(svuomo)[43] <- c("ex_day_40_no_filtro")
+colnames(svuomo)[44] <- c("ex_day_40_both_filtro")
+colnames(svuomo)[45] <- c("ex_day_50_filtro")
+colnames(svuomo)[46] <- c("ex_day_50_no_filtro")
+colnames(svuomo)[47] <- c("ex_day_50_both_filtro")
+colnames(svuomo)[48] <- c("ex_ever_stop_before")
+colnames(svuomo)[49] <- c("ex_long")
+```
+
+## NON FUMATORI ##
+
+```{r never_smokers}
+colnames(svuomo)[50] <- c("nev_ever_tried")
+colnames(svuomo)[51] <- c("nev_ever_tried_occ")
+colnames(svuomo)[52] <- c("nev_long_occ")
+colnames(svuomo)[53] <- c("nev_father_smoke")
+colnames(svuomo)[54] <- c("nev_mother_smoke")
+colnames(svuomo)[55] <- c("nev_childhood_smoke_exp")
+colnames(svuomo)[56] <- c("nev_partner_smoke")
+colnames(svuomo)[57] <- c("nev_partner_pack_daily")
+colnames(svuomo)[58] <- c("nev_partner_presence")
+colnames(svuomo)[59] <- c("nev_partner_hours")
+colnames(svuomo)[60] <- c("nev_other_smoke")
+colnames(svuomo)[61] <- c("nev_other_smoke_hours")
+
+```
+
+## ALCOLICI GENERALE ##
+
+```{r}
+colnames(svuomo)[62] <- c("alc_ever_alcohol")
+colnames(svuomo)[63] <- c("alc_wine")
+colnames(svuomo)[64] <- c("alc_beer")
+colnames(svuomo)[65] <- c("alc_spirits")
+
+```
+
+## ALCOlICI FASCE ETA' ##
+
+```{r}
+colnames(svuomo)[66] <- c("alc_20_wine")
+colnames(svuomo)[67] <- c("alc_20_beer")
+colnames(svuomo)[68] <- c("alc_20_spirits")
+colnames(svuomo)[69] <- c("alc_30_wine")
+colnames(svuomo)[70] <- c("alc_30_beer")
+colnames(svuomo)[71] <- c("alc_30_spirits")
+colnames(svuomo)[72] <- c("alc_40_wine")
+colnames(svuomo)[73] <- c("alc_40_beers")
+colnames(svuomo)[74] <- c("alc_40_spirits")
+colnames(svuomo)[75] <- c("alc_50_wine")
+colnames(svuomo)[76] <- c("alc_50_beer")
+colnames(svuomo)[77] <- c("alc_50_spirits")
+```
+
+## MALATTIE ##
+
+```{r}
+colnames(svuomo)[78] <- c("dis_stroke")
+colnames(svuomo)[79] <- c("dis_stroke_age")
+colnames(svuomo)[80] <- c("dis_angina")
+colnames(svuomo)[81] <- c("dis_angina_age")
+colnames(svuomo)[82] <- c("dis_ictus")
+colnames(svuomo)[83] <- c("dis_ictus_age")
+colnames(svuomo)[84] <- c("dis_high_pressure")
+colnames(svuomo)[85] <- c("dis_high_pressure_age")
+colnames(svuomo)[86] <- c("dis_high_pressure_meds")
+colnames(svuomo)[87] <- c("dis_high_col")
+colnames(svuomo)[88] <- c("dis_high_col_age")
+colnames(svuomo)[89] <- c("dis_high_col_meds")
+colnames(svuomo)[90] <- c("dis_diabetes")
+colnames(svuomo)[91] <- c("dis_diabetes_age")
+colnames(svuomo)[92] <- c("dis_diabetes_meds")
+colnames(svuomo)[93] <- c("dis_liver_calc")
+colnames(svuomo)[94] <- c("dis_liver_calc_age")
+colnames(svuomo)[95] <- c("dis_gallbladder_removed")
+colnames(svuomo)[96] <- c("dis_gallbladder_age")
+colnames(svuomo)[97] <- c("dis_kidney_calc")
+colnames(svuomo)[98] <- c("dis_kidney_calc_age")
+colnames(svuomo)[99] <- c("dis_kidney_calc_meds")
+colnames(svuomo)[100] <- c("dis_intestin_polyps")
+colnames(svuomo)[101] <- c("dis_intestin_polyps_age")
+colnames(svuomo)[102] <- c("dis_tumors")
+colnames(svuomo)[103] <- c("dis_tumors_age")
+colnames(svuomo)[104] <- c("dis_tumors_site")
+colnames(svuomo)[105] <- c("dis_ulcer")
+colnames(svuomo)[106] <- c("dis_ulcer_age")
+colnames(svuomo)[107] <- c("dis_ulcer_meds")
+colnames(svuomo)[108] <- c("dis_ulcer_surg")
+colnames(svuomo)[109] <- c("dis_ulcer_surg_age")
+```
+
+## STORIA RIPRODUTTIVA ##
+
+```{r}
+colnames(svuomo)[110] <- c("rep_partner_pregnant")
+colnames(svuomo)[111] <- c("rep_alive_childs")
+colnames(svuomo)[112] <- c("rep_male_child")
+colnames(svuomo)[113] <- c("rep_female_child")
+```
+
+## VARIE ##
+
+```{r}
+colnames(svuomo)[114] <- c("var_school_age")
+colnames(svuomo)[115] <- c("var_school_qualification")
+colnames(svuomo)[116] <- c("var_house_rooms")
+colnames(svuomo)[117] <- c("var_house_people")
+colnames(svuomo)[118] <- c("var_fridge_year")
+colnames(svuomo)[119] <- c("var_car_year")
+
+```
+
+## ATTIVITA' FISICA ##
+
+```{r}
+colnames(svuomo)[120] <- c("pa_summer_walk_hours")
+colnames(svuomo)[121] <- c("pa_winter_walk_hours")
+colnames(svuomo)[122] <- c("pa_summer_bike_hours")
+colnames(svuomo)[123] <- c("pa_winter_walk_hours")
+colnames(svuomo)[124] <- c("pa_summer_garden_hours")
+colnames(svuomo)[125] <- c("pa_winter_garden_hours")
+colnames(svuomo)[126] <- c("pa_brico_hours")
+colnames(svuomo)[127] <- c("pa_summer_pa_hours")
+colnames(svuomo)[128] <- c("pa_winter_pa_hours")
+colnames(svuomo)[129] <- c("pa_sweat")
+colnames(svuomo)[130] <- c("pa_sweat_hours")
+colnames(svuomo)[131] <- c("pa_floors_daily")
+colnames(svuomo)[132] <- c("pa_job")
+colnames(svuomo)[133] <- c("pa_job_full_time")
+colnames(svuomo)[134] <- c("pa_job_part_time")
+
+```
+
+## STORIA LAVORATIVA ##
+
+```{r}
+colnames(svuomo)[135] <- c("wrk_type_job")
+colnames(svuomo)[136] <- c("wrk_pesticide_exp")
+colnames(svuomo)[137] <- c("wrk_pesticide_exp_before_1960")
+colnames(svuomo)[138] <- c("wrk_pesticide_exp_after_1960")
+colnames(svuomo)[139] <- c("wrk_steel")
+colnames(svuomo)[140] <- c("wrk_special_alloy")
+colnames(svuomo)[141] <- c("wrk_refinery")
+colnames(svuomo)[142] <- c("wrk_dyes")
+colnames(svuomo)[143] <- c("wrk_chem_lab")
+colnames(svuomo)[144] <- c("wrk_hair_dye")
+colnames(svuomo)[145] <- c("wrk_textile")
+colnames(svuomo)[146] <- c("wrk_furniture_factory")
+colnames(svuomo)[147] <- c("wrk_boring_turning")
+colnames(svuomo)[148] <- c("wrk_welding")
+colnames(svuomo)[149] <- c("wrk_painting")
+colnames(svuomo)[150] <- c("wrk_roof_sealing")
+colnames(svuomo)[151] <- c("wrk_paving")
+colnames(svuomo)[152] <- c("wrk_demolition")
+colnames(svuomo)[153] <- c("wrk_truck_driver")
+colnames(svuomo)[154] <- c("wrk_driver")
+colnames(svuomo)[155] <- c("wrk_taxi_driver")
+
+```
+
+## CAMBIO DEI LIVELLI PER LE COLONNE CHE SEGNANO LA DATA AL POSTO DEI NUMERI ##
+
+```{r}
+levels(svuomo[,16]) <- c("","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,20]) <- c("","1-3","4-8","14-18","19-23","34+","9-13")
+levels(svuomo[,21]) <- c("","0","4-8","9-13")
+levels(svuomo[,22]) <- c("","0","1-3","4-8","14-18","19-23","34+","9-13")
+levels(svuomo[,23]) <- c("","0","4-8","14-18","19-23","24-28","34+","9-13")
+levels(svuomo[,25]) <- c("","0","4-8","14-18","19-23","24-28","34+","9-13")
+levels(svuomo[,26]) <- c("","0","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,28]) <- c("","0","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,29]) <- c("","0","1-3","4-8","14-18","19-23","29-33","34+","9-13")
+levels(svuomo[,31]) <- c("","0","1-3","4-8","14-18","19-23","29-33","34+","9-13")
+levels(svuomo[,36]) <- c("","0","1-3","4-8","14-18","19-23","24-28","34+","9-13")
+levels(svuomo[,37]) <- c("0","1-3","4-8","14-18","19-23","9-13")
+levels(svuomo[,38]) <- c("","0","1-3","4-8","14-18","19-23","24-28","34+","9-13")
+levels(svuomo[,39]) <- c("","0","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,40]) <- c("0","4-8","14-18","19-23","24-28")
+levels(svuomo[,41]) <- c("","0","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,42]) <- c("","0","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,44]) <- c("","0","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,45]) <- c("0","1-3","4-8","14-18","19-23","24-28","29-33","34+","9-13")
+levels(svuomo[,47]) <- c("0","4-8","14-18","19-23","29-33","34+","9-13")
+levels(svuomo[,131]) <- c("1-2","3-4","5-6","7-9","10-12","13-15","16-20","0")
+
+```
+
+
+## CAMBIO LE CLASSI DI AGE E BMI ##
+
+```{r}
+
+svuomo$Age <- as.character(svuomo$Age)
+svuomo$Age <- str_replace(svuomo$Age, ",", ".")
+svuomo$Age <- as.numeric(svuomo$Age)
+svuomo$Age <- round(svuomo$Age)
+
+svuomo$bmi <- as.character(svuomo$bmi)
+svuomo$bmi <- str_replace(svuomo$bmi, ",", ".")
+svuomo$bmi <- as.numeric(svuomo$bmi)
+
+```
+
+
+
+
+## SALVO IL DATASET FINALE ##
+```{r}
+
+saveRDS(svuomo,"C:/Users/amedeo/Desktop/R_Projects/stool/stool_vita/New data/uomo_col_changed.rds")
+
+```
+
