@@ -2,37 +2,38 @@
 
 # Data load
 
-load("C:/Users/amedeo/Desktop/bab/age.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/age/age.rda")
 age <- res
-rm(res)
+rm(res, res_1, res_2, res_3)
 
-load("C:/Users/amedeo/Desktop/bab/sex.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/sex/sex.rda")
 sex <- res
 rm(res)
 
-load("C:/Users/amedeo/Desktop/bab/smoke.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/smoke/smoke.rda")
 smoke <- res
 rm(res, res_1, res_2)
 
-load("C:/Users/amedeo/Desktop/bab/alcohol.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/alcohol/alcohol.rda")
 alcohol <- res
 rm(res, res_1, res_2, res_3)
 
-load("C:/Users/amedeo/Desktop/bab/bmi.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/bmi/bmi.rda")
 bmi <- res
 rm(res)
 
-load("C:/Users/amedeo/Desktop/bab/ncigs.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/ncigs/ncigs.rda")
 cigs <- res
 rm(res)
 
-load("C:/Users/amedeo/Desktop/bab/wine.rda")
-wine <- res
-rm(res, res_1, res_2, res_3)
+# load("C:/Users/amedeo/Desktop/R_Projects/stool/results/wine.rda")
+# wine <- res
+# rm(res, res_1, res_2, res_3)
 
-load("C:/Users/amedeo/Desktop/bab/phys_act.rda")
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/pshysical/phys_act.rda")
 phys_act <- res
-rm(res, res_1, res_2, res_3)
+
+rm(res, res_1, res_2, res_3, coldata)
 
 # VENN
 
@@ -54,47 +55,11 @@ cigs <- cigs$miRNA
 smoke <- smoke[which(smoke$baseMean >= 15 & smoke$padj <0.05),]
 smoke <- smoke$miRNA
 
-wine <- wine[which(wine$baseMean >= 15 & wine$padj <0.05),]
-wine <- wine$miRNA
+# wine <- wine[which(wine$baseMean >= 15 & wine$padj <0.05),]
+# wine <- wine$miRNA
 
 phys <- phys_act[which(phys_act$baseMean >= 15 & phys_act$padj <0.05),]
 phys <- phys$miRNA
-
-
-mycol <- RColorBrewer::brewer.pal(8, "Pastel2")
-
-venn.diagram(
-  x = list(age, sex, smoke, bmi, cigs, alc, wine, phys),
-  category.names = c("Age", "Sex", "Smoke", "BMI", "Ncigs", "Alcohol", "Wine", "Physical"),
-  filename = ("C:/Users/amedeo/Desktop/bab/venn.jpg"),
-  output = TRUE)
-,
-  # Output features
-  imagetype="png" ,
-  height = 800 , 
-  width = 850 , 
-  resolution = 300,
-  compression = "lzw")
-
-,
-  
-  # Circles
-  lwd = 2,
-  lty = 'blank',
-  fill = mycol,
-  
-  # Numbers
-  cex = .6,
-  fontface = "bold",
-  fontfamily = "sans",
-  
-  # Set names
-  cat.cex = 0.5,
-  cat.fontface = "bold",
-  cat.default.pos = "outer",
-  cat.fontfamily = "sans"
-)
-
 
 ## UPSET
 
@@ -104,14 +69,13 @@ lt <- list(set1 = age,
            set4 = bmi,
            set5 = cigs,
            set6 = alc,
-           set7 = wine,
-           set8 = phys)
+           set7 = phys)
 
 m <- make_comb_mat(lt, mode = "intersect")
 m <- m[comb_degree(m) > 1]
 ss <- set_size(m)
 cs <- comb_size(m)
-set_name(m) <- c("Age", "Sex", "Smoke", "BMI", "Ncigs", "Alcohol", "Wine", "Physical")
+set_name(m) <- c("Age", "Sex", "Smoke", "BMI", "Ncigs", "Alcohol", "Physical")
 
 ht <- UpSet(m,
             set_order = order(ss),
@@ -153,12 +117,7 @@ ComplexHeatmap::decorate_annotation("miRNAs intersections", {
             gp = gpar(fontsize = 6, col = "#404040"), rot = 45)
 })
             
-ComplexHeatmap::decorate_annotation("#miRNAs in each set", {
-  grid.text(cs[od], x = seq_along(cs), y = unit(cs[od], "native") + unit(2, "pt"), 
-            default.units = "native", just = c("left", "bottom"), 
-            gp = gpar(fontsize = 6, col = "#404040"), rot = 45)
-})          
-            
+
 
 
 
