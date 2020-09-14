@@ -303,7 +303,7 @@ n_res<- table(res$padj <0.05 & res$baseMean >15)
 
 ```
 
-- Male vs female: `r n_res[[2]]
+- Male vs female: `r n_res[[2]]` differentially expressed miRNAs.
 
 ```{r sex table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
@@ -343,8 +343,10 @@ countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
 countData <- dplyr::relocate(countData, "sex", .before = colnames(countData)[1])
 countData <- dplyr::relocate(countData, "study", .after = colnames(countData)[1])
+
 xx <- grepl(paste0("(?=.*", "hsa|sex|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
+countData <- countData[complete.cases(countData$sex),] # Droppo gli NA nella variabile di interesse
 
 aa <- round((length(colnames(countData)) - 1)/3)
 bb <- aa+aa
@@ -358,23 +360,23 @@ countData.aa <- countData[,c(1,2):aa]
 countData.bb <- countData[,c(idx,idx2)]
 countData.cc <- countData[,c(idx,idx3)]
 
-countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.aa.m <- pivot_longer(countData.aa, c(3:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(3:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(3:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.aa.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=sex))+
        facet_wrap( ~ miRNA, scales="free") +
        scale_fill_discrete(name = "Sex", labels = c("Female", "Male"))
 
-ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.bb.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=sex))+
        facet_wrap( ~ miRNA, scales="free")+
        scale_fill_discrete(name = "Sex", labels = c("Female", "Male"))
 
-ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.cc.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=sex))+
        facet_wrap( ~ miRNA, scales="free")+
        scale_fill_discrete(name = "Sex", labels = c("Female", "Male"))
@@ -1075,6 +1077,114 @@ ggplot(data = countData.m, aes(x=miRNA, y=log2(count))) +
 
 rm(list=ls())
 
+
+```
+
+## Wine consumption {.tabset}
+
+```{r wine, include=FALSE}
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+
+rawCount <- readRDS(count.path)
+coldata <- readRDS(covar.path)
+
+rm <- c("VOV114")
+check <- rm %in% rownames(coldata)
+if(check == TRUE){
+  xx <- which(coldata$id == "VOV114")
+  coldata <- coldata[-xx,]
+}
+
+keep <- which(coldata$alco_class != 0)
+coldata <- coldata[keep,]
+
+covars <- c("age_cat","sex", "library", "alco_class")
+
+i <- intersect(colnames(rawCount), rownames(coldata)) # Controlla che i campioni siano gli stessi e ordinati nello stesso modo
+rawCount <- rawCount[,i]                              # nella matrice delle conte e nella tabella delle covariate                          
+coldata <- coldata[i,]
+all.equal(colnames(rawCount), rownames(coldata))
+
+m <- length(coldata[,last(covars)])
+coldata <- tidyr::drop_na(coldata, last(covars))
+n <- length(coldata[,last(covars)])
+n.na <- m-n                                          # Ti dice quanti campioni ha eliminato
+
+if(n.na>0){
+  i <- intersect(colnames(rawCount), rownames(coldata)) # Risistema i dataframe in modo che siano uguali
+  rawCount <- rawCount[,i]                              
+  coldata <- coldata[i,]
+  all.equal(colnames(rawCount), rownames(coldata))
+}
+
+rm(covar.path,count.path,i,m,n,check, rm, n.na, xx)
+
+model <- as.formula(paste("~", paste(covars,collapse = "+")))
+
+dds <- DESeqDataSetFromMatrix(countData = rawCount,
+                              colData = coldata,
+                              design = model)
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("alco_class","2", "1"), alpha = 0.01)
+res$miRNA <- rownames(res)
+res <- as_tibble(res) %>% 
+  dplyr::arrange(padj) %>% 
+  dplyr::mutate(comparison = "1_0") %>% 
+  dplyr::relocate("miRNA", .before = "baseMean")
+
+```
+
+```{r wine table, echo=FALSE}
+kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
+```
+
+```{r wine volcano, warning=FALSE}
+
+# Volcano plot data #
+
+df <- as_tibble(data.frame(miRNA = res$miRNA, baseMean = round(res$baseMean, digits = 2), logFC = round(res$log2FoldChange, digits = 2), negLogPval = -log10(res$pvalue), padj = round(res$padj, digits = 4)))
+treshold <- df$padj <0.05 & df$baseMean >=15
+df$treshold <- treshold
+df$plot <- as.factor(df$treshold)
+levels(df$plot) <- c("Non significative", "Significative [BaseMean > 15 ; padj <0.05]")
+df <- df[complete.cases(df$plot),]
+
+# Volcano plot 
+
+plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~plot, colors = c("#FF5733","#4FFF03"),
+        hoverinfo = 'text',
+        text = ~paste(miRNA, '\n Padj: ', padj, '\n Log2FC: ', logFC, '\n BaseMean', baseMean))
+
+
+```
+
+```{r wine boxplot, echo=FALSE, warning=FALSE}
+# Boxplot data
+
+sign_mir <- df %>% 
+  dplyr::filter(baseMean >=20 & padj < 0.05)
+sign_mir <- as.data.frame(sign_mir)
+rownames(sign_mir) <- sign_mir$miRNA
+
+countData <- rawCount[rownames(sign_mir),]
+countData <- as.data.frame(t(countData))
+countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
+countData$id <- rownames(countData)
+# colnames(coldata)[1] <- "id"
+countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+xx <- grepl(paste0("(?=.*", "hsa|id_pat", ")", collapse=""), colnames(countData), perl=TRUE)
+countData <- countData[,xx]
+countData.m <- pivot_longer(countData, c(1:length(colnames(countData)) - 1), names_to = "miRNA", values_to = "count")
+
+# Boxplot
+
+ggplot(data = countData.m, aes(x=miRNA, y=count)) + 
+  geom_boxplot(aes(fill=id_pat)) +
+  facet_wrap( ~ miRNA, scales="free")
+
+rm(list=ls())
 
 ```
 
