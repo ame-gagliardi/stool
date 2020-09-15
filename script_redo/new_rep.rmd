@@ -749,7 +749,7 @@ countData <- dplyr::relocate(countData, "smoke", .before = colnames(countData)[1
 xx <- grepl(paste0("(?=.*", "hsa|smoke|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
 countData <- countData[complete.cases(countData$smoke),] # Droppo gli NA nella variabile di interesse
-countData[,16:21] <- NULL
+countData[,c("nev_father_smoke", "nev_mother_smoke", "nev_childhood_smoke_exp", "nev_partner_smoke", "nev_other_smoke", "nev_other_smoke_hours")] <- NULL
 
 aa <- round((length(colnames(countData)) - 1)/3)
 bb <- aa+aa
