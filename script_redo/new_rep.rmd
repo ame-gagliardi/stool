@@ -299,11 +299,23 @@ res <- as_tibble(res) %>%
   
 save(res, coldata, file = "C:/Users/amedeo/Desktop/R_Projects/stool/results/sex/sex.rda")
 
-n_res<- table(res$padj <0.05 & res$baseMean >15)
-
 ```
 
-- Male vs female: `r n_res[[2]]` differentially expressed miRNAs.
+```{r summary sex, echo=FALSE}
+
+n_res <- table(res$padj <0.05 & res$baseMean >15)
+n_lfc_u <- table(res$log2FoldChange > 0 & res$padj <0.05 & res$baseMean >15)
+n_lfc_d <- table(res$log2FoldChange < 0 & res$padj <0.05 & res$baseMean >15)
+
+if(dim(n_res)>1){
+  message("Male vs female: there are ", n_res[[2]], " differentially expressed miRNAs.")
+  message("Log(2) fold change > 0: ", n_lfc_u[[2]])
+  message("Log(2) fold change < 0: ", n_lfc_d[[2]])
+  }else{
+    message("Male vs female: there are no differentialy expressed miRNAs")
+  }
+
+```
 
 ```{r sex table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
@@ -453,7 +465,48 @@ res <- bind_rows(res_1, res_2, res_3) %>%
   dplyr::distinct(miRNA, .keep_all = TRUE)
 
 save(res, res_1, res_2, res_3, file = "C:/Users/amedeo/Desktop/R_Projects/stool/results/age/age.rda")
+
 ```
+
+```{r summary age, echo=FALSE}
+
+n_res_1 <- table(res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_u_1 <- table(res_1$log2FoldChange>0 &res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_d_1 <- table(res_1$log2FoldChange<0 &res_1$padj <0.05 & res_1$baseMean >15)
+
+n_res_2 <- table(res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_u_2 <- table(res_2$log2FoldChange>0 &res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_d_2 <- table(res_2$log2FoldChange<0 &res_2$padj <0.05 & res_2$baseMean >15)
+
+n_res_3 <- table(res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_u_3 <- table(res_3$log2FoldChange>0 &res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_d_3 <- table(res_3$log2FoldChange<0 &res_3$padj <0.05 & res_3$baseMean >15)
+
+if(dim(n_res_1)>1){
+  message("40-60 vs <40: there are ", n_res_1[[2]], " differentially expressed miRNAs")
+  message("Log(2) fold change > 0: ", n_lfc_u_1[[2]])
+  message("Log(2) fold change < 0: ", n_lfc_d_1[[2]])
+  }else{
+    message("40-60 vs <40: there are no differentialy expressed miRNAs")
+  }
+
+if(dim(n_res_2)>1){
+  message(">60 vs <40: there are ", n_res_2[[2]], " differentially expressed miRNAs")
+  message("Log(2) fold change > 0: ", n_lfc_u_2[[2]])
+  message("Log(2) fold change < 0: ", n_lfc_d_2[[2]])
+  }else{
+    message(">60 vs <40: there are no differentialy expressed miRNAs")
+  }
+
+if(dim(n_res_3)>1){
+  message(">60 vs 40-60: there are ", n_res_3[[2]], " differentially expressed miRNAs")
+  message("Log(2) fold change > 0: ", n_lfc_u_3[[2]])
+  message("Log(2) fold change < 0: ", n_lfc_d_3[[2]])
+  }else{
+    message(">60 vs 40-60: there are no differentialy expressed miRNAs")
+    }
+```
+
 
 ```{r age table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
@@ -491,34 +544,41 @@ countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.ma
 countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
 countData <- dplyr::relocate(countData, "age_cat", .before = colnames(countData)[1])
-xx <- grepl(paste0("(?=.*", "hsa|age_cat", ")", collapse=""), colnames(countData), perl=TRUE)
+countData <- dplyr::relocate(countData, "study", .after = colnames(countData)[1])
 
+xx <- grepl(paste0("(?=.*", "hsa|age_cat|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
+countData <- countData[complete.cases(countData$age_cat),] # Droppo gli NA nella variabile di interesse
+
 aa <- round((length(colnames(countData)) - 1)/3)
 bb <- aa+aa
 cc <- aa+((length(colnames(countData))) - aa)
 
-countData.aa <- countData[,1:aa]
-countData.bb <- countData[,c(1,(aa+1):bb)]
-countData.cc <- countData[,c(1,(bb+1):cc)]
+idx <- which(colnames(countData) == "age_cat" | colnames(countData) == "study")
+idx2 <- (aa+1):bb
+idx3 <- (bb+1):cc
 
-countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.aa <- countData[,c(1,2):aa]
+countData.bb <- countData[,c(idx,idx2)]
+countData.cc <- countData[,c(idx,idx3)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(3:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(3:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(3:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.aa.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=age_cat))+
        facet_wrap( ~ miRNA, scales="free") +
        scale_fill_discrete(name = "Age", labels = c("<40 yrs", "40-60 yrs", ">60 yrs"))
 
-ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.bb.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=age_cat))+
        facet_wrap( ~ miRNA, scales="free")+
        scale_fill_discrete(name = "Age", labels = c("<40 yrs", "40-60 yrs", ">60 yrs"))
 
-ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.cc.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=age_cat))+
        facet_wrap( ~ miRNA, scales="free")+
        scale_fill_discrete(name = "Age", labels = c("<40 yrs", "40-60 yrs", ">60 yrs"))
@@ -580,7 +640,7 @@ res_2 <- as_tibble(res_2) %>%
   dplyr::arrange(padj) %>% 
   dplyr::mutate(comparison = "2_0")
 
-res_3 <- results(dds, contrast = c("smoke","fumatore", "non_fumatore"), alpha = 0.01)
+res_3 <- results(dds, contrast = c("smoke","fumatore", "ex_fumatore"), alpha = 0.01)
 res_3$miRNA <- rownames(res_3)
 res_3 <- as_tibble(res_3) %>% 
   dplyr::relocate("miRNA", .before = "baseMean") %>% 
@@ -594,6 +654,57 @@ res <- bind_rows(res_1, res_2, res_3) %>%
 save(res, res_1, res_2, res_3, coldata, file = "C:/Users/amedeo/Desktop/R_Projects/stool/results/smoke/smoke.rda")
   
 
+```
+
+```{r summary smoke, echo=FALSE}
+
+n_res_1 <- table(res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_u_1 <- table(res_1$log2FoldChange>0 &res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_d_1 <- table(res_1$log2FoldChange<0 &res_1$padj <0.05 & res_1$baseMean >15)
+
+n_res_2 <- table(res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_u_2 <- table(res_2$log2FoldChange>0 &res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_d_2 <- table(res_2$log2FoldChange<0 &res_2$padj <0.05 & res_2$baseMean >15)
+
+n_res_3 <- table(res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_u_3 <- table(res_3$log2FoldChange>0 &res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_d_3 <- table(res_3$log2FoldChange<0 &res_3$padj <0.05 & res_3$baseMean >15)
+
+if(dim(n_res_1)>1){
+  message("Former vs never: there are ", n_res_1[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_1)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_1[[2]])}
+  if(dim(n_lfc_d_1)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_1[[2]])
+  }
+if(dim(n_res_1)<1){
+    message("Former vs never: there are no differentialy expressed miRNAs")
+  }
+}
+
+if(dim(n_res_2)>1){
+  message("Current vs never: there are ", n_res_2[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_2)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_2[[2]])}
+  if(dim(n_lfc_d_2)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_2[[2]])
+  }
+if(dim(n_res_2)<1){
+    message("Current vs never: there are no differentialy expressed miRNAs")
+  }
+}
+
+if(dim(n_res_3)>1){
+  message("Current vs former: there are ", n_res_3[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_3)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_3[[2]])}
+  if(dim(n_lfc_d_3)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_3[[2]])
+  }
+if(dim(n_res_3)<1){
+    message("Current vs former: there are no differentialy expressed miRNAs")
+  }
+}
 ```
 
 ```{r smoke table, echo=FALSE}
@@ -632,35 +743,43 @@ countData <- as.data.frame(t(countData))
 countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
 countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .after = colnames(countData)[1])
 countData <- dplyr::relocate(countData, "smoke", .before = colnames(countData)[1])
-xx <- grepl(paste0("(?=.*", "hsa|smoke", ")", collapse=""), colnames(countData), perl=TRUE)
 
+xx <- grepl(paste0("(?=.*", "hsa|smoke|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
+countData <- countData[complete.cases(countData$smoke),] # Droppo gli NA nella variabile di interesse
+countData[,16:21] <- NULL
+
 aa <- round((length(colnames(countData)) - 1)/3)
 bb <- aa+aa
 cc <- aa+((length(colnames(countData))) - aa)
 
-countData.aa <- countData[,1:aa]
-countData.bb <- countData[,c(1,(aa+1):bb)]
-countData.cc <- countData[,c(1,(bb+1):14)]
+idx <- which(colnames(countData) == "smoke" | colnames(countData) == "study")
+idx2 <- (aa+1):bb
+idx3 <- (bb+1):cc
 
-countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.aa <- countData[,c(1,2):aa]
+countData.bb <- countData[,c(idx,idx2)]
+countData.cc <- countData[,c(idx,idx3)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(3:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(3:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(3:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.aa.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=smoke))+
        facet_wrap( ~ miRNA, scales="free") +
        scale_fill_discrete(name = "Smoke", labels = c("Never", "Former", "Current"))
 
-ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.bb.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=smoke))+
        facet_wrap( ~ miRNA, scales="free")+
        scale_fill_discrete(name = "Smoke", labels = c("Never", "Former", "Current"))
 
-ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.cc.m, aes(x=study, y=log2(count))) + 
        geom_boxplot(aes(fill=smoke))+
        facet_wrap( ~ miRNA, scales="free")+
        scale_fill_discrete(name = "Smoke", labels = c("Never", "Former", "Current"))
@@ -727,6 +846,26 @@ res <- as_tibble(res) %>%
 save(res, coldata, file="C:/Users/amedeo/Desktop/R_Projects/stool/results/ncigs/ncigs.rda")
 ```
 
+```{r summary ncigs, echo=FALSE}
+
+n_res <- table(res$padj <0.05 & res$baseMean >15)
+n_lfc_u <- table(res$log2FoldChange>0 &res$padj <0.05 & res$baseMean >15)
+n_lfc_d <- table(res$log2FoldChange<0 &res$padj <0.05 & res$baseMean >15)
+
+if(dim(n_res)>1){
+  message("Heavy smoker ( >16 cigs/day) vs light smoker ( <16 cigs/day): there are ", n_res[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u[[2]])}
+  if(dim(n_lfc_d)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d[[2]])
+  }
+if(dim(n_res)<1){
+    message("Heavy smoker ( >16 cigs/day) vs light smoker ( <16 cigs/day): there are no differentialy expressed miRNAs")
+  }
+}
+
+```
+
 ```{r cigs table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
 ```
@@ -755,7 +894,7 @@ plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~pl
 # Boxplot data
 
 sign_mir <- df %>% 
-  dplyr::filter(baseMean >=20 & padj < 0.05)
+  dplyr::filter(baseMean >=15 & padj < 0.05)
 sign_mir <- as.data.frame(sign_mir)
 rownames(sign_mir) <- sign_mir$miRNA
 
@@ -764,38 +903,45 @@ countData <- as.data.frame(t(countData))
 countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
 countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .after = colnames(countData)[1])
 countData <- dplyr::relocate(countData, "curr_day_cat", .before = colnames(countData)[1])
-xx <- grepl(paste0("(?=.*", "hsa|curr_day_cat", ")", collapse=""), colnames(countData), perl=TRUE)
 
+xx <- grepl(paste0("(?=.*", "hsa|curr_day_cat|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
+countData <- countData[complete.cases(countData$curr_day_cat),] # Droppo gli NA nella variabile di interesse
+
 aa <- round((length(colnames(countData)) - 1)/3)
 bb <- aa+aa
 cc <- aa+((length(colnames(countData))) - aa)
 
-countData.aa <- countData[,1:aa]
-countData.bb <- countData[,c(1,(aa+1):bb)]
-countData.cc <- countData[,c(1,(bb+1):cc)]
+idx <- which(colnames(countData) == "curr_day_cat" | colnames(countData) == "study")
+idx2 <- (aa+1):bb
+idx3 <- (bb+1):cc
 
-countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.aa <- countData[,c(1,2):aa]
+countData.bb <- countData[,c(idx,idx2)]
+countData.cc <- countData[,c(idx,idx3)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(3:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(3:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(3:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
-  geom_boxplot(aes(fill=curr_day_cat))+
-  facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "N° cigarettes", labels = c("<16 cigs/day", ">16 cigs/day"))
+ggplot(data = countData.aa.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=curr_day_cat))+
+       facet_wrap( ~ miRNA, scales="free") +
+       scale_fill_discrete(name = "N° cigs/day", labels = c("<16 cigs/day", ">16 cigs/day"))
 
-ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
-  geom_boxplot(aes(fill=curr_day_cat))+
-  facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "N° cigarettes", labels = c("<16 cigs/day", ">16 cigs/day"))
+ggplot(data = countData.bb.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=curr_day_cat))+
+       facet_wrap( ~ miRNA, scales="free")+
+       scale_fill_discrete(name = "N° cigs/day", labels = c("<16 cigs/day", ">16 cigs/day"))
 
-ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
-  geom_boxplot(aes(fill=curr_day_cat))+
-  facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "N° cigarettes", labels = c("<16 cigs/day", ">16 cigs/day"))
+ggplot(data = countData.cc.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=curr_day_cat))+
+       facet_wrap( ~ miRNA, scales="free")+
+       scale_fill_discrete(name = "N° cigs/day", labels = c("<16 cigs/day", ">16 cigs/day"))
 
 rm(list=ls())
 
@@ -864,6 +1010,26 @@ res <- as_tibble(res) %>%
 save(res, coldata, file="C:/Users/amedeo/Desktop/R_Projects/stool/results/bmi/bmi.rda")
 ```
 
+```{r summary bmi, echo=FALSE}
+
+n_res <- table(res$padj <0.05 & res$baseMean >15)
+n_lfc_u <- table(res$log2FoldChange>0 &res$padj <0.05 & res$baseMean >15)
+n_lfc_d <- table(res$log2FoldChange<0 &res$padj <0.05 & res$baseMean >15)
+
+if(dim(n_res)>1){
+  message("Normal vs overweight: there are ", n_res[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u[[2]])}
+  if(dim(n_lfc_d)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d[[2]])
+  }
+if(dim(n_res)<1){
+    message("Normal vs overweight: there are no differentialy expressed miRNAs")
+  }
+}
+
+```
+
 ```{r bmi table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
 ```
@@ -900,38 +1066,46 @@ countData <- as.data.frame(t(countData))
 countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
 countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
+countData <- dplyr::relocate(countData, "study", .after = colnames(countData)[1])
 countData <- dplyr::relocate(countData, "bmi_cat", .before = colnames(countData)[1])
-xx <- grepl(paste0("(?=.*", "hsa|bmi_cat", ")", collapse=""), colnames(countData), perl=TRUE)
 
+xx <- grepl(paste0("(?=.*", "hsa|bmi_cat|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
+countData <- countData[complete.cases(countData$bmi_cat),]# Droppo gli NA nella variabile di interesse
+countData$bmi <- NULL
+  
 aa <- round((length(colnames(countData)) - 1)/3)
 bb <- aa+aa
 cc <- aa+((length(colnames(countData))) - aa)
 
-countData.aa <- countData[,1:aa]
-countData.bb <- countData[,c(1,(aa+1):bb)]
-countData.cc <- countData[,c(1,(bb+1):cc)]
+idx <- which(colnames(countData) == "bmi_cat" | colnames(countData) == "study")
+idx2 <- (aa+1):bb
+idx3 <- (bb+1):cc
 
-countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
+countData.aa <- countData[,c(1,2):aa]
+countData.bb <- countData[,c(idx,idx2)]
+countData.cc <- countData[,c(idx,idx3)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(3:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(3:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(3:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.aa.m, aes(x=miRNA, y=log2(count))) + 
-  geom_boxplot(aes(fill=bmi_cat))+
-  facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "BMI", labels = c("Normal", "Overweight"))
+ggplot(data = countData.aa.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=bmi_cat))+
+       facet_wrap( ~ miRNA, scales="free") +
+       scale_fill_discrete(name = "BMI", labels = c("Normal", "Overweight"))
 
-ggplot(data = countData.bb.m, aes(x=miRNA, y=log2(count))) + 
-  geom_boxplot(aes(fill=bmi_cat))+
-  facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "BMI", labels = c("Normal", "Overweight"))
+ggplot(data = countData.bb.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=bmi_cat))+
+       facet_wrap( ~ miRNA, scales="free")+
+       scale_fill_discrete(name = "BMI", labels = c("Normal", "Overweight"))
 
-ggplot(data = countData.cc.m, aes(x=miRNA, y=log2(count))) + 
-  geom_boxplot(aes(fill=bmi_cat))+
-  facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "BMI", labels = c("Normal", "Overweight"))
+ggplot(data = countData.cc.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=bmi_cat))+
+       facet_wrap( ~ miRNA, scales="free")+
+       scale_fill_discrete(name = "BMI", labels = c("Normal", "Overweight"))
 
 rm(list=ls())
 
@@ -1012,6 +1186,57 @@ save(res, res_1, res_2, res_3, coldata, file="C:/Users/amedeo/Desktop/R_Projects
 
 ```
 
+```{r summary alcohol, echo=FALSE}
+
+n_res_1 <- table(res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_u_1 <- table(res_1$log2FoldChange>0 &res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_d_1 <- table(res_1$log2FoldChange<0 &res_1$padj <0.05 & res_1$baseMean >15)
+
+n_res_2 <- table(res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_u_2 <- table(res_2$log2FoldChange>0 &res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_d_2 <- table(res_2$log2FoldChange<0 &res_2$padj <0.05 & res_2$baseMean >15)
+
+n_res_3 <- table(res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_u_3 <- table(res_3$log2FoldChange>0 &res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_d_3 <- table(res_3$log2FoldChange<0 &res_3$padj <0.05 & res_3$baseMean >15)
+
+if(dim(n_res_1)>1){
+  message("Light drinker vs abstemious: there are ", n_res_1[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_1)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_1[[2]])}
+  if(dim(n_lfc_d_1)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_1[[2]])
+  }
+if(dim(n_res_1)<1){
+    message("Light drinker [0.1-18.5 gr/day] vs abstemious: there are no differentialy expressed miRNAs")
+  }
+}
+
+if(dim(n_res_2)==2){
+  message("Heavy drinker [>18.5 gr/day] vs abstemious: there are ", n_res_2[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_2)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_2[[2]])}
+  if(dim(n_lfc_d_2)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_2[[2]])
+  }
+}
+if(dim(n_res_2)==1){
+    message("Heavy drinker [>18.5 gr/day] vs abstemious: there are no differentialy expressed miRNAs")
+  }
+
+
+if(dim(n_res_3)>1){
+  message("Heavy drinker [>18.5 gr/day] vs light drinker [0.1-18.5 gr/day]: there are ", n_res_3[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_3)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_3[[2]])}
+  if(dim(n_lfc_d_3)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_3[[2]])
+  }}
+if(dim(n_res_3)==1){
+    message("Heavy drinker [>18.5 gr/day] vs abstemious: there are no differentialy expressed miRNAs")
+  }
+```
+
 ```{r alcohol table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
 ```
@@ -1049,28 +1274,17 @@ countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.ma
 countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
 countData <- dplyr::relocate(countData, "alcool", .before = colnames(countData)[1])
-xx <- grepl(paste0("(?=.*", "hsa|alcool", ")", collapse=""), colnames(countData), perl=TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|alcool|study", ")", collapse=""), colnames(countData), perl=TRUE)
 
 countData <- countData[,xx]
 countData$TOT.alcool_g.day <- NULL
 
-# aa <- round((length(colnames(countData)) - 1)/3)
-# bb <- aa+aa
-# cc <- aa+((length(colnames(countData))) - aa)
-# 
-# countData.aa <- countData[,1:aa]
-# countData.bb <- countData[,c(1,(aa+1):bb)]
-# countData.cc <- countData[,c(1,(bb+1):cc)]
-# 
-# countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-# countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-# countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
-
-countData.m <- pivot_longer(countData, c(2:length(colnames(countData))), names_to = "miRNA", values_to = "count")
+countData.m <- pivot_longer(countData, c(3:length(colnames(countData))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.m, aes(x=study, y=log2(count))) + 
   geom_boxplot(aes(fill=alcool))+
   facet_wrap( ~ miRNA, scales="free")+
   scale_fill_discrete(name = "Alcohol consumption", labels = c("Abstemious", "Mild drinker [0.1-18.5 gr/day]", "Heavy drinker [>18.5 gr/day"))
@@ -1134,6 +1348,28 @@ res <- as_tibble(res) %>%
   dplyr::mutate(comparison = "1_0") %>% 
   dplyr::relocate("miRNA", .before = "baseMean")
 
+save(res, coldata, file="C:/Users/amedeo/Desktop/R_Projects/stool/results/wine/wine.rda")
+
+```
+
+```{r summary wine, echo=FALSE}
+
+n_res <- table(res$padj <0.05 & res$baseMean >15)
+n_lfc_u <- table(res$log2FoldChange>0 &res$padj <0.05 & res$baseMean >15)
+n_lfc_d <- table(res$log2FoldChange<0 &res$padj <0.05 & res$baseMean >15)
+
+if(dim(n_res)>1){
+  message("No wine consumption vs every alcohol: there are ", n_res[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u[[2]])}
+  if(dim(n_lfc_d)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d[[2]])
+  }
+if(dim(n_res)<1){
+    message("No wine consumption vs every alcohol: there are no differentialy expressed miRNAs")
+  }
+}
+
 ```
 
 ```{r wine table, echo=FALSE}
@@ -1164,7 +1400,7 @@ plot_ly(df, x=~logFC, y=~negLogPval, type="scatter", mode = "markers", color=~pl
 # Boxplot data
 
 sign_mir <- df %>% 
-  dplyr::filter(baseMean >=20 & padj < 0.05)
+  dplyr::filter(baseMean >=15 & padj < 0.05)
 sign_mir <- as.data.frame(sign_mir)
 rownames(sign_mir) <- sign_mir$miRNA
 
@@ -1172,17 +1408,46 @@ countData <- rawCount[rownames(sign_mir),]
 countData <- as.data.frame(t(countData))
 countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.max),]
 countData$id <- rownames(countData)
-# colnames(coldata)[1] <- "id"
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
-xx <- grepl(paste0("(?=.*", "hsa|id_pat", ")", collapse=""), colnames(countData), perl=TRUE)
+countData <- dplyr::relocate(countData, "study", .after = colnames(countData)[1])
+countData <- dplyr::relocate(countData, "alco_class", .before = colnames(countData)[1])
+
+xx <- grepl(paste0("(?=.*", "hsa|alco_class|study", ")", collapse=""), colnames(countData), perl=TRUE)
 countData <- countData[,xx]
-countData.m <- pivot_longer(countData, c(1:length(colnames(countData)) - 1), names_to = "miRNA", values_to = "count")
+countData <- countData[complete.cases(countData$alco_class),]# Droppo gli NA nella variabile di interesse
+
+aa <- round((length(colnames(countData)) - 1)/3)
+bb <- aa+aa
+cc <- aa+((length(colnames(countData))) - aa)
+
+idx <- which(colnames(countData) == "alco_class" | colnames(countData) == "study")
+idx2 <- (aa+1):bb
+idx3 <- (bb+1):cc
+
+countData.aa <- countData[,c(1,2):aa]
+countData.bb <- countData[,c(idx,idx2)]
+countData.cc <- countData[,c(idx,idx3)]
+
+countData.aa.m <- pivot_longer(countData.aa, c(3:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
+countData.bb.m <- pivot_longer(countData.bb, c(3:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
+countData.cc.m <- pivot_longer(countData.cc, c(3:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.m, aes(x=miRNA, y=count)) + 
-  geom_boxplot(aes(fill=id_pat)) +
-  facet_wrap( ~ miRNA, scales="free")
+ggplot(data = countData.aa.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=alco_class))+
+       facet_wrap( ~ miRNA, scales="free") +
+       scale_fill_discrete(name = "Wine consumption", labels = c("All types of alcohol", "No wine"))
+
+ggplot(data = countData.bb.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=alco_class))+
+       facet_wrap( ~ miRNA, scales="free")+
+       scale_fill_discrete(name = "Wine consumption", labels = c("All types of alcohol", "No wine"))
+
+ggplot(data = countData.cc.m, aes(x=study, y=log2(count))) + 
+       geom_boxplot(aes(fill=alco_class))+
+       facet_wrap( ~ miRNA, scales="free")+
+       scale_fill_discrete(name = "Wine consumption", labels = c("All types of alcohol", "No wine"))
 
 rm(list=ls())
 
@@ -1261,6 +1526,57 @@ save(res, res_1, res_2, res_3, coldata, file = "C:/Users/amedeo/Desktop/R_Projec
 
 ```
 
+```{r summary phys_act, echo=FALSE}
+
+n_res_1 <- table(res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_u_1 <- table(res_1$log2FoldChange>0 &res_1$padj <0.05 & res_1$baseMean >15)
+n_lfc_d_1 <- table(res_1$log2FoldChange<0 &res_1$padj <0.05 & res_1$baseMean >15)
+
+n_res_2 <- table(res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_u_2 <- table(res_2$log2FoldChange>0 &res_2$padj <0.05 & res_2$baseMean >15)
+n_lfc_d_2 <- table(res_2$log2FoldChange<0 &res_2$padj <0.05 & res_2$baseMean >15)
+
+n_res_3 <- table(res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_u_3 <- table(res_3$log2FoldChange>0 &res_3$padj <0.05 & res_3$baseMean >15)
+n_lfc_d_3 <- table(res_3$log2FoldChange<0 &res_3$padj <0.05 & res_3$baseMean >15)
+
+if(dim(n_res_1)>1){
+  message("Moderately inactive vs active: there are ", n_res_1[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_1)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_1[[2]])}
+  if(dim(n_lfc_d_1)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_1[[2]])
+  }}
+if(dim(n_res_1)==1){
+    message("Moderately inactive vs active: there are no differentialy expressed miRNAs")
+  }
+
+
+if(dim(n_res_2)>1){
+  message("Inactive vs active: there are ", n_res_2[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_2)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_2[[2]])}
+  if(dim(n_lfc_d_2)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_2[[2]])
+  }
+}
+if(dim(n_res_2)==1){
+    message("Inactive vs active: there are no differentialy expressed miRNAs")
+  }
+
+
+if(dim(n_res_3)>1){
+  message("Inactive vs moderately inactive: there are ", n_res_3[[2]], " differentially expressed miRNAs")
+  if(dim(n_lfc_u_3)>1){
+    message("Log(2) fold change > 0: ", n_lfc_u_3[[2]])}
+  if(dim(n_lfc_d_3)>1){
+    message("Log(2) fold change < 0: ", n_lfc_d_3[[2]])
+  }}
+if(dim(n_res_3)==1){
+    message("Inactive vs moderately inactive: there are no differentialy expressed miRNAs")
+  }
+```
+
 ```{r phys_act table, echo=FALSE}
 kable(res) %>% kable_styling(bootstrap_options = c("striped", "hover"), position = "center") %>% scroll_box(height = "300px")
 ```
@@ -1296,29 +1612,20 @@ countData <- countData[!seq_len(nrow(countData)) %in% sapply(countData, which.ma
 countData$id <- rownames(countData)
 countData <- merge(countData, coldata, by= "id", all.x = TRUE)
 countData <- dplyr::relocate(countData, "phys_act", .before = colnames(countData)[1])
-xx <- grepl(paste0("(?=.*", "hsa|phys_act", ")", collapse=""), colnames(countData), perl=TRUE)
+countData <- dplyr::relocate(countData, "study", .before = colnames(countData)[1])
+xx <- grepl(paste0("(?=.*", "hsa|phys_act|study", ")", collapse=""), colnames(countData), perl=TRUE)
 
 countData <- countData[,xx]
-# aa <- round((length(colnames(countData)) - 1)/3)
-# bb <- aa+aa
-# cc <- aa+((length(colnames(countData))) - aa)
-# 
-# countData.aa <- countData[,1:aa]
-# countData.bb <- countData[,c(1,(aa+1):bb)]
-# countData.cc <- countData[,c(1,(bb+1):cc)]
-# 
-# countData.aa.m <- pivot_longer(countData.aa, c(2:length(colnames(countData.aa))), names_to = "miRNA", values_to = "count")
-# countData.bb.m <- pivot_longer(countData.bb, c(2:length(colnames(countData.bb))), names_to = "miRNA", values_to = "count")
-# countData.cc.m <- pivot_longer(countData.cc, c(2:length(colnames(countData.cc))), names_to = "miRNA", values_to = "count")
-countData.m <- pivot_longer(countData, c(2:length(colnames(countData))), names_to = "miRNA", values_to = "count")
+countData$TOT.alcool_g.day <- NULL
+
+countData.m <- pivot_longer(countData, c(3:length(colnames(countData))), names_to = "miRNA", values_to = "count")
 
 # Boxplot
 
-ggplot(data = countData.m, aes(x=miRNA, y=log2(count))) + 
+ggplot(data = countData.m, aes(x=study, y=log2(count))) + 
   geom_boxplot(aes(fill=phys_act))+
   facet_wrap( ~ miRNA, scales="free")+
-  scale_fill_discrete(name = "Physical activity", labels = c("Active", "Inactive", "Moderately inactive"))
-
+  scale_fill_discrete(name = "Physical activity", labels = c("Active", "Moderately inactive", "Inactive"))
 
 rm(list=ls())
 
@@ -1357,9 +1664,9 @@ load("C:/Users/amedeo/Desktop/R_Projects/stool/results/ncigs/ncigs.rda")
 cigs <- res
 rm(res)
 
-# load("C:/Users/amedeo/Desktop/R_Projects/stool/results/wine.rda")
-# wine <- res
-# rm(res, res_1, res_2, res_3)
+load("C:/Users/amedeo/Desktop/R_Projects/stool/results/wine/wine.rda")
+wine <- res
+rm(res, res_1, res_2, res_3)
 
 load("C:/Users/amedeo/Desktop/R_Projects/stool/results/pshysical/phys_act.rda")
 phys_act <- res
@@ -1386,8 +1693,8 @@ cigs <- cigs$miRNA
 smoke <- smoke[which(smoke$baseMean >= 15 & smoke$padj <0.05),]
 smoke <- smoke$miRNA
 
-# wine <- wine[which(wine$baseMean >= 15 & wine$padj <0.05),]
-# wine <- wine$miRNA
+wine <- wine[which(wine$baseMean >= 15 & wine$padj <0.05),]
+wine <- wine$miRNA
 
 phys <- phys_act[which(phys_act$baseMean >= 15 & phys_act$padj <0.05),]
 phys <- phys$miRNA
@@ -1400,13 +1707,14 @@ lt <- list(set1 = age,
            set4 = bmi,
            set5 = cigs,
            set6 = alc,
+           set8 = wine,
            set7 = phys)
 
 m <- make_comb_mat(lt, mode = "intersect")
 m <- m[comb_degree(m) > 1]
 ss <- set_size(m)
 cs <- comb_size(m)
-set_name(m) <- c("Age", "Sex", "Smoke", "BMI", "Ncigs", "Alcohol", "Physical")
+set_name(m) <- c("Age", "Sex", "Smoke", "BMI", "Ncigs", "Alcohol", "Wine", "Physical")
 
 ht <- UpSet(m,
             set_order = order(ss),
