@@ -29,8 +29,8 @@ library(hexbin)
 ```
 
 ```{r loading data and parameters, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_Projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds") 
+count.path <- c("C:/Users/amedeo/Desktop/R_Projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS") 
 coldata <- readRDS(covar.path)
 rawCount <- readRDS(count.path)
 n_study <- table(coldata$study)
@@ -253,8 +253,8 @@ We designed several models for DE analyses:
 ## Sex {.tabset}
 
 ```{r sex, warning=FALSE, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -402,8 +402,8 @@ rm(list=ls())
 ## Age {.tabset}
 
 ```{r age, warning=FALSE, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -592,8 +592,8 @@ rm(list=ls())
 ## Smoke {.tabset}
 
 ```{r smoke, warning=FALSE, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -793,8 +793,8 @@ rm(list=ls())
 ## Number of cigs {.tabset}
 
 ```{r ncigs, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/smoker.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/smoker.rds")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -955,8 +955,8 @@ rm(list=ls())
 In the analyses of DE miRNA using BMI as the variable of interest we decide to group together overweight and obese samples due to the little sample size of the groups if considered alone. Underweight samples are not considered for now, so the only comparison is between BMI > 25 and normal BMI samples.
 
 ```{r bmi, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -1116,8 +1116,8 @@ rm(list=ls())
 ## Alcohol consumption {.tabset}
 
 ```{r alcohol, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -1297,8 +1297,8 @@ rm(list=ls())
 ## Wine consumption {.tabset}
 
 ```{r wine, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
@@ -1456,8 +1456,8 @@ rm(list=ls())
 ## Physical activity {.tabset}
 
 ```{r phys_act, include=FALSE}
-count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/ngs/merged_harmonized_converted.rds")
-covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data_redo/clinical/merged_cleaned.rds")
+count.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/ngs/merged_harmonized_converted.rds")
+covar.path <- c("C:/Users/amedeo/Desktop/R_projects/stool/data/clinical/sensitivity/no_crc.RDS")
 
 rawCount <- readRDS(count.path)
 coldata <- readRDS(covar.path)
