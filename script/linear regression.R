@@ -29,10 +29,11 @@ age_linMod <- function(x, db=df_age) {
   fit <- glm(y ~ age + sex ,data=db)
   n <- length(resid(fit))
   coeff <- summary(fit)$coeff
-  out <- coeff["age", c(1,2,3)]
-  out2 <- coeff[1, c(1,2,3)]
-  out3 <- c(out,out2,n)
-  return(out3)
+  outCoeff <- coeff["age", c(1,2,3)]
+  outIntercept <- coeff[1, c(1,2,3)]
+  outModel <- summary(fit)
+  outList <- c(outCoeff, outIntercept, outModel)
+  return(outList)
 }
 
 bmi_linMod <- function(x, db=df_bmi) {
@@ -123,3 +124,39 @@ saveRDS(sexRes, file = c("C:/Users/amedeo/Desktop/R_Projects/stool/results/linea
 
 
 rm(list=ls())
+
+
+
+#### Scrap
+
+tage <- as.data.frame(t(cts_age))
+df_age[,140] <- tage$`hsa-miR-922`
+fit <- glm(V140 ~ age + sex ,data=df_age)
+n <- length(resid(fit))
+coeff <- summary(fit)$coeff
+outCoeff <- coeff["age", c(1,2,3)]
+outIntercept <- coeff[1, c(1,2,3)]
+outModel <- fit
+outList <- c(outCoeff, outIntercept, outModel)
+return(outList)
+
+
+
+
+
+trainingIndex <- sample(1:nrow(df_age), 0.8*nrow(df_age))
+trainingData <- df_age[trainingIndex,]
+testData <- df_age[-trainingIndex,]
+lmMod <- lm(V140 ~ age + sex, data = trainingData)
+distPred <- predict(lmMod, testData)
+summary(lmMod)
+AIC(lmMod)
+actuals_preds <- data.frame(cbind(actuals=testData$V140, predicteds=distPred))
+correlation_accuracy <- cor(actuals_preds)
+min_max_accuracy <- mean(apply(actuals_preds, 1, min) / apply(actuals_preds, 1, max))  
+mape <- mean(abs((actuals_preds$predicteds - actuals_preds$actuals))/actuals_preds$actuals) 
+
+
+library(DAAG)
+cvResults <- suppressWarnings(CVlm(data = df_age, form.lm=V140 ~ sex + age, m=5, dots=FALSE, seed=29, legend.pos="topleft",  printit=FALSE, main="Small symbols are predicted values while bigger ones are actuals."));  # performs the CV
+attr(cvResults, 'ms')
