@@ -53,5 +53,7 @@ levels(df$mestr_now)
 table(df$mestr_now)
 levels(df$mestr_now) <- c("no", "yes")
 table(df$mestr_now)
+##
+df <- as_tibble(df[,c(2,1,4,5,6,7,8,9,12,13,14,15,17,22,16,19,139)])
 
-saveRDS(df, "data/clinical/merged_cleaned.rds")
+saveRDS(df, "data/clinical/de_merged_cleaned.rds")

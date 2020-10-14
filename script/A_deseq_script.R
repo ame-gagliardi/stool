@@ -5,41 +5,53 @@ cts <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/ngs/
 rm <- which(colnames(cts) == "VOV114")
 cts <- cts[,-rm]
 
-df <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/clinical/merged_cleaned.rds"))
-rownames(df) <- df$id
+variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "wine_consumption", "phys_act", "coffee_cat", "mestr_now")
 
-#variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "alco_class", "phys_act", "coffee_cat")
-variables <- c("phys_act")
 for(i in 1:length(variables)){
+print("Loading a fresh dataset")
+
+df <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/clinical/de_merged_cleaned.rds"))
+rownames(df) <- df$id
+  
 print(paste("Deseq on", variables[i]))
-  covars <- c("library", "sex", "age_cat", variables[i])
+covars <- c("library", "sex", "age_cat", variables[i])
 
 check <- all(colnames(cts) == rownames(df))
 if(check == FALSE){
+  print(paste0("Tidying count matrix and dataset on ", last(covars)))
   i <- intersect(rownames(df), colnames(cts))
   df <- df[i,]
   cts <- cts[,i]
 }
 
 m <- length(df[,last(covars)])
+xx <- rownames(df)[which(is.na(df[,last(covars)]))]
 df <- tidyr::drop_na(df, last(covars))
 n <- length(df[,last(covars)])
 n.na <- m-n  
+print(paste("I've dropped",n.na,"samples for NA: ", paste0(xx, collapse = " ,")))
+line <- paste0("Samples excluded from ", last(covars), " deseq analyses (n = ",n.na,"): ", paste0(xx, collapse = " ,"))
+write(line,file="results/de_full_output.txt",append=TRUE)
 
 if(n.na>0){
-  i <- intersect(colnames(cts), rownames(df)) # Risistema i dataframe in modo che siano uguali
+  print(paste0("Tidying count matrix and dataset after NA dropping on ", last(covars)))
+  i <- intersect(colnames(cts), rownames(df)) 
   cts <- cts[,i]                              
   df <- df[i,]
-  all.equal(colnames(cts), rownames(df))
 }
+new.check <- all.equal(colnames(cts), rownames(df))
 
-model <- as.formula(paste("~", paste(covars,collapse = "+")))
-dds <- DESeqDataSetFromMatrix(countData = cts,
-                              colData = df,
-                              design = model)
-
-dds <- DESeq(dds)
-print(paste("Saving deseq results of", variables[i]))
-saveRDS(dds, paste0("C:/Users/amedeo/Desktop/R_Projects/",last(covars),".rds"))
+if(new.check == TRUE){
+  print("I'll proceed to the deseq analysis")
+  model <- as.formula(paste("~", paste(covars,collapse = "+")))
+  dds <- DESeqDataSetFromMatrix(countData = cts,
+                                colData = df,
+                                design = model)
+  
+  dds <- DESeq(dds)
+  print(paste("Saving deseq results of", last(covars)))
+  saveRDS(dds, paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/full_model/dds/",last(covars),".rds"))
+} else {
+  print(paste0("Houston we have a problem on", last(covars)))
+  }
 }
-

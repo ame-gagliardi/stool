@@ -1,0 +1,9 @@
+Samples excluded from age_cat deseq analyses (n = 0): 
+Samples excluded from sex deseq analyses (n = 0): 
+Samples excluded from smoke deseq analyses (n = 2): VOV025 ,VOV026
+Samples excluded from ncigs deseq analyses (n = 0): 
+Samples excluded from alcool deseq analyses (n = 0): 
+Samples excluded from wine_consumption deseq analyses (n = 0): 
+Samples excluded from phys_act deseq analyses (n = 5): VF140 ,VF212 ,CMa_007 ,VOV036 ,VOV092
+Samples excluded from coffee_cat deseq analyses (n = 0): 
+Samples excluded from mestr_now deseq analyses (n = 101): All the males samples
