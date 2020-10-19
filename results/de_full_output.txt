@@ -7,3 +7,4 @@ Samples excluded from wine_consumption deseq analyses (n = 0):
 Samples excluded from phys_act deseq analyses (n = 5): VF140 ,VF212 ,CMa_007 ,VOV036 ,VOV092
 Samples excluded from coffee_cat deseq analyses (n = 0): 
 Samples excluded from mestr_now deseq analyses (n = 101): All the males samples
+Samples excluded from bmi_cat deseq analyses (n = 10): VF152 ,CMa_001 ,CMa_003 ,CMa_005 ,GF001 ,GF003 ,GF004 ,GF019 ,VOV003 ,VOV068

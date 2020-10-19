@@ -5,14 +5,19 @@ cts <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/ngs/
 rm <- which(colnames(cts) == "VOV114")
 cts <- cts[,-rm]
 
-variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "wine_consumption", "phys_act", "coffee_cat", "mestr_now")
+# variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "wine_consumption", "phys_act", "coffee_cat", "mestr_now")
+
+variables <- c("bmi_cat")
 
 for(i in 1:length(variables)){
 print("Loading a fresh dataset")
 
 df <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/clinical/de_merged_cleaned.rds"))
 rownames(df) <- df$id
-  
+levels(df$bmi_cat) <- c("under", "normal", "over", "over")
+rm <- which(df$bmi_cat == "under")
+df <- df[-rm,]  
+
 print(paste("Deseq on", variables[i]))
 covars <- c("library", "sex", "age_cat", variables[i])
 
