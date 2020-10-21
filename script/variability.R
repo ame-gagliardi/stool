@@ -32,9 +32,30 @@ for(z in 1:length(cat)){
 }
 
 
+
+
 data[,"w.abst"] <- NULL
 data[,"cigs.nev"] <- NULL
 data[,"cigs.form"] <- NULL
 
 
 saveRDS(data, file = "data/miRNA_mean.rds")
+
+
+
+
+median <- as.data.frame(matrix(NA, nrow = 3524, ncol = 30, dimnames = list(c(colnames(norm)),
+                                                                         c(levName))))
+
+var <- c("age_cat")
+cat <- levels(df$age_cat)
+
+for(z in 1:length(cat)){
+  for(i in 1:length(rownames(median))){
+    df[,18] <- norm[,i]
+    colnames(df)[18] <- colnames(norm)[i]
+    db <- df %>% 
+      dplyr::filter(age_cat == cat[z])
+    median[i,cat[z]] <- round(median(db[,18], na.rm = TRUE), digits = 3)
+  }
+}
