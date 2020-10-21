@@ -1,6 +1,9 @@
 library(tidyverse)
 library(DESeq2)
 
+# In questo script preparo le tabelle da salvare in txt per poi copiarle su excel.
+# A seconda di quanti confronti ci sono salvo da 1 a 3 tabelle, cambiando di volta in volta il nome della variabile in esame e aggiungendo i dettagli che mi servono
+
 var <- c("age_cat")
 ##
 df <- readRDS("data/clinical/de_merged_cleaned.rds")

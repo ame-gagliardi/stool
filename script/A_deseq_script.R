@@ -1,18 +1,19 @@
 library(DESeq2)
 library(tidyverse)
 
-cts <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/ngs/merged_harmonized_converted.rds"))
-rm <- which(colnames(cts) == "VOV114")
+# Con questo script mi fa le analisi per ogni variabili e le salva come dds
+
+cts <- as.data.frame(readRDS("data/ngs/merged_harmonized_converted.rds"))
+rm <- which(colnames(cts) == "VOV114") # Campione da rimuovere
 cts <- cts[,-rm]
 
-# variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "wine_consumption", "phys_act", "coffee_cat", "mestr_now")
+variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "wine_consumption", "phys_act", "coffee_cat", "mestr_now", "bmi_cat") # Variabili da analizzare
 
-variables <- c("bmi_cat")
 
 for(i in 1:length(variables)){
 print("Loading a fresh dataset")
 
-df <- as.data.frame(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/clinical/de_merged_cleaned.rds"))
+df <- as.data.frame(readRDS("data/clinical/de_merged_cleaned.rds"))
 rownames(df) <- df$id
 levels(df$bmi_cat) <- c("under", "normal", "over", "over")
 rm <- which(df$bmi_cat == "under")
@@ -55,7 +56,7 @@ if(new.check == TRUE){
   
   dds <- DESeq(dds)
   print(paste("Saving deseq results of", last(covars)))
-  saveRDS(dds, paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/full_model/dds/",last(covars),".rds"))
+  saveRDS(dds, paste0("results/full_model/dds/",last(covars),".rds"))
 } else {
   print(paste0("Houston we have a problem on", last(covars)))
   }
