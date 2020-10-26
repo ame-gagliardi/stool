@@ -57,3 +57,11 @@ table(df$mestr_now)
 df <- as_tibble(df[,c(2,1,4,5,6,7,8,9,12,13,14,15,17,22,16,19,139)])
 
 saveRDS(df, "data/clinical/de_merged_cleaned.rds")
+
+
+## 26-10-2020 ##◙
+
+df <- read.delim("data/clinical/de_merged_cleaned.txt")
+df[,"coffee_drinker"] <- as.factor(df[,"coffee_cat"])
+levels(df$coffee_drinker) <- c("c.drinker", "c.drinker", "c.no_drinker")
+write.table(df, file = "data/clinical/de_merged_cleaned.txt", sep = "\t", quote = FALSE, row.names = T)
