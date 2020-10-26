@@ -1,7 +1,7 @@
 library(tidyverse)
 library(DESeq2)
 
-refCov <- c("coffee_drinker")
+refCov <- c("alcool")
 
 ## Dataset load
 df <- read.delim("data/clinical/de_merged_cleaned.txt")
@@ -17,6 +17,7 @@ median <- readRDS("data/miRNA_median.rds")
 median$ID <- rownames(median)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
+
 ##
 
 ## Comparison
@@ -26,10 +27,10 @@ for(i in 1:ncol(comp)){
   cov1 <- comp[1,i] # Confronti delle variabili nelle colonne di comp
   cov2 <- comp[2,i]
   
-  keep <- c(levName, "ID") # Select the mean and median of the refCov
+  keep <- c("_16","16_", "ID") # Select the mean and median of the refCov
   mean <- mean[,keep]
   median <- median[,keep]
-  if(all.equal(rownames(res), rownames(mean))){
+  if(all.equal(check, rownames(mean))){
     res <- results(dds, contrast = c(refCov, cov2, cov1))
     res[,"ID"] <- rownames(res)
     res[,"comparison"] <- paste0(cov2, "_vs_", cov1)
@@ -37,7 +38,7 @@ for(i in 1:ncol(comp)){
     res <- as.data.frame(res)
     res <- merge(res, mean, by = "ID")
     res <- merge(res, median, by = "ID")
-    write.table(res, file = paste0("results/full_model/tables/DE_results_", cov1,"_vs_", cov2,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
+    write.table(res, file = paste0("results/full_model/tables/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
   }else{
     print("Rownames no equal")
   }

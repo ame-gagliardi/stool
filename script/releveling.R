@@ -64,4 +64,14 @@ saveRDS(df, "data/clinical/de_merged_cleaned.rds")
 df <- read.delim("data/clinical/de_merged_cleaned.txt")
 df[,"coffee_drinker"] <- as.factor(df[,"coffee_cat"])
 levels(df$coffee_drinker) <- c("c.drinker", "c.drinker", "c.no_drinker")
+df[,"alcool_drinker"] <- as.factor(df[,"alcool"])
+levels(df$alcool_drinker) <- c("a.no_drinker", "a.drinker", "a.drinker")
+## Terzili età ##
+q <- quantile(df$age, probs=c(0,0.3333,0.6667,1), type=6)
+segment <- cut(df$age, breaks=q, include.lowest=TRUE)
+df[,"age_terz"] <- segment
+levels(df$age_terz) <- c("18_37", "37_53", "53_81")
+df <- df[,c(1,2,3,4,5,6,7,20,8,9,10,11,12,13,19,14,16,18,15,17)]
+
 write.table(df, file = "data/clinical/de_merged_cleaned.txt", sep = "\t", quote = FALSE, row.names = T)
+
