@@ -2,7 +2,8 @@ library(tidyverse)
 library(DESeq2)
 
 df <- read.delim("data/clinical/de_merged_cleaned.txt")
-df[,c(3,4,5,7,8,9,11:20)] <- lapply(df[,c(3,4,5,7,8,9,11:20)], as.factor)
+df[,c(3,4,5,7,8,9,11:21)] <- lapply(df[,c(3,4,5,7,8,9,11:21)], as.factor)
+rownames(df) <- df$id
 str(df)
 
 norm <- read.table("data/normalized_counts.txt", sep = "\t")
@@ -13,16 +14,16 @@ df <- df[i,]
 all.equal(rownames(norm), rownames(df))
 
 covars <- c("age_cat", "sex", "alcool", "wine_consumption", "smoke", "ncigs", "phys_act", "bmi_cat", "coffee_cat", "mestr_now", "coffee_drinker",
-            "alcool_drinker", "age_terz")
+            "alcool_drinker", "age_terz", "alcool_28")
 
 levName <- c(levels(df$age_cat), levels(df$sex), levels(df$alcool), levels(df$wine_consumption), levels(df$smoke),
              levels(df$ncigs), levels(df$phys_act), levels(df$bmi_cat), levels(df$coffee_cat), levels(df$mestr_now), levels(df$coffee_drinker),
-             levels(df$alcool_drinker), levels(df$age_terz))
+             levels(df$alcool_drinker), levels(df$age_terz), levels(df$alcool_28))
 
 levName[c(9,17,18)] <- c("w.abst", "cigs.form", "cigs.nev")
 
-dataMean <- as.data.frame(matrix(NA, nrow = 3524, ncol = length(levName), dimnames = list(c(colnames(norm)),
-                                                                        c(levName))))
+dataMean <- as.data.frame(matrix(NA, nrow = length(colnames(norm)), ncol = length(levName), dimnames = list(c(colnames(norm)),
+                                                                                                            c(levName))))
 # Mean
 
 print(Sys.time())
@@ -52,8 +53,8 @@ saveRDS(dataMean, file = "data/miRNA_mean.rds")
 # Median
 
 
-dataMedian <- as.data.frame(matrix(NA, nrow = 3524, ncol = length(levName), dimnames = list(c(colnames(norm)),
-                                                                              c(levName))))
+dataMedian <- as.data.frame(matrix(NA, nrow = length(colnames(norm)), ncol = length(levName), dimnames = list(c(colnames(norm)),
+                                                                                                              c(levName))))
 
 print(Sys.time())
 for(k in 1:length(covars)){

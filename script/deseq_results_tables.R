@@ -1,7 +1,7 @@
 library(tidyverse)
 library(DESeq2)
 
-refCov <- c("alcool")
+refCov <- c("alcool_28")
 
 ## Dataset load
 df <- read.delim("data/clinical/de_merged_cleaned.txt")
@@ -17,17 +17,21 @@ median <- readRDS("data/miRNA_median.rds")
 median$ID <- rownames(median)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
-
+df$alcool_28 <- relevel(df$alcool_28, "light.28")
+df$alcool_28 <- relevel(df$alcool_28, "abstemious.28")
+levels(df$alcool_28)
+levName <- levels(df[,refCov])
 ##
 
 ## Comparison
 comp <- combn(levName, m=2)
+check <- rownames(results(dds))
 
 for(i in 1:ncol(comp)){
   cov1 <- comp[1,i] # Confronti delle variabili nelle colonne di comp
   cov2 <- comp[2,i]
   
-  keep <- c("_16","16_", "ID") # Select the mean and median of the refCov
+  keep <- c(levName, "ID") # Select the mean and median of the refCov
   mean <- mean[,keep]
   median <- median[,keep]
   if(all.equal(check, rownames(mean))){
@@ -46,12 +50,3 @@ for(i in 1:ncol(comp)){
 }
 rm(list=ls())
 
-#Only for bmi_Cat
-keep <- c(levName, "ID")
-cov2 <- "over"
-cov1 <- "normal"
-levels(df$bmi_cat) <- c("under", "normal", "overweight", "overweight")
-table(df$bmi_cat)
-df <- df %>% 
-  dplyr::filter(bmi_cat != "under")
-df$bmi_cat <- droplevels(df$bmi_cat)
