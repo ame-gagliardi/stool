@@ -1,10 +1,11 @@
 library(tidyverse)
 library(DESeq2)
 
-refCov <- c("alcool_28")
+refCov <- c("age_terz")
+refDb <- c("male")
 
 ## Dataset load
-df <- read.delim("data/clinical/de_merged_cleaned.txt")
+df <- read.delim(paste0("data/clinical/de_",refDb,"_merged_cleaned.txt"))
 df[,refCov] <- as.factor(df[,refCov])
 levName <- levels(df[,refCov])
 ## DEseq analysis results
@@ -17,10 +18,6 @@ median <- readRDS("data/miRNA_median.rds")
 median$ID <- rownames(median)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
-df$alcool_28 <- relevel(df$alcool_28, "light.28")
-df$alcool_28 <- relevel(df$alcool_28, "abstemious.28")
-levels(df$alcool_28)
-levName <- levels(df[,refCov])
 ##
 
 ## Comparison
@@ -48,5 +45,6 @@ for(i in 1:ncol(comp)){
   }
     
 }
+
 rm(list=ls())
 

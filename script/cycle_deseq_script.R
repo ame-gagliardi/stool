@@ -12,7 +12,8 @@ variables <- c("age_cat", "smoke", "ncigs", "alcool", "wine_consumption",  # Cov
                "phys_act", "coffee_cat", "mestr_now", "bmi_cat", "alcool_28", "alcool_drinker", "coffee_drinker", "age_terz") 
 
 tofactor <- c("study","library","id_pat","age_cat","age_terz", "sex", "smoke", "ncigs", "alcool", "wine_consumption",  # Covariates to cycle
-              "phys_act", "coffee_cat", "mestr_now", "bmi_cat", "alcool_28", "alcool_drinker", "coffee_drinker") 
+              "phys_act", "coffee_cat", "mestr_now", "bmi_cat", "alcool_28", "alcool_drinker", "coffee_drinker")
+
 df[tofactor] <- lapply(df[tofactor], as.factor)
 sapply(df[tofactor], class) 
 
