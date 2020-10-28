@@ -2,8 +2,8 @@ library(tidyverse)
 library(DESeq2)
 
 count.path <- c("data/ngs/merged_harmonized_converted.txt")       # Raw counts path
-covar.path <- c("data/clinical/de_male_merged_cleaned.txt")       # Covars path
-results.path <- c("results/by_sex/male/")                         # Results path
+covar.path <- c("data/clinical/de_female_merged_cleaned.txt")       # Covars path
+results.path <- c("results/by_sex/female/")                         # Results path
 cts <- read.delim(count.path)                                     # Counts
 df <- read.delim(covar.path)                                      # Covars
 rownames(df) <- df$id                                 
