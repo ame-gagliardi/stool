@@ -1,63 +1,78 @@
-library(DESeq2)
 library(tidyverse)
+library(DESeq2)
 
-# Con questo script mi fa le analisi per ogni variabili e le salva come dds
+count.path <- c("data/ngs/merged_harmonized_converted.txt")       # Raw counts path
+covar.path <- c("data/clinical/de_male_merged_cleaned.txt")       # Covars path
+results.path <- c("results/by_sex/male/")                         # Results path
+cts <- read.delim(count.path)                                     # Counts
+df <- read.delim(covar.path)                                      # Covars
+rownames(df) <- df$id                                 
+#analysis <- c("alcool (28 gr/day treshold)")                     # Type of analysis
+variables <- c("age_cat", "smoke", "ncigs", "alcool", "wine_consumption",  # Covariates to cycle
+               "phys_act", "coffee_cat", "mestr_now", "bmi_cat", "alcool_28", "alcool_drinker", "coffee_drinker", "age_terz") 
 
-cts <- as.data.frame(readRDS("data/ngs/merged_harmonized_converted.rds"))
-rm <- which(colnames(cts) == "VOV114") # Campione da rimuovere
-cts <- cts[,-rm]
+tofactor <- c("study","library","id_pat","age_cat","age_terz", "sex", "smoke", "ncigs", "alcool", "wine_consumption",  # Covariates to cycle
+              "phys_act", "coffee_cat", "mestr_now", "bmi_cat", "alcool_28", "alcool_drinker", "coffee_drinker") 
+df[tofactor] <- lapply(df[tofactor], as.factor)
+sapply(df[tofactor], class) 
 
-variables <- c("age_cat", "sex", "smoke", "ncigs", "alcool", "wine_consumption", "phys_act", "coffee_cat", "mestr_now", "bmi_cat") # Variabili da analizzare
+print(Sys.time())
+for(k in 1:length(variables)){
+  print("Loading a fresh dataset")
+  db <- df
+  covars <- c("library","age_cat",variables[k]) # Covariates to include in the model. The last one is the the one to analyze
+  if(last(covars) == "bmi_cat"){
+    xx <- table(db$bmi_cat)[1]
+    levels(db$bmi_cat) <- c("normal", "over", "over", NA)
+    yy <- table(db$bmi_cat)[1]
+    check <- xx == yy
+    if(check == TRUE){
+      print("BMI levels changed successfully")
+      rm(xx,yy,check)
+    }
+  }
 
-
-for(i in 1:length(variables)){
-print("Loading a fresh dataset")
-
-df <- as.data.frame(readRDS("data/clinical/de_merged_cleaned.rds"))
-rownames(df) <- df$id
-levels(df$bmi_cat) <- c("under", "normal", "over", "over")
-rm <- which(df$bmi_cat == "under")
-df <- df[-rm,]  
-
-print(paste("Deseq on", variables[i]))
-covars <- c("library", "sex", "age_cat", variables[i])
-
-check <- all(colnames(cts) == rownames(df))
-if(check == FALSE){
-  print(paste0("Tidying count matrix and dataset on ", last(covars)))
-  i <- intersect(rownames(df), colnames(cts))
-  df <- df[i,]
-  cts <- cts[,i]
-}
-
-m <- length(df[,last(covars)])
-xx <- rownames(df)[which(is.na(df[,last(covars)]))]
-df <- tidyr::drop_na(df, last(covars))
-n <- length(df[,last(covars)])
-n.na <- m-n  
-print(paste("I've dropped",n.na,"samples for NA: ", paste0(xx, collapse = " ,")))
-line <- paste0("Samples excluded from ", last(covars), " deseq analyses (n = ",n.na,"): ", paste0(xx, collapse = " ,"))
-write(line,file="results/de_full_output.txt",append=TRUE)
-
-if(n.na>0){
-  print(paste0("Tidying count matrix and dataset after NA dropping on ", last(covars)))
-  i <- intersect(colnames(cts), rownames(df)) 
-  cts <- cts[,i]                              
-  df <- df[i,]
-}
-new.check <- all.equal(colnames(cts), rownames(df))
-
-if(new.check == TRUE){
-  print("I'll proceed to the deseq analysis")
-  model <- as.formula(paste("~", paste(covars,collapse = "+")))
-  dds <- DESeqDataSetFromMatrix(countData = cts,
-                                colData = df,
-                                design = model)
+  print(paste("Deseq on", variables[k]))
   
-  dds <- DESeq(dds)
-  print(paste("Saving deseq results of", last(covars)))
-  saveRDS(dds, paste0("results/full_model/dds/",last(covars),".rds"))
-} else {
-  print(paste0("Houston we have a problem on", last(covars)))
+  check <- all(colnames(cts) == rownames(db))
+  if(check == FALSE){
+    print(paste0("Tidying count matrix and dataset on ", last(covars)))
+    i <- intersect(rownames(db), colnames(cts))
+    db <- db[i,]
+    cts <- cts[,i]
+  }
+  
+  navalues <- rownames(db)[which(is.na(db[,last(covars)]))]
+  m <- length(db[,last(covars)])             
+  db <- tidyr::drop_na(db, last(covars))
+  n <- length(db[,last(covars)])
+  n.na <- m-n     
+  print(paste("I've dropped",n.na,"samples for NA: ", paste0(navalues, collapse = " ,")))
+  line <- paste0(Sys.time()," - Samples excluded from ", last(covars), " deseq analyses (n = ",n.na,"): ", paste0(navalues, collapse = " ,"))
+  write(line,file=paste0(results.path, "de_full_output.txt"),append=TRUE)
+  
+  if(n.na>0){
+    print(paste0("Tidying count matrix and dataset after NA dropping on ", last(covars)))
+    i <- intersect(colnames(cts), rownames(db)) 
+    cts <- cts[,i]                              
+    db <- db[i,]
+  }
+  
+  new.check <- all.equal(colnames(cts), rownames(db))
+  if(new.check == TRUE){
+    print("I'll proceed to the deseq analysis")
+    model <- as.formula(paste("~", paste(covars,collapse = "+")))
+    dds <- DESeqDataSetFromMatrix(countData = cts,
+                                  colData = db,
+                                  design = model)
+    
+    dds <- DESeq(dds)
+    print(paste("Saving deseq results of", last(covars)))
+    saveRDS(dds, paste0(results.path, last(covars),".rds"))
+  } else {
+    print(paste0("Houston we have a problem on", last(covars)))
   }
 }
+print(Sys.time())
+  
+  
