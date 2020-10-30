@@ -1,8 +1,12 @@
 library(tidyverse)
 library(DESeq2)
 
-df <- read.delim("data/clinical/de_merged_cleaned.txt")
+refDb <- ("female")
+results.path <- paste0("results/by_sex/",refDb)
+db.path <- paste0("data/clinical/de_", refDb, "_merged_cleaned.txt")
+df <- read.delim(db.path)
 df[,c(3,4,5,7,8,9,11:21)] <- lapply(df[,c(3,4,5,7,8,9,11:21)], as.factor)
+sapply(df[,c(3,4,5,7,8,9,11:21)], class)
 rownames(df) <- df$id
 str(df)
 
@@ -13,8 +17,8 @@ norm <- as.data.frame(t(norm[,i]))
 df <- df[i,]
 all.equal(rownames(norm), rownames(df))
 
-covars <- c("age_cat", "sex", "alcool", "wine_consumption", "smoke", "ncigs", "phys_act", "bmi_cat", "coffee_cat", "mestr_now", "coffee_drinker",
-            "alcool_drinker", "age_terz", "alcool_28")
+covars <- c("age_cat", "sex", "alcool", "wine_consumption", "smoke", "ncigs", "phys_act", "bmi_cat", "coffee_cat", "coffee_drinker",
+            "alcool_drinker", "age_terz", "alcool_28", "mestr_now")
 
 levName <- c(levels(df$age_cat), levels(df$sex), levels(df$alcool), levels(df$wine_consumption), levels(df$smoke),
              levels(df$ncigs), levels(df$phys_act), levels(df$bmi_cat), levels(df$coffee_cat), levels(df$mestr_now), levels(df$coffee_drinker),
@@ -48,7 +52,7 @@ dataMean[,"w.abst"] <- NULL
 dataMean[,"cigs.nev"] <- NULL
 dataMean[,"cigs.form"] <- NULL
 
-saveRDS(dataMean, file = "data/miRNA_mean.rds")
+saveRDS(dataMean, file = paste0(results.path,"/", refDb,"_averages.rds"))
 
 # Median
 
@@ -78,5 +82,5 @@ dataMedian[,"w.abst"] <- NULL
 dataMedian[,"cigs.nev"] <- NULL
 dataMedian[,"cigs.form"] <- NULL
 
-saveRDS(dataMedian, file = "data/miRNA_median.rds")
+saveRDS(dataMedian, file = paste0(results.path,"/", refDb,"_median.rds"))
 
