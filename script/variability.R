@@ -1,7 +1,7 @@
 library(tidyverse)
 library(DESeq2)
 
-refDb <- ("female")
+refDb <- ("all")
 results.path <- paste0("results/by_sex/",refDb)
 db.path <- paste0("data/clinical/de_", refDb, "_merged_cleaned.txt")
 df <- read.delim(db.path)

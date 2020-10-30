@@ -4,19 +4,10 @@ library(DESeq2)
 
 ## Data load
 
-sig_tot <- as.data.frame(readRDS("results/sig_unique.rds"))
-rownames(sig_tot) <- sig_tot$miRNA
-df <- readRDS("data/clinical/de_merged_cleaned.rds")
+cts <- readRDS("data/ngs/merged_harmonized_converted.rds")
 
-cts <- readRDS("data/ngs/merged_harmonized_converted.rds") %>% 
-  dplyr::select(-VOV114)
-i <-  intersect(rownames(sig_tot), rownames(cts))
-cts <- cts[i,]
-sig_tot <- sig_tot[i,]
-
-df <- as.data.frame(df)
+df <- readRDS("data/clinical/de_all_merged_cleaned.rds")
 rownames(df) <- df$id
-cts <- as.data.frame(cts)
 
 i <- intersect(rownames(df), colnames(cts))
 df <- df[i,]
@@ -35,36 +26,34 @@ shapiro.test(df$age) # p.value is lower than 0.05, age is not normally ditrubute
 ggpubr::ggqqplot(df$age, col = "steelblue", size = 1, title = c("qqPlot of age"))
 
 ## Correlation test for age
-df <- as.data.frame(df)
 cts <- as.data.frame(t(cts))
+corrAge <- as.data.frame(matrix(data = NA, nrow = length(rownames(cts)), ncol = 3))
+colnames(corrAge) <- c("miRNA", "kendall_correlation", "pvalue")
 
-corrAge <- as.data.frame(matrix(data = NA, nrow = length(sig_tot$miRNA), ncol = 5))
-colnames(corrAge) <- c("miRNA", "rho", "spear_pvalue", "tau", "ken_pvalue")
-
-for(i in 1:length(sig_tot$miRNA)){
-  df[,17+i] <- cts[,i]
-  resKen <- cor.test(df$age, df[,17+i], method = "kendall")
-  resSpear <- cor.test(df$age, df[,17+i], method = "spearman")
+for(i in 1:length(colnames(cts))){
+  df[,22] <- cts[,i]
+  colnames(df)[22] <- colnames(cts)[i]
+  resKen <- cor.test(df$age, df[,last(colnames(df))], method = "kendall")
   corrAge[i,1] <- colnames(cts)[i]
-  corrAge[i,2] <- resSpear$estimate
-  corrAge[i,3] <- resSpear$p.value
-  corrAge[i,4] <- resKen$estimate
-  corrAge[i,5] <- resKen$p.value
+  corrAge[i,2] <- resKen$estimate
+  corrAge[i,3] <- resKen$p.value
 }
 
 corrAge <- merge(corrAge, sig_tot, by = "miRNA")
 # Bmi
 # I'll delete the underweight category
-df <- readRDS("data/clinical/de_merged_cleaned.rds")
+df <- readRDS("data/clinical/de_all_merged_cleaned.rds")
+rownames(df) <- df$id
 rm <- which(df$bmi_cat == "underweight")
 df <- df[-rm,]
 
 cts <- readRDS("data/ngs/merged_harmonized_converted.rds") %>% 
   dplyr::select(-VOV114)
-i <-  intersect(rownames(sig_tot), rownames(cts))
-cts <- cts[i,]
-sig_tot <- sig_tot[i,]
 
+i <- intersect(rownames(df), colnames(cts))
+df <- df[i,]
+cts <- cts[,i]
+all.equal(rownames(df), colnames(cts))
 
 ggdensity(df$bmi,
           main = c("Density plot of bmi distribution"),
@@ -74,8 +63,6 @@ shapiro.test(df$bmi) # p.value is lower than 0.05, bmi is not normally distribut
 
 ggpubr::ggqqplot(df$bmi, col = "steelblue", size = 1, title = c("qqPlot of age"))
 
-df <- as.data.frame(df)
-rownames(df) <- df$id
 cts <- as.data.frame(t(cts))
 
 i <- intersect(rownames(cts), rownames(df))
@@ -83,18 +70,16 @@ cts <- cts[i,]
 df <- df[i,]
 all.equal(rownames(df), rownames(cts))
 
-corrBMI <- as.data.frame(matrix(data = NA, nrow = length(sig_tot$miRNA), ncol = 5))
-colnames(corrBMI) <- c("miRNA", "rho", "spear_pvalue", "tau", "ken_pvalue")
+corrBMI <- as.data.frame(matrix(data = NA, nrow = length(colnames(cts)), ncol = 3))
+colnames(corrBMI) <- c("miRNA", "kendall_correlation", "pvalue")
 
-for(i in 1:length(sig_tot$miRNA)){
-  df[,17+i] <- cts[,i]
-  resKen <- cor.test(df$bmi, df[,17+i], method = "kendall")
-  resSpear <- cor.test(df$bmi, df[,17+i], method = "spearman")
+for(i in 1:length(colnames(cts))){
+  df[,22] <- cts[,i]
+  colnames(df)[22] <- colnames(cts)[i]
+  resKen <- cor.test(df$bmi, df[,22], method = "kendall")
   corrBMI[i,1] <- colnames(cts)[i]
-  corrBMI[i,2] <- resSpear$estimate
-  corrBMI[i,3] <- resSpear$p.value
-  corrBMI[i,4] <- resKen$estimate
-  corrBMI[i,5] <- resKen$p.value
+  corrBMI[i,2] <- resKen$estimate
+  corrBMI[i,3] <- resKen$p.value
 }
 
 corrBMI <-  merge(corrBMI, sig_tot, by = "miRNA")
