@@ -1,10 +1,10 @@
 source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
 
-refCov <- c("bmi_cat")                   # Variable to study
+refCov <- c("age_cat")                   # Variable to study
 refDb <- c("all")                        # Dataset with the variable
 cts <- c("normalized")                   # Count matrix (normalized or raw)
 result.path <- c("results/prova")        # Path to save results
-dir.create(path = result.path, showWarnings = FALSE)
+
 
 ## Dataset load
 df <- readRDS(paste0("data/clinical/de_",refDb,"_merged_cleaned.rds"))
@@ -47,10 +47,10 @@ for(i in 1:ncol(comp)){
       }else{
         print("Rownames non equal: res and mean not merged")
       }
+    # assign(paste0(refCov, i), res)
+  dir.create(paste0(result.path, "/tables/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
+  write.table(res, file = paste0(result.path,"/tables/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
   
-  dir.create(paste0(result.path, "/tables/"), showWarnings = FALSE) # Creo la cartella dove salvare i risultati
-  write.table(res, file = paste0(result.path,"/tables/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
-  rm(cov1, cov2, ctrl, ctrl2, mean, median, res)
   }else{
     print("Rownames no equal")
   }
