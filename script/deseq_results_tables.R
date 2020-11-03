@@ -1,22 +1,27 @@
 source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
 
-refCov <- c("age_cat")                   # Variable to study
-refDb <- c("all")                        # Dataset with the variable
-cts <- c("normalized")                   # Count matrix (normalized or raw)
-result.path <- c("results/prova")        # Path to save results
+refCov <- c("age_cat")                                  # Variable to study
+refDb <- c("male")                                      # Dataset with the variable
+cts <- c("normalized")                                  # Count matrix (normalized or raw)
+dds.path <- paste0("results/by_sex/", refDb,"/dds/")    # Dds object path
+result.path <- c("results/by_sex/male/")                # Path to save results
 
 
 ## Dataset load
 df <- readRDS(paste0("data/clinical/de_",refDb,"_merged_cleaned.rds"))
 cts <- readRDS(paste0("data/ngs/",cts,"_counts.rds"))
 
+i <- intersect(rownames(df), colnames(cts))
+cts <- cts[,i] 
+df <- df[i,]
+all.equal(rownames(df), colnames(cts))
 ## DEseq analysis results
-dds <- readRDS(paste0("results/full_model/dds/",refCov,".rds"))
+
+dds <- readRDS(paste0(dds.path,refCov,".rds"))
 results(dds)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
-levels(df$bmi_cat) <- c("normal", "over", "over", NA)
-levels(df$bmi_cat) <- droplevels(df$bmi_cat)
+# levels(df$bmi_cat) <- c("normal", "over", "over", NA)
 ##
 
 ## Comparison
@@ -26,6 +31,7 @@ check <- rownames(results(dds))
 ##
 
 for(i in 1:ncol(comp)){
+  i <- 1
   cov1 <- comp[1,i]                                # Confronti delle variabili nelle colonne di comp
   cov2 <- comp[2,i]
   mean <- miRNA_average_class(refCov, df, cts)     # Creo una matrice con le media dei miRNA per ogni livello della variabile
@@ -47,17 +53,16 @@ for(i in 1:ncol(comp)){
       }else{
         print("Rownames non equal: res and mean not merged")
       }
-    # assign(paste0(refCov, i), res)
-  dir.create(paste0(result.path, "/tables/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
-  write.table(res, file = paste0(result.path,"/tables/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
-  
+    
+  # dir.create(paste0(result.path, "tables/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
+  # write.table(res, file = paste0(result.path,"/tables/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
+  # 
   }else{
     print("Rownames no equal")
   }
 }
 
-rm(list=ls())
-
+rm(list = setdiff(ls(), lsf.str()))
 
 
 
