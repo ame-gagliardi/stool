@@ -1,13 +1,15 @@
 library(tidyverse)
 library(DESeq2)
 
-count.path <- c("data/ngs/merged_harmonized_converted.txt")       # Raw counts path
-covar.path <- c("data/clinical/de_female_merged_cleaned.txt")       # Covars path
+count.path <- c("data/ngs/merged_harmonized_converted.rds")       # Raw counts path
+covar.path <- c("data/clinical/de_female_merged_cleaned.rds")       # Covars path
 results.path <- c("results/by_sex/female/")                         # Results path
-cts <- read.delim(count.path)                                     # Counts
-df <- read.delim(covar.path)                                      # Covars
+cts <- readRDS(count.path)                                     # Counts
+df <- readRDS(covar.path)                                      # Covars
 rownames(df) <- df$id                                 
+
 #analysis <- c("alcool (28 gr/day treshold)")                     # Type of analysis
+
 variables <- c("age_cat", "smoke", "ncigs", "alcool", "wine_consumption",  # Covariates to cycle
                "phys_act", "coffee_cat", "mestr_now", "bmi_cat", "alcool_28", "alcool_drinker", "coffee_drinker", "age_terz") 
 
