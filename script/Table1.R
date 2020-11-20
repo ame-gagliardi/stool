@@ -1,42 +1,58 @@
 library(tidyverse)
 library(table1)
 
-df <- as_tibble(readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/clinical/merged_cleaned.rds")) %>% 
-  dplyr::select(id, study, library, id_pat, age, age_cat, sex, bmi_cat, smoke, ncigs,phys_act, alcool, coffee_cat, no_vino, mestr_now) %>% 
-  dplyr::mutate(ncigs = as.factor(ncigs), no_vino = as.factor(no_vino), mestr_now = as.factor(mestr_now)) %>% 
-  dplyr::filter(id != "VOV114") %>% 
-  dplyr::mutate(ncigs = droplevels(ncigs))
+df <- readRDS("data/db_table1.rds")
 
-levels(df$smoke) <- c("Never", "Former", "Current")
-levels(df$ncigs) <- c("<16", " >16")
-levels(df$sex) <- c("Female", "Male")
-levels(df$bmi_cat) <- c(NA, "Normal", "Overweight", "Overweight")
-levels(df$id_pat) <- c("Control", "Hemorrhoids", "Onnivore", "Vegetarian", "Vegan", "Celiac under diet")
-levels(df$phys_act) <- c("Moderately Active", "Inactive", "Moderately Inactive")
-df$phys_act <- relevel(df$phys_act, "Moderately Inactive")
-df$phys_act <- relevel(df$phys_act, "Moderately Active")
-levels(df$no_vino) <- c("All types of alcohol", "No wine consumption")
-levels(df$mestr_now) <- c("No", "Yes")
-levels(df$alcool) <- c("Abstemious", "Light drinker", "Heavy drinker")
-levels(df$coffee_cat) <- c("No", "Light drinker", "Heavy drinker")
-levels(df$age_cat) <- c("<40", "40-60", ">60")
-
-table1::label(df$ncigs) <- c("Number of cigarettes")
-table1::label(df$id_pat) <- c("Condition")
+# Age
 table1::label(df$age) <- c("Age")
-table1::label(df$age_cat) <- c("Age class")
+levels(df$age_terz) <- c("18-37", "37-53", "53-81")
+table1::label(df$age_terz) <- c("Age (Tertiles)")
+
+#Sex
 table1::label(df$sex) <- c("Sex")
-table1::label(df$bmi_cat) <- c("BMI")
-table1::label(df$smoke) <- c("Smoking status")
-table1::label(df$phys_act) <- c("Physical activity")
-table1::label(df$alcool) <- c("Alcohol consumption")
+levels(df$sex) <- c("Female", "Male")
+
+#BMI
+table1::label(df$bmi) <- c("BMI")
+levels(df$bmi_cat) <- c("Normal", "Obese", "Overweight", "Underweight")
+table1::label(df$bmi_cat) <- c("Bmi (Class)")
+
+#Smoke
+levels(df$ncigs) <- c("<16 cigs/day", ">16 cigs/day", "Former", "Never")
+table1::label(df$ncigs) <- c("Smoking status")
+
+#Alcool
+levels(df$alcool_28) <- c("Abstemious", "Habitual", "Occasional")
+df$alcool_28 <- relevel(df$alcool_28, "Occasional")
+df$alcool_28 <- relevel(df$alcool_28, "Abstemious")
+table1::label(df$alcool_28) <- c("Alcohol consumption")
+#Wine
+levels(df$wine_consumption) <- c("Abstemious", "All type of alcohol", "No wine")
+df$wine_consumption <- relevel(df$wine_consumption, "No wine")
+df$wine_consumption <- relevel(df$wine_consumption, "Abstemious")
+table1::label(df$wine_consumption) <- c("Wine consumption")
+
+#Coffee
+levels(df$coffee_cat) <- c("Habitual", "Occasional", "Non drinker")
+df$coffee_cat <- relevel(df$coffee_cat, "Non drinker")
+df$coffee_cat <- relevel(df$coffee_cat, "Occasional")
+df$coffee_cat <- relevel(df$coffee_cat, "Non drinker")
 table1::label(df$coffee_cat) <- c("Coffee consumption")
-table1::label(df$no_vino) <- c("Wine consumption")
+
+#Physical activity
+df$phys_act_2 <- as.factor(df$phys_act_2)
+levels(df$phys_act_2) <- c("Moderately active", "Inactive", "Moderately active", "Moderately inactive")
+df$phys_act_2 <- relevel(df$phys_act_2, "Moderately inactive")
+df$phys_act_2 <- relevel(df$phys_act_2, "Moderately active")
+table1::label(df$phys_act_2) <- c("Physical activity")
+
+#Menstruation
+levels(df$mestr_now) <- c("No", "Yes")
 table1::label(df$mestr_now) <- c("Menstruation")
 
 table1::units(df$age) <- "Years"
 table1::units(df$ncigs) <- "Cigs/day"
 
+table1::table1(~ age + age_terz + bmi + bmi_cat + ncigs + alcool_28 + wine_consumption + 
+                 coffee_cat + phys_act_2 + mestr_now | sex, data = df, topclass = "Rtable1-zebra")
 
-table1::table1(~ age + age_cat + bmi_cat + smoke+ ncigs + alcool + no_vino + coffee_cat + phys_act + mestr_now| sex, data = df, topclass = "Rtable1-zebra",
-               footnote = "BMI: Underweight < 18, Normal 18-25, Overweight 25-30, Obese > 30 -- Alcohol: Abstemious 0 gr/day, Light 0.1-18.5 gr/day, Heavy > 18.5 gr/day -- Physical activity: Women - Inactive (<46.89); Mod. inactive (46.89-82.14); Mod. active (82.14-120.14); Active (> 120.14); Men - Inactive (< 34.00); Mod. inactive (34.00-56.76); Mod. active (56.76-87.06); Active (> 87.06)")

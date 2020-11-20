@@ -1,10 +1,10 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
+source("C:/Users/UappaSguappa/Desktop/R_Projects/general_script/useful_functions.R")
 
 refCov <- c("phys_act_2")                                  # Variable to study
-refDb <- c("all")                                      # Dataset with the variable
+refDb <- c("male")                                      # Dataset with the variable
 cts <- c("normalized")                                  # Count matrix (normalized or raw)
-dds.path <- paste0("results/full_model/dds/")    # Dds object path
-result.path <- c("results/full_model/")                # Path to save results
+dds.path <- paste0("results/by_sex/", refDb ,"/dds/")    # Dds object path
+result.path <- c("results/by_sex/")                # Path to save results
 
 
 ## Dataset load
@@ -56,8 +56,8 @@ for(i in 1:ncol(comp)){
         print("Rownames non equal: res and mean not merged")
       }
     
-  dir.create(paste0(result.path, "tables/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
-  write.table(res, file = paste0(result.path,"/tables/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
+  dir.create(paste0(result.path, "male/tables/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
+  write.table(res, file = paste0(result.path,"male/tables/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
   }else{
     print("Rownames no equal")
   }
