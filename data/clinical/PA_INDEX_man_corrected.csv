@@ -1,0 +1,100 @@
+"idpaziente";"Study";"Libraries";"Age";"age_cat";"PA_work";"PA_recreational";"PA_total";"MET_total"
+"005";"CRC";"Library CRC stool 1";43;"40_60";"Non-working";"Medium";"Moderately inactive";73.1759259259259
+"018";"CRC";"Library CRC stool 2";64;"60_";"Non-working";"Very-High";"Moderately active";123.175925925926
+"185";"CRC";"Library CRC stool 6";58;"40_60";"Non-working";"High";"Moderately active";94.6388888888889
+"206";"CRC";"Library CRC stool 8";80;"60_";"Non-working";"Medium";"Moderately inactive";42.1759259259259
+"213";"CRC";"Library CRC stool 8";51;"40_60";"Non-working";"Very-High";"Moderately active";148.574074074074
+"255";"CRC";"Library CRC stool 8";69;"60_";"Non-working";"Medium";"Moderately inactive";43.8888888888889
+"261";"CRC";"Library CRC stool 8";69;"60_";"Non-working";"Very-High";"Moderately active";145.638888888889
+"262";"CRC";"Library CRC stool 8";64;"60_";"Non-working";"Very-High";"Moderately active";134.138888888889
+"265";"CRC";"Library CRC stool 7";64;"60_";"Non-working";"Very-High";"Moderately active";160.138888888889
+"293";"CRC";"Library CRC stool 9";79;"60_";"Non-working";"Very-High";"Moderately active";229.407407407407
+"305";"CRC";"Library CRC stool 7";55;"40_60";"Non-working";"Very-High";"Moderately active";323.638888888889
+"351";"CRC";"Library CRC stool 10";81;"60_";"Non-working";"Very-High";"Moderately active";125.37962962963
+"365";"CRC";"Library CRC stool 10";65;"60_";"Non-working";"Medium";"Moderately inactive";43.6574074074074
+"VOV097";"VOV";"Library VOV stool 4";38;"_40";"Non-working";"Low";"Moderately inactive";39.1388888888889
+"VOV117";"VOV";"Library VOV stool 4";63;"60_";"Non-working";"High";"Moderately active";99.6018518518518
+"VOV125";"VOV";"Library VOV stool 4";34;"_40";"Non-working";"Very-High";"Moderately active";288.175925925926
+"VOV132";"VOV";"Library VOV stool 5";34;"_40";"Non-working";"Low";"Moderately inactive";20.1574074074074
+"001";"CRC";"Library CRC stool 1";53;"40_60";"Sedentary";"Low";"Inactive";14.1574074074074
+"013";"CRC";"Library CRC stool 2";58;"40_60";"Sedentary";"Low";"Inactive";35.1018518518519
+"104";"CRC";"Library CRC stool 4";45;"40_60";"Sedentary";"High";"Moderately inactive";87.1388888888889
+"110";"CRC";"Library CRC stool 4";40;"40_60";"Sedentary";"Low";"Inactive";29.6388888888889
+"117";"CRC";"Library CRC stool 6";65;"60_";"Sedentary";"Medium";"Inactive";42
+"152";"CRC";"Library CRC stool 5";63;"60_";"Sedentary";"Low";"Inactive";40.3240740740741
+"164";"CRC";"Library CRC stool 6";52;"40_60";"Sedentary";"Low";"Inactive";41.1574074074074
+"254";"CRC";"Library CRC stool 8";43;"40_60";"Sedentary";"Low";"Inactive";30.1574074074074
+"268";"CRC";"Library CRC stool 7";48;"40_60";"Sedentary";"High";"Moderately inactive";94.8240740740741
+"Cii_005";"Celiac";"Library Cel stool 1";27;"_40";"Sedentary";"Medium";"Inactive";62.3888888888889
+"Cii_006";"Celiac";"Library Cel stool 1";23;"_40";"Sedentary";"High";"Moderately inactive";115.138888888889
+"Cii_007";"Celiac";"Library Cel stool 1";21;"_40";"Sedentary";"High";"Moderately inactive";108.074074074074
+"Cii_012";"Celiac";"Library Cel stool 1";24;"_40";"Sedentary";"Very-High";"Moderately active";168.75
+"Cii_015";"Celiac";"Library Cel stool 1";24;"_40";"Sedentary";"Medium";"Inactive";72.1574074074074
+"Cii_016";"Celiac";"Library Cel stool 2";23;"_40";"Sedentary";"Very-High";"Moderately active";164.407407407407
+"Cii_025";"Celiac";"Library Cel stool 2";28;"_40";"Sedentary";"Medium";"Inactive";45.75
+"Cii_027";"Celiac";"Library Cel stool 1";49;"40_60";"Sedentary";"High";"Moderately inactive";108.675925925926
+"CMa_011";"Celiac";"Library Cel stool 3";46;"40_60";"Sedentary";"Very-High";"Moderately active";198.351851851852
+"G04";"CRC";"Library CRC stool 1";41;"40_60";"Sedentary";"Medium";"Inactive";55.1759259259259
+"VOV015";"VOV";"Library VOV stool 2";40;"40_60";"Sedentary";"Very-High";"Moderately active";143.25
+"VOV020";"VOV";"Library VOV stool 3";25;"_40";"Sedentary";"High";"Moderately inactive";104.638888888889
+"VOV023";"VOV";"Library VOV stool 2";21;"_40";"Sedentary";"Very-High";"Moderately active";170.638888888889
+"VOV035";"VOV";"Library VOV stool 2";39;"_40";"Sedentary";"Very-High";"Moderately active";200.101851851852
+"VOV047";"VOV";"Library VOV stool 3";51;"40_60";"Sedentary";"Very-High";"Moderately active";329.157407407407
+"VOV052";"VOV";"Library VOV stool 2";23;"_40";"Sedentary";"Medium";"Inactive";48.3240740740741
+"VOV054";"VOV";"Library VOV stool 2";32;"_40";"Sedentary";"High";"Moderately inactive";106.324074074074
+"VOV057";"VOV";"Library VOV stool 2";23;"_40";"Sedentary";"Medium";"Inactive";78.3888888888889
+"VOV058";"VOV";"Library VOV stool 3";43;"40_60";"Sedentary";"High";"Moderately inactive";97.3240740740741
+"VOV065";"VOV";"Library VOV stool 2";45;"40_60";"Sedentary";"Low";"Inactive";23.1759259259259
+"VOV067";"VOV";"Library VOV stool 2";27;"_40";"Sedentary";"Very-High";"Moderately active";140.101851851852
+"VOV068";"VOV";"Library VOV stool 3";26;"_40";"Sedentary";"Low";"Inactive";18
+"VOV069";"VOV";"Library VOV stool 3";32;"_40";"Sedentary";"Medium";"Inactive";75.1574074074074
+"VOV081";"VOV";"Library VOV stool 5";55;"40_60";"Sedentary";"Very-High";"Moderately active";169.138888888889
+"VOV085";"VOV";"Library VOV stool 2";26;"_40";"Sedentary";"Very-High";"Moderately active";231.157407407407
+"VOV088";"VOV";"Library VOV stool 3";35;"_40";"Sedentary";"Low";"Inactive";18.1574074074074
+"VOV090";"VOV";"Library VOV stool 2";54;"40_60";"Sedentary";"High";"Moderately inactive";82.6018518518518
+"VOV095";"VOV";"Library VOV stool 3";33;"_40";"Sedentary";"Low";"Inactive";39.1574074074074
+"VOV101";"VOV";"Library VOV stool 3";50;"40_60";"Sedentary";"High";"Moderately inactive";95.4074074074074
+"VOV104";"VOV";"Library VOV stool 3";51;"40_60";"Sedentary";"Very-High";"Moderately active";159.157407407407
+"VOV105";"VOV";"Library VOV stool 4";33;"_40";"Sedentary";"Low";"Inactive";6.5
+"VOV109";"VOV";"Library VOV stool 5";56;"40_60";"Sedentary";"Very-High";"Moderately active";123.657407407407
+"VOV112";"VOV";"Library VOV stool 4";43;"40_60";"Sedentary";"High";"Moderately inactive";99.6759259259259
+"VOV119";"VOV";"Library VOV stool 4";47;"40_60";"Sedentary";"Medium";"Inactive";46.6388888888889
+"VOV121";"VOV";"Library CEL stool 2";50;"40_60";"Sedentary";"High";"Moderately inactive";106.657407407407
+"VOV135";"VOV";"Library VOV stool 5";41;"40_60";"Sedentary";"Medium";"Inactive";45.1574074074074
+"VOV140";"VOV";"Library VOV stool 5";30;"_40";"Sedentary";"High";"Moderately inactive";116.638888888889
+"VOV141";"VOV";"Library VOV stool 5";31;"_40";"Sedentary";"Low";"Inactive";36.1574074074074
+"031";"CRC";"Library CRC stool 2";59;"40_60";"Standing";"Very-High";"Active";158.925925925926
+"075";"CRC";"Library CRC stool 3";45;"40_60";"Standing";"High";"Moderately active";83.6388888888889
+"094";"CRC";"Library CRC stool 5";49;"40_60";"Standing";"High";"Moderately active";101.916666666667
+"111";"CRC";"Library CRC stool 5";49;"40_60";"Standing";"Low";"Moderately inactive";5.62962962962963
+"203";"CRC";"Library CRC stool 6";53;"40_60";"Standing";"Low";"Moderately inactive";36.3888888888889
+"210";"CRC";"Library CRC stool 7";49;"40_60";"Standing";"High";"Moderately active";104.638888888889
+"Cii_029";"Celiac";"Library Cel stool 2";26;"_40";"Standing";"High";"Moderately active";91.3518518518518
+"CMa_001";"Celiac";"Library Cel stool 1";49;"40_60";"Standing";"Low";"Moderately inactive";36.1388888888889
+"G19";"CRC";"Library CRC stool 2";47;"40_60";"Standing";"High";"Moderately active";88.6574074074074
+"VOV011";"VOV";"Library VOV stool 2";57;"40_60";"Standing";"Low";"Moderately inactive";7.13888888888889
+"VOV025";"VOV";"Library VOV stool 2";45;"40_60";"Standing";"Medium";"Moderately inactive";63.1388888888889
+"VOV026";"VOV";"Library VOV stool 3";42;"40_60";"Standing";"Low";"Moderately inactive";33.3888888888889
+"VOV046";"VOV";"Library VOV stool 2";37;"_40";"Standing";"High";"Moderately active";98.75
+"VOV053";"VOV";"Library VOV stool 2";53;"40_60";"Standing";"Medium";"Moderately inactive";41.1759259259259
+"VOV091";"VOV";"Library VOV stool 5";43;"40_60";"Standing";"Medium";"Moderately inactive";43.6388888888889
+"VOV096";"VOV";"Library VOV stool 3";48;"40_60";"Standing";"Medium";"Moderately inactive";73.8888888888889
+"VOV100";"VOV";"Library VOV stool 3";26;"_40";"Standing";"Low";"Moderately inactive";12.3888888888889
+"VOV106";"VOV";"Library VOV stool 4";61;"60_";"Standing";"High";"Moderately active";108.574074074074
+"VOV137";"VOV";"Library VOV stool 5";50;"40_60";"Standing";"Low";"Moderately inactive";31.6574074074074
+"VOV142";"VOV";"Library CEL stool 2";34;"_40";"Standing";"Medium";"Moderately inactive";50.8796296296296
+"019";"CRC";"Library CRC stool 6";57;"40_60";"Manual";"Medium";"Moderately active";76.8888888888889
+"112";"CRC";"Library CRC stool 5";57;"40_60";"Manual";"High";"Active";118.138888888889
+"306";"CRC";"Library CRC stool 9";43;"40_60";"Manual";"Medium";"Moderately active";72.6574074074074
+"CMa_005";"Celiac";"Library Cel stool 2";28;"_40";"Manual";"High";"Active";82.6574074074074
+"VOV028";"VOV";"Library VOV stool 2";34;"_40";"Manual";"Medium";"Moderately active";46.25
+"VOV070";"VOV";"Library VOV stool 2";43;"40_60";"Manual";"Low";"Moderately active";28.6574074074074
+"VOV073";"VOV";"Library VOV stool 4";67;"60_";"Manual";"Very-High";"Active";161.824074074074
+"VOV082";"VOV";"Library VOV stool 2";37;"_40";"Manual";"Medium";"Moderately active";42.9074074074074
+"076";"CRC";"Library CRC stool 3";50;"40_60";"Heavy-manual";"Low";"Moderately active";4.13888888888889
+"189";"CRC";"Library CRC stool 5";66;"60_";"Heavy-manual";"Medium";"Moderately active";55.3240740740741
+"279";"CRC";"Library CRC stool 8";61;"60_";"Heavy-manual";"Very-High";"Active";246.657407407407
+"124";"CRC";"Library CRC stool 5";57;"40_60";"missing";"High";"Moderately inactive";118
+"259";"CRC";"Library CRC stool 7";71;"60_";"missing";"Very-High";"Moderately active";151.75
+"VOV010";"VOV";"Library VOV stool 2";26;"_40";"missing";"Low";"Inactive";2.25
+"VOV077";"VOV";"Library VOV stool 5";48;"40_60";"missing";"Low";"Inactive";19.5
