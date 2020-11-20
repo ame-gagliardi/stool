@@ -42,8 +42,8 @@ saveRDS(df, file = "data/clinical/repeated_samples.rds")
 ## Counts
 
 df <- readRDS("data/clinical/repeated_samples.rds")
-cts <- readRDS("data/ngs/normalized_counts.rds")
-cel_cts <- readRDS("C:/Users/amedeo/Desktop/R_Projects/cel_rep.rds")
+cts <- readRDS("data/ngs/raw_counts.rds")
+cel_cts <- readRDS("C:/Users/UappaSguappa/Desktop/R_Projects/stool/data/ngs/cel_rep.rds")
 colnames(cel_cts) <- str_replace_all(colnames(cel_cts), "Cii", "Cii_")
 
 i <- intersect(colnames(cts), rownames(df))
@@ -53,14 +53,7 @@ rownames(df) <- df$cel_id
 i <- intersect(colnames(cel_cts), rownames(df))
 cel_rep_cts <- cel_cts[,i]
 
+cts <- bind_cols(vov_rep_cts, cel_rep_cts)
 
-saveRDS(cel_rep_cts, file = "C:/Users/amedeo/Desktop/R_Projects/stool/data/celiac_cts_repeated.rds")
-saveRDS(vov_rep_cts, file = "C:/Users/amedeo/Desktop/R_Projects/stool/data/vov_cts_repeated.rds")
-
-##
-
-df <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/clinical/repeated_samples.rds")
-cel_cts <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/celiac_cts_repeated.rds")
-vov_cts <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/data/vov_cts_repeated.rds")
-
+saveRDS(cts, file = "data/ngs/repeated_counts.rds")
 
