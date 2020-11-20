@@ -1,14 +1,15 @@
 source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
 
-refCov <- c("wine_consumption")                                  # Variable to study
-refDb <- c("female")                                      # Dataset with the variable
+refCov <- c("phys_act_2")                                  # Variable to study
+refDb <- c("all")                                      # Dataset with the variable
 cts <- c("normalized")                                  # Count matrix (normalized or raw)
-dds.path <- paste0("results/by_sex/", refDb,"/dds/")    # Dds object path
-result.path <- c("results/by_sex/female/")                # Path to save results
+dds.path <- paste0("results/full_model/dds/")    # Dds object path
+result.path <- c("results/full_model/")                # Path to save results
 
 
 ## Dataset load
 df <- readRDS(paste0("data/clinical/de_",refDb,"_merged_cleaned.rds"))
+rownames(df) <- df$id
 cts <- readRDS(paste0("data/ngs/",cts,"_counts.rds"))
 
 i <- intersect(rownames(df), colnames(cts))
@@ -22,6 +23,8 @@ results(dds)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
 # levels(df$bmi_cat) <- c("normal", "over", "over", NA)
+df$phys_act_2 <- as.factor(df$phys_act_2)
+levels(df$phys_act_2) <- c("modAct", "inactive", "modAct", "modInact")
 ##
 
 ## Comparison
