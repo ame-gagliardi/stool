@@ -48,33 +48,29 @@ for(i in 1:6){
   corr.df[i,4] <- yy
   corr.df[i,5] <- xx
 }
-
-cts_plot <- norm %>% 
+corr.df[,"name"] <- c("Luca Alessandri", "Alessia Russo", "Simonetta Guarrera",
+                      "Barbara Pardini", "Alessio Naccarati", "Sonia Tarallo")
+for(i in 1:6){
+  
+  cts_plot <- norm %>% 
   rownames_to_column() %>% 
   dplyr::rename(mirna = rowname) %>% 
-  dplyr::select(mirna, VOV139, Cii_035) %>% 
-  dplyr::mutate(pseudo_VOV139 = VOV139 + 1) %>% 
-  dplyr::mutate(pseudo_Cii_035 = Cii_035 + 1) %>% 
-  dplyr::mutate(ratio = pseudo_Cii_035/pseudo_VOV139)
- 
-  # dplyr::filter(VOV139 < 1000) %>% 
-  # dplyr::filter(Cii_035 < 1000)
-
-grob <- grobTree(textGrob(paste0("r = ", round(corr.df["ST",4], 3)), x=0.5,  y=0.95, hjust=0,
+  dplyr::select(mirna, corr.df[i, "Vov"], corr.df[i, "Cel"])
+  
+  grob <- grobTree(textGrob(paste0("r = ", round(corr.df[i,4], 3)), x=0.5,  y=0.95, hjust=0,
                           gp=gpar(col="red", fontsize=13, fontface="italic")))
-
-grob2 <- grobTree(textGrob(paste0("p.value = ", round(corr.df["ST",5], 10)), x=0.5,  y=0.90, hjust=0,
+  grob2 <- grobTree(textGrob(paste0("p.value = ", round(corr.df[i,5], 10)), x=0.5,  y=0.90, hjust=0,
                           gp=gpar(col="red", fontsize=13, fontface="italic")))
-
-p <- ggplot(cts_plot, aes(x= VOV139, y = Cii_035)) +
+  
+  p <- ggplot(cts_plot, aes(x= log(cts_plot[,2] + 1), y = log(cts_plot[,3] + 1))) +
   geom_point() + 
-  labs(x = "Vov sample", y = "Celiac sample", title = "Sonia Tarallo") +
+  labs(x = "Vov sample", y = "Celiac sample", title = corr.df[i, "name"]) +
   annotation_custom(grob) +
   annotation_custom(grob2)
-
-p
-
-ggsave("C:/Users/amedeo/Desktop/R_Projects/stool/data/repeated_samples/figures/ST.jpg", p)
+  
+  ggsave(paste0("C:/Users/amedeo/Desktop/R_Projects/stool/data/repeated_samples/figures/",
+                corr.df[i, "name"],".jpg"), p)
+}
 
 vov_cts <- cts[,1:6]
 cel_cts <- cts[,7:12]
