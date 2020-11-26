@@ -1,35 +1,87 @@
-library(tidyverse)
-library(DESeq2)
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
+library(pheatmap)
+library(RColorBrewer)
+library(grid)
 
-cts_vov <- readRDS("data/ngs/vov_cts_repeated.rds")
-cts_celiac <- readRDS("data/ngs/celiac_cts_repeated.rds")
-cts <- readRDS("data/ngs/repeated_counts.rds")
-norm <- readRDS("data/ngs/repeated_normalized_counts.rds")
+# Data
 
-df <- readRDS("data/clinical/repeated_samples.rds")
+df <- readRDS("data/repeated_samples/repeated_df.rds")
+cts <- readRDS("data/repeated_samples/repeated_cts_raw.rds")
+norm<- readRDS("data/repeated_samples/repeated_cts_norm.rds")
 
-i <- intersect(rownames(df), colnames(cts))
-df <- df[i,]
-cts <- cts[,i]
+# Heatmap corelation
 
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = df,
                               design = ~age_cat + sex)
 
-vst <- varianceStabilizingTransformation(dds, blind=TRUE)
+vsd <- varianceStabilizingTransformation(dds, blind=TRUE)
 
-vst_mat <- assay(vst) # Extract the vst matrix from PCA
+vsd_mat <- assay(vsd) # Extract the vsd matrix from PCA
 
-vst_cor <- cor(vst_mat) # Compute pairwise correlation values
+vsd_cor <- cor(vsd_mat) # Compute pairwise correlation values
 
 breaksList = seq(0, 1, by = 0.1)
 
-pheatmap(vst_cor,
+pheatmap(vsd_cor,
          color = colorRampPalette(rev(brewer.pal(n = 7, name = "RdYlBu")))(length(breaksList)), 
          breaks = breaksList,
          fontsize_row = 5,
          fontsize_col = 5,
          show_colnames = TRUE,
-         show_rownames = TRUE)
+         show_rownames = TRUE,
          cluster_rows = F,
          cluster_cols = F)
+
+# Correlation R graph
+
+corr.df <- as.data.frame(matrix(nrow = 6, ncol = 5))
+colnames(corr.df) <- c("Person","Vov", "Cel", "pearson", "p.value")
+corr.df$Person <- df$name[1:6]
+corr.df$Vov <- rownames(df)[1:6]
+corr.df$Cel <- rownames(df)[7:12]
+rownames(corr.df) <- corr.df$Person
+
+for(i in 1:6){
+  yy <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]])$estimate
+  xx <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]])$p.value
+  corr.df[i,4] <- yy
+  corr.df[i,5] <- xx
+}
+
+cts_plot <- norm %>% 
+  rownames_to_column() %>% 
+  dplyr::rename(mirna = rowname) %>% 
+  dplyr::select(mirna, VOV139, Cii_035) %>% 
+  dplyr::mutate(pseudo_VOV139 = VOV139 + 1) %>% 
+  dplyr::mutate(pseudo_Cii_035 = Cii_035 + 1) %>% 
+  dplyr::mutate(ratio = pseudo_Cii_035/pseudo_VOV139)
+ 
+  # dplyr::filter(VOV139 < 1000) %>% 
+  # dplyr::filter(Cii_035 < 1000)
+
+grob <- grobTree(textGrob(paste0("r = ", round(corr.df["ST",4], 3)), x=0.5,  y=0.95, hjust=0,
+                          gp=gpar(col="red", fontsize=13, fontface="italic")))
+
+grob2 <- grobTree(textGrob(paste0("p.value = ", round(corr.df["ST",5], 10)), x=0.5,  y=0.90, hjust=0,
+                          gp=gpar(col="red", fontsize=13, fontface="italic")))
+
+p <- ggplot(cts_plot, aes(x= VOV139, y = Cii_035)) +
+  geom_point() + 
+  labs(x = "Vov sample", y = "Celiac sample", title = "Sonia Tarallo") +
+  annotation_custom(grob) +
+  annotation_custom(grob2)
+
+p
+
+ggsave("C:/Users/amedeo/Desktop/R_Projects/stool/data/repeated_samples/figures/ST.jpg", p)
+
+vov_cts <- cts[,1:6]
+cel_cts <- cts[,7:12]
+
+vov_cts[,"mean"] <- apply(vov_cts, 1, mean, na.rm = TRUE)
+cel_cts[,"mean"] <- apply(cel_cts, 1, mean, na.rm = TRUE)
+
+cor.test(vov_cts$mean, cel_cts$mean)
+
+# T-t test
