@@ -2,6 +2,8 @@ source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
 library(pheatmap)
 library(RColorBrewer)
 library(grid)
+library(ggpubr)
+library(ggrepel)
 
 # Data
 
@@ -9,7 +11,7 @@ df <- readRDS("data/repeated_samples/repeated_df.rds")
 cts <- readRDS("data/repeated_samples/repeated_cts_raw.rds")
 norm<- readRDS("data/repeated_samples/repeated_cts_norm.rds")
 
-# Heatmap corelation
+# Heatmap of the correlation
 
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = df,
@@ -32,6 +34,8 @@ pheatmap(vsd_cor,
          show_rownames = TRUE,
          cluster_rows = F,
          cluster_cols = F)
+
+rm(dds, vsd, vsd_mat, vsd_cor, breaksList)
 
 # Correlation R graph
 
@@ -75,9 +79,96 @@ for(i in 1:6){
 vov_cts <- cts[,1:6]
 cel_cts <- cts[,7:12]
 
-vov_cts[,"mean"] <- apply(vov_cts, 1, mean, na.rm = TRUE)
-cel_cts[,"mean"] <- apply(cel_cts, 1, mean, na.rm = TRUE)
+vov_cts[,"vov.mean"] <- apply(vov_cts, 1, mean, na.rm = TRUE)
+cel_cts[,"cel.mean"] <- apply(cel_cts, 1, mean, na.rm = TRUE)
 
-cor.test(vov_cts$mean, cel_cts$mean)
+xx <- cor.test(vov_cts$vov.mean, cel_cts$cel.mean)
 
-# T-t test
+whole_cts <- bind_cols(vov_cts, cel_cts)
+
+# grob <- grobTree(textGrob(paste0("r = ", round(xx$estimate, 3)), x=0.1,  y=0.95, hjust=0, gp=gpar(col="red", fontsize=13, fontface="italic")))
+# grob2 <- grobTree(textGrob(paste0("p.value = ", xx$p.value), x=0.1,  y=0.9, hjust=0, gp=gpar(col="red", fontsize=13, fontface="italic")))
+# 
+# p <- ggplot(whole_cts, aes(x = log(vov.mean + 1), y = log(cel.mean + 1))) +
+#   geom_point() +
+#   stat_cor(method = "pearson", label.x = 3, label.y = 30) +
+#   labs(x = "Mean of Vov samples", y = "Mean of Celiac samples", title = "Correlation plot of miRNA in VOV and Celiac samples") +
+#   annotation_custom(grob) +
+#   annotation_custom(grob2)
+
+whole_cts$x <- log(whole_cts$vov.mean + 1)
+whole_cts$y <- log(whole_cts$cel.mean + 1)
+
+p <- ggscatter(whole_cts, "x", "y",
+               add = 'reg.line',
+               add.params = list(color = "blue", fill = "lightgray"),
+               conf.int = TRUE,
+               xlab = "Mean of VOV samples",
+               ylab = "Mean of Celiac samples",
+               title = "Correlation plot of miRNA counts in VOV and Celiac samples",
+               xlim = c(0,10),
+               ylim = c(0,10))
+p + stat_cor(method = "pearson", label.x = 3, label.y = 30)
+
+  
+  
+  
+  
+  
+## PCA plot
+
+# Deseq
+
+df[1:6, "sample"] <- c("Vov")
+df[7:12, "sample"] <- c("Celiac")
+
+dds <- DESeqDataSetFromMatrix(countData = cts,
+                              colData = df,
+                              design = ~age_cat + sex)
+
+vsd <- varianceStabilizingTransformation(dds, blind=TRUE)
+
+pcaData <- plotPCA(vsd, intgroup = "sample", returnData = TRUE)
+
+p <- ggplot(pcaData, aes(x = PC1, y = PC2, color = sample)) +
+  geom_point(size = 2) +
+  geom_label_repel(aes(label = name),
+                   box.padding   = 0.35, 
+                   point.padding = 0.5,
+                   segment.color = 'grey50') +
+  theme_bw()
+
+ggsave("data/repeated_samples/figures/pca_deseq.jpg", p)
+
+# Prcomp
+
+count.pca <- prcomp(log(cts+1), center = TRUE, scale. = TRUE)
+tmp <- as.data.frame(count.pca$rotation[,c(1,2,3,4)])
+tmp[,"name"] <- rownames(tmp)
+colnames(tmp) <- c("PC1","PC2","PC3","PC4", "name")
+
+check <- all.equal(rownames(tmp), rownames(df))
+if(check == FALSE){
+  i <- intersect(rownames(tmp), rownames(df))
+  tmp <- tmp[i,]
+  coldata <- coldata[i,]
+}
+
+varPCA <- "sample"
+
+
+tmp[,varPCA] <- df[match(rownames(tmp), rownames(df), nomatch=0),varPCA]
+p <- ggplot2::ggplot(data = tmp, ggplot2::aes(x=PC1, y=PC2)) +
+  geom_point(aes(color=get(varPCA))) + 
+  scale_color_discrete(name = varPCA) + 
+  geom_label_repel(aes(label = name),
+                 box.padding   = 0.35, 
+                 point.padding = 0.5,
+                 segment.color = 'grey50') +
+  theme_bw()
+
+ggsave("data/repeated_samples/figures/pca_prcomp.jpg", p)
+
+
+
+
