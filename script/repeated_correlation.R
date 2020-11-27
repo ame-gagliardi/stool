@@ -39,18 +39,23 @@ rm(dds, vsd, vsd_mat, vsd_cor, breaksList)
 
 # Correlation R graph
 
-corr.df <- as.data.frame(matrix(nrow = 6, ncol = 5))
-colnames(corr.df) <- c("Person","Vov", "Cel", "pearson", "p.value")
+corr.df <- as.data.frame(matrix(nrow = 6, ncol = 7))
+colnames(corr.df) <- c("Person","Vov", "Cel", "pearson", "p.value", "vov.date", "cel.date")
 corr.df$Person <- df$name[1:6]
 corr.df$Vov <- rownames(df)[1:6]
 corr.df$Cel <- rownames(df)[7:12]
 rownames(corr.df) <- corr.df$Person
+corr.df$vov.date <- as.Date(corr.df$vov.date)
+corr.df$cel.date <- as.Date(corr.df$cel.date)
+
 
 for(i in 1:6){
   yy <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]])$estimate
   xx <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]])$p.value
   corr.df[i,4] <- yy
   corr.df[i,5] <- xx
+  corr.df[i,6] <- as.Date(df[i, "vov_date"], format = c("%d-%m-%Y"))
+  corr.df[i,7] <- as.Date(df[i, "cel_date"], format = c("%d-%m-%Y"))
 }
 corr.df[,"name"] <- c("Luca Alessandri", "Alessia Russo", "Simonetta Guarrera",
                       "Barbara Pardini", "Alessio Naccarati", "Sonia Tarallo")
@@ -59,21 +64,23 @@ for(i in 1:6){
   cts_plot <- norm %>% 
   rownames_to_column() %>% 
   dplyr::rename(mirna = rowname) %>% 
-  dplyr::select(mirna, corr.df[i, "Vov"], corr.df[i, "Cel"])
+  dplyr::select(mirna, corr.df[i, "Vov"], corr.df[i, "Cel"]) %>% 
+  dplyr::mutate(name = corr.df[i, "name"]) %>% 
+  dplyr::rename(x = 2, y = 3) %>% 
+  dplyr::mutate(z = log(x+1), k = log(y+1))
   
-  grob <- grobTree(textGrob(paste0("r = ", round(corr.df[i,4], 3)), x=0.5,  y=0.95, hjust=0,
-                          gp=gpar(col="red", fontsize=13, fontface="italic")))
-  grob2 <- grobTree(textGrob(paste0("p.value = ", round(corr.df[i,5], 10)), x=0.5,  y=0.90, hjust=0,
-                          gp=gpar(col="red", fontsize=13, fontface="italic")))
-  
-  p <- ggplot(cts_plot, aes(x= log(cts_plot[,2] + 1), y = log(cts_plot[,3] + 1))) +
-  geom_point() + 
-  labs(x = "Vov sample", y = "Celiac sample", title = corr.df[i, "name"]) +
-  annotation_custom(grob) +
-  annotation_custom(grob2)
-  
-  ggsave(paste0("C:/Users/amedeo/Desktop/R_Projects/stool/data/repeated_samples/figures/",
-                corr.df[i, "name"],".jpg"), p)
+  p <- ggscatter(cts_plot, "z", "k",
+                 add = 'reg.line',
+                 add.params = list(color = "blue", fill = "lightgray"),
+                 conf.int = TRUE,
+                 xlab = paste0("T0: ", corr.df[i, "vov.date"]),
+                 ylab = paste0("T1: ", corr.df[i, "cel.date"]),
+                 title = corr.df[i,"name"],
+                 xlim = c(0,10),
+                 ylim = c(0,15))
+  p <- p + stat_cor(method = "pearson", label.x = 3, label.y = 13)
+
+  ggexport(filename = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/data/repeated_samples/figures/", corr.df[i, "name"],".jpg"), p)
 }
 
 vov_cts <- cts[,1:6]
@@ -107,7 +114,7 @@ p <- ggscatter(whole_cts, "x", "y",
                ylab = "Mean of Celiac samples",
                title = "Correlation plot of miRNA counts in VOV and Celiac samples",
                xlim = c(0,10),
-               ylim = c(0,10))
+               ylim = c(0,15))
 p + stat_cor(method = "pearson", label.x = 3, label.y = 30)
 
   
