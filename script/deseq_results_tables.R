@@ -1,4 +1,4 @@
-source("C:/Users/UappaSguappa/Desktop/R_Projects/general_script/useful_functions.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
 
 refCov <- c("phys_act_2")                                  # Variable to study
 refDb <- c("male")                                      # Dataset with the variable
