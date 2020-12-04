@@ -1,45 +1,55 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
-library(ggpubr)
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/functions.R")
+source("script/libraries.R")
+
 
 # Data loading
 
-df <- readRDS("data/clinical/de_all_merged_cleaned.rds") %>% 
-  dplyr::filter(sex == "male")
-rownames(df) <- df$id
+refDB <- "all"
+refCTS <- "normalized"
 
+
+df.path <- paste0("data/clinical/", refDB, "_samples.rds")
+cts.path <- paste0("data/ngs/", refCTS, "_counts.rds")
+
+df <- readRDS(df.path)
 cts <- readRDS("data/ngs/raw_counts.rds")
-norm <- readRDS("data/ngs/normalized_counts.rds")
 
-i <- intersect(rownames(df), colnames(norm))
+i <- intersect(rownames(df), colnames(cts))
 df <- df[i,]
-norm <- norm[,i]
+cts <- cts[,i]
+all.equal(rownames(df), colnames(cts))
 
+# Age correlation
 
-
-# Age and BMI correlation
-t.norm <- as.data.frame(t(norm))
+t.cts <- as.data.frame(t(cts))
 
 db <- df %>% 
-  dplyr::select(id, age, bmi)
+  dplyr::select(age, bmi)
 
-corrMat <- as.data.frame(matrix(NA, nrow = length(colnames(t.norm)), ncol = 7))
-colnames(corrMat) <- c("miRNA", "age", "age.p", "age.fdr", "bmi", "bmi.p", "bmi.fdr")
+i <- intersect(rownames(db), rownames(t.cts))
+db <- db[i,]
+t.cts <- t.cts[i,]
+all.equal(rownames(db), rownames(t.cts))
+
+corr <- as.data.frame(matrix(NA, nrow = length(colnames(t.cts)), ncol = 8))
+colnames(corr) <- c("miRNA", "SC", "SC.p", "SC.fdr", "PC", "PC.p", "PC.fdr", "DC")
 
 
-for(i in 1:length(colnames(t.norm))){
+for(i in 1:length(colnames(t.cts))){
   
-  db[,4] <- t.norm[,i]
-  ken.age <- cor.test(db$age, db$V4, method = "kendall")
-  ken.bmi <- cor.test(db$bmi, db$V4, method = "kendall")
-  corrMat[i, "miRNA"] <- colnames(t.norm)[i]
-  corrMat[i, "age"] <- round(ken.age$estimate, 3)
-  corrMat[i, "age.p"] <- round(ken.age$p.value, 3)
-  corrMat[i, "bmi"] <- round(ken.bmi$estimate, 3)
-  corrMat[i, "bmi.p"] <- round(ken.bmi$p.value, 3)
+  db[,3] <- t.cts[,i]
+  spearman <- cor.test(db$age, db$V3, method = "spearman", exact = FALSE)
+  pearson <- cor.test(db$age, db$V3, method = "pearson")
+  distance <- energy::dcor(db$age, db$V3)
+  corr[i, "miRNA"] <- colnames(t.cts)[i]
+  corr[i, "SC"] <- round(spearman$estimate, 3)
+  corr[i, "SC.p"] <- round(spearman$p.value, 3)
+  corr[i, "PC"] <- round(pearson$estimate, 3)
+  corr[i, "PC.p"] <- round(pearson$p.value, 3)
+  corr[i, "DC"] <- round(distance, 3)
 }
 
-corrMat$age.fdr <- p.adjust(corrMat$age.p, method = "fdr")
-corrMat$bmi.fdr <- p.adjust(corrMat$bmi.p, method = "fdr")
+corr$SC.fdr <- p.adjust(corr$SC.p, method = "fdr")
+corr$PC.fdr <- p.adjust(corr$PC.p, method = "fdr")
 
 
-write.table(corrMat, file = c("results/age_bmi_correlation_male.txt"), sep = "\t", row.names = FALSE, quote = FALSE)

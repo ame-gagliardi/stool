@@ -40,7 +40,7 @@ rm(dds, vsd, vsd_mat, vsd_cor, breaksList)
 # Correlation R graph
 
 corr.df <- as.data.frame(matrix(nrow = 6, ncol = 7))
-colnames(corr.df) <- c("Person","Vov", "Cel", "pearson", "p.value", "vov.date", "cel.date")
+colnames(corr.df) <- c("Person","Vov", "Cel", "spearman", "p.value", "vov.date", "cel.date")
 corr.df$Person <- df$name[1:6]
 corr.df$Vov <- rownames(df)[1:6]
 corr.df$Cel <- rownames(df)[7:12]
@@ -50,8 +50,8 @@ corr.df$cel.date <- as.Date(corr.df$cel.date)
 
 
 for(i in 1:6){
-  yy <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]])$estimate
-  xx <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]])$p.value
+  yy <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]], method = "spearman", exact = FALSE)$estimate
+  xx <- cor.test(norm[,corr.df[i,2]], norm[,corr.df[i,3]], method = "spearman", exact = FALSE)$p.value
   corr.df[i,4] <- yy
   corr.df[i,5] <- xx
   corr.df[i,6] <- as.Date(df[i, "vov_date"], format = c("%d-%m-%Y"))
