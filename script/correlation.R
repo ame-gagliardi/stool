@@ -4,7 +4,7 @@ source("script/libraries.R")
 
 # Data loading
 
-refDB <- "all"
+refDB <- "female"
 refCTS <- "normalized"
 
 
@@ -19,12 +19,18 @@ df <- df[i,]
 cts <- cts[,i]
 all.equal(rownames(df), colnames(cts))
 
-# Age correlation
+# Correlation
 
+varCor <- c("age")
 t.cts <- as.data.frame(t(cts))
 
 db <- df %>% 
-  dplyr::select(age, bmi)
+  rownames_to_column(var = "row") %>% 
+  dplyr::select(row, all_of(varCor)) %>% 
+  dplyr::rename(id = row)
+rownames(db) <- db$id
+
+db <- db[complete.cases(db[,varCor]),]
 
 i <- intersect(rownames(db), rownames(t.cts))
 db <- db[i,]
@@ -38,18 +44,22 @@ colnames(corr) <- c("miRNA", "SC", "SC.p", "SC.fdr", "PC", "PC.p", "PC.fdr", "DC
 for(i in 1:length(colnames(t.cts))){
   
   db[,3] <- t.cts[,i]
-  spearman <- cor.test(db$age, db$V3, method = "spearman", exact = FALSE)
-  pearson <- cor.test(db$age, db$V3, method = "pearson")
-  distance <- energy::dcor(db$age, db$V3)
+  spearman <- cor.test(db[,varCor], db$V3, method = "spearman", exact = FALSE)
+  pearson <- cor.test(db[,varCor], db$V3, method = "pearson")
+  distance <- energy::dcor(db[,varCor], db$V3)
   corr[i, "miRNA"] <- colnames(t.cts)[i]
-  corr[i, "SC"] <- round(spearman$estimate, 3)
-  corr[i, "SC.p"] <- round(spearman$p.value, 3)
-  corr[i, "PC"] <- round(pearson$estimate, 3)
-  corr[i, "PC.p"] <- round(pearson$p.value, 3)
-  corr[i, "DC"] <- round(distance, 3)
+  corr[i, "SC"] <- round(spearman$estimate, 4)
+  corr[i, "SC.p"] <- round(spearman$p.value, 4)
+  corr[i, "PC"] <- round(pearson$estimate, 4)
+  corr[i, "PC.p"] <- round(pearson$p.value, 4)
+  corr[i, "DC"] <- round(distance, 4)
 }
 
 corr$SC.fdr <- p.adjust(corr$SC.p, method = "fdr")
 corr$PC.fdr <- p.adjust(corr$PC.p, method = "fdr")
 
+saveRDS(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_correlation.rds"))
+write.table(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_correlation.txt"),
+            quote = FALSE, row.names = FALSE, sep = "\t")
 
+rm(list = setdiff(ls(), lsf.str()))
