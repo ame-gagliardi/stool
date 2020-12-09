@@ -12,7 +12,12 @@ df.path <- paste0("data/clinical/", refDB, "_samples.rds")
 cts.path <- paste0("data/ngs/", refCTS, "_counts.rds")
 
 df <- readRDS(df.path)
-cts <- readRDS("data/ngs/raw_counts.rds")
+cts <- readRDS(cts.path)
+
+## Filter on median at least 10
+median <- apply(cts, 1, median, na.rm = TRUE)
+cts <- cts[which(median >= 10),]
+##
 
 i <- intersect(rownames(df), colnames(cts))
 df <- df[i,]
@@ -21,7 +26,7 @@ all.equal(rownames(df), colnames(cts))
 
 # Correlation
 
-varCor <- c("age")
+varCor <- c("bmi")
 t.cts <- as.data.frame(t(cts))
 
 db <- df %>% 
@@ -58,8 +63,8 @@ for(i in 1:length(colnames(t.cts))){
 corr$SC.fdr <- p.adjust(corr$SC.p, method = "fdr")
 corr$PC.fdr <- p.adjust(corr$PC.p, method = "fdr")
 
-saveRDS(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_correlation.rds"))
-write.table(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_correlation.txt"),
+saveRDS(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_filtered_correlation.rds"))
+write.table(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_filtered_correlation.txt"),
             quote = FALSE, row.names = FALSE, sep = "\t")
 
 rm(list = setdiff(ls(), lsf.str()))
