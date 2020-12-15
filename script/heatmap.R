@@ -5,9 +5,9 @@ source("C:/Users/amedeo/Desktop/R_Projects/general_script/graphics_libraries.R")
 
 refDB <- c("both")  # Both, male, female
 refCTS <- c("normalized") # Raw, Normalized
-refVar <- c("phys_act") # Variable of interest
-annoVar <- c("phys_act_2") # Variable for annotation
-annoLeg <- c("Physical activity") # Variable for legend
+refVar <- c("sex") # Variable of interest
+annoVar <- c("sex") # Variable for annotation
+annoLeg <- c("Sex") # Variable for legend
 
 df <- readRDS(paste0("data/clinical/", refDB, "_samples.rds"))
 cts <- readRDS(paste0("data/ngs/", refCTS, "_counts.rds"))
@@ -37,7 +37,7 @@ mat <- t(mat)
 
 col_fun <- colorRamp2(c(-4, -2, 0, 2, 4), c("blue", "green", "white", "yellow", "red"))
 
-column_ha <- HeatmapAnnotation("Physical activity" = df[, annoVar])
+column_ha <- HeatmapAnnotation("Sex" = df[, annoVar], "Library" = df[,"library"], "Study" = df[,"study"])
 
 # , col = list("Age (Tertiles)" = col_fun))
 # row_dend <- hclust(dist(mat))
