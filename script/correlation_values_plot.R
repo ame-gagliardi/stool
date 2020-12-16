@@ -1,7 +1,7 @@
 source("C:/Users/amedeo/Desktop/R_Projects/general_script/functions.R")
 source("C:/Users/amedeo/Desktop/R_Projects/general_script/graphics_libraries.R")
 
-refVar <- c("age") # Variabile d'interesse
+refVar <- c("alcool_gr") # Variabile d'interesse
 refRes <- c("filtered") # All o filtered
 
 

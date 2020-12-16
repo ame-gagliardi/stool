@@ -26,7 +26,7 @@ all.equal(rownames(df), colnames(cts))
 
 # Correlation
 
-varCor <- c("bmi")
+varCor <- c("alcool_gr")
 t.cts <- as.data.frame(t(cts))
 
 db <- df %>% 

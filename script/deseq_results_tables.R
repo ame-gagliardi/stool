@@ -1,14 +1,16 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/useful_functions.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/functions.R")
 
-refCov <- c("phys_act_2")                                  # Variable to study
-refDb <- c("male")                                      # Dataset with the variable
-cts <- c("normalized")                                  # Count matrix (normalized or raw)
-dds.path <- paste0("results/by_sex/", refDb ,"/dds/")    # Dds object path
-result.path <- c("results/by_sex/")                # Path to save results
+refCov <- c("alcool_ua")                                  # Variable to study
+refDb <- c("female")                                        # Both, male, female
+refFold <- c("differential")                             # Folder to save results
+cts <- c("normalized")                                    # Count matrix (normalized or raw)
+
+dds.path <- paste0("results/", refFold, "/", refDb, "/dds/")                     # Dds object path
+result.path <- paste0("results/", refFold, "/", refDb, "/tables/")               # Path to save results
 
 
 ## Dataset load
-df <- readRDS(paste0("data/clinical/de_",refDb,"_merged_cleaned.rds"))
+df <- readRDS(paste0("data/clinical/",refDb,"_samples.rds"))
 rownames(df) <- df$id
 cts <- readRDS(paste0("data/ngs/",cts,"_counts.rds"))
 
@@ -23,8 +25,8 @@ results(dds)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
 # levels(df$bmi_cat) <- c("normal", "over", "over", NA)
-df$phys_act_2 <- as.factor(df$phys_act_2)
-levels(df$phys_act_2) <- c("modAct", "inactive", "modAct", "modInact")
+# df$phys_act_2 <- as.factor(df$phys_act_2)
+# levels(df$phys_act_2) <- c("modAct", "inactive", "modAct", "modInact")
 ##
 
 ## Comparison
@@ -56,15 +58,11 @@ for(i in 1:ncol(comp)){
         print("Rownames non equal: res and mean not merged")
       }
     
-  dir.create(paste0(result.path, "male/tables/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
-  write.table(res, file = paste0(result.path,"male/tables/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
+  dir.create(paste0(result.path, refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
+  write.table(res, file = paste0(result.path,refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
   }else{
     print("Rownames no equal")
   }
 }
 
 rm(list = setdiff(ls(), lsf.str()))
-
-
-
-

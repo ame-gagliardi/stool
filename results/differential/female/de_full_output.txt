@@ -1,0 +1,14 @@
+2020-10-28 14:24:25 - Samples excluded from age_cat deseq analyses (n = 0): 
+2020-10-28 14:26:40 - Samples excluded from smoke deseq analyses (n = 0): 
+2020-10-28 14:29:27 - Samples excluded from ncigs deseq analyses (n = 0): 
+2020-10-28 14:32:43 - Samples excluded from alcool deseq analyses (n = 0): 
+2020-10-28 14:36:59 - Samples excluded from wine_consumption deseq analyses (n = 0): 
+2020-10-28 14:40:56 - Samples excluded from phys_act deseq analyses (n = 5): VF140 ,VF212 ,CMa_007 ,VOV036 ,VOV092
+2020-10-28 14:44:15 - Samples excluded from coffee_cat deseq analyses (n = 0): 
+2020-10-28 14:47:23 - Samples excluded from mestr_now deseq analyses (n = 4): Cii_010 ,GF003 ,VOV018 ,VOV130
+2020-10-28 14:50:00 - Samples excluded from bmi_cat deseq analyses (n = 18): VF012 ,VF063 ,VF078 ,VF326 ,VF370 ,Cii_024 ,Cii_030 ,CMa_003 ,GF001 ,VOV003 ,VOV013 ,VOV021 ,VOV044 ,VOV050 ,VOV062 ,VOV064 ,VOV078 ,VOV129
+2020-10-28 14:52:05 - Samples excluded from alcool_28 deseq analyses (n = 0): 
+2020-10-28 14:56:56 - Samples excluded from alcool_drinker deseq analyses (n = 0): 
+2020-10-28 15:01:04 - Samples excluded from coffee_drinker deseq analyses (n = 0): 
+2020-10-28 15:03:31 - Samples excluded from age_terz deseq analyses (n = 0): 
+2020-12-15 15:13:54 - Samples excluded from New alcohol analysis deseq analyses (n = 0): 
