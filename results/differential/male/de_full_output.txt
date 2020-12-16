@@ -10,3 +10,6 @@
 2020-10-28 13:56:26 - Samples excluded from alcool_drinker deseq analyses (n = 0): 
 2020-10-28 13:58:40 - Samples excluded from coffee_drinker deseq analyses (n = 0): 
 2020-10-28 14:01:33 - Samples excluded from age_terz deseq analyses (n = 0): 
+2020-12-16 11:58:14 - Samples excluded from New bmi analysis deseq analyses (n = 6): CMa_005 ,CMa_001 ,VOV068 ,GF004 ,GF019 ,VF152
+2020-12-16 11:58:37 - Samples excluded from New bmi analysis deseq analyses (n = 6): CMa_005 ,CMa_001 ,VOV068 ,GF004 ,GF019 ,VF152
+2020-12-16 16:34:28 - Samples excluded from New bmi analysis deseq analyses (n = 6): CMa_005 ,CMa_001 ,VOV068 ,GF004 ,GF019 ,VF152

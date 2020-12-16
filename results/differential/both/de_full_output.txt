@@ -14,3 +14,6 @@ Samples excluded from bmi_cat deseq analyses (n = 10): VF152 ,CMa_001 ,CMa_003 ,
 2020-10-26 16:10:37 - Samples excluded from age (terzili) deseq analyses (n = 0): 
 2020-10-27 11:36:34 - Samples excluded from alcool (28 gr/day treshold) deseq analyses (n = 0): 
 2020-11-30 09:38:47 - Samples excluded from Physical activity corrected deseq analyses (n = 1): CMa_007
+2020-12-16 11:51:26 - Samples excluded from New bmi analysis deseq analyses (n = 10): CMa_005 ,CMa_003 ,CMa_001 ,VOV003 ,VOV068 ,GF001 ,GF003 ,GF004 ,GF019 ,VF152
+2020-12-16 11:52:04 - Samples excluded from New bmi analysis deseq analyses (n = 10): CMa_005 ,CMa_003 ,CMa_001 ,VOV003 ,VOV068 ,GF001 ,GF003 ,GF004 ,GF019 ,VF152
+2020-12-16 16:27:44 - Samples excluded from New bmi analysis deseq analyses (n = 10): CMa_005 ,CMa_003 ,CMa_001 ,VOV003 ,VOV068 ,GF001 ,GF003 ,GF004 ,GF019 ,VF152
