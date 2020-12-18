@@ -17,3 +17,5 @@ Samples excluded from bmi_cat deseq analyses (n = 10): VF152 ,CMa_001 ,CMa_003 ,
 2020-12-16 11:51:26 - Samples excluded from New bmi analysis deseq analyses (n = 10): CMa_005 ,CMa_003 ,CMa_001 ,VOV003 ,VOV068 ,GF001 ,GF003 ,GF004 ,GF019 ,VF152
 2020-12-16 11:52:04 - Samples excluded from New bmi analysis deseq analyses (n = 10): CMa_005 ,CMa_003 ,CMa_001 ,VOV003 ,VOV068 ,GF001 ,GF003 ,GF004 ,GF019 ,VF152
 2020-12-16 16:27:44 - Samples excluded from New bmi analysis deseq analyses (n = 10): CMa_005 ,CMa_003 ,CMa_001 ,VOV003 ,VOV068 ,GF001 ,GF003 ,GF004 ,GF019 ,VF152
+2020-12-17 12:08:50 - Samples excluded from New bmi analysis deseq analyses (n = 0): 
+2020-12-17 12:27:52 - Samples excluded from New bmi analysis deseq analyses (n = 0): 
