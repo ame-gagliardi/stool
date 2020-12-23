@@ -1,0 +1,19 @@
+ID	Boxplot
+	
+hsa-miR-1246-3p:Novel	
+hsa-miR-2681-3p	
+hsa-miR-1281	
+hsa-miR-6738-5p	Yes
+hsa-miR-671-5p	
+hsa-miR-6891-5p	
+hsa-miR-5187-5p	
+hsa-miR-1281-5p:Novel	
+hsa-miR-320a-3p	
+hsa-miR-4487	Yes
+hsa-miR-1303	
+hsa-miR-507	
+hsa-miR-8075-5p:Novel	Yes
+hsa-miR-8075	Yes
+hsa-miR-4725-3p	Yes
+hsa-miR-4660-3p:Novel	
+hsa-miR-6715b-5p	Yes

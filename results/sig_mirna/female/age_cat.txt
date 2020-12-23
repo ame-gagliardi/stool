@@ -1,0 +1,5 @@
+ID	Boxplot
+	
+hsa-miR-4534-5p:Novel	
+hsa-miR-6738-5p	Yes
+hsa-miR-3619-3p	
