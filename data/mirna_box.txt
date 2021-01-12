@@ -1,0 +1,17 @@
+sex	age	menopausal	bmi	smoke	ncig	coffee	physact	alcohol
+hsa-miR-200c-3p	hsa-miR-12127	hsa-miR-12126-5p:Novel	hsa-miR-765-5p:Novel	hsa-miR-4739	hsa-miR-3127-5p	hsa-miR-125b-5p	hsa-miR-2110	hsa-miR-2110-3p:Novel
+hsa-miR-192-5p	hsa-miR-4276-3p:Novel	hsa-miR-192-5p	hsa-miR-1302	hsa-miR-6728-5p	hsa-miR-4533	hsa-miR-8053	hsa-miR-4452	hsa-miR-324-3p
+hsa-miR-4632-5p	hsa-miR-7113-5p	NA	hsa-miR-182-5p	hsa-miR-8075	hsa-miR-4698	hsa-miR-6717-3p:Novel	hsa-miR-378a-3p	hsa-miR-328-5p
+hsa-miR-21-5p	hsa-miR-922	NA	hsa-miR-3178-3p:Novel	hsa-miR-8075-5p:Novel	hsa-miR-615-5p	hsa-miR-9901-3p:Novel	hsa-miR-607-5p:Novel	hsa-miR-3972
+hsa-miR-324-5p	NA	NA	hsa-miR-664a-5p	NA	hsa-miR-6829-5p	hsa-miR-6829-5p	hsa-miR-944-5p:Novel	hsa-miR-4437
+NA	NA	NA	hsa-miR-1293	NA	hsa-miR-7161-3p	hsa-miR-199a-3p, hsa-miR-199b-3p	NA	hsa-miR-608-3p:Novel
+NA	NA	NA	hsa-miR-181c-3p	NA	hsa-miR-7848-5p:Novel	hsa-miR-137-3p	NA	hsa-miR-6741-5p
+NA	NA	NA	hsa-miR-2110	NA	hsa-miR-8075	hsa-miR-622	NA	NA
+NA	NA	NA	hsa-miR-3935	NA	NA	hsa-miR-92a-3p	NA	NA
+NA	NA	NA	hsa-miR-6787-5p	NA	NA	hsa-miR-12136	NA	NA
+NA	NA	NA	NA	NA	NA	hsa-miR-548d-5p	NA	NA
+NA	NA	NA	NA	NA	NA	hsa-miR-1231	NA	NA
+NA	NA	NA	NA	NA	NA	hsa-miR-3169	NA	NA
+NA	NA	NA	NA	NA	NA	hsa-miR-7113-5p	NA	NA
+NA	NA	NA	NA	NA	NA	hsa-miR-4505	NA	NA
+NA	NA	NA	NA	NA	NA	hsa-miR-6768-5p	NA	NA
