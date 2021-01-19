@@ -1,0 +1,8 @@
+age	bmi
+hsa-miR-1229-5p	hsa-miR-6724-5p
+hsa-miR-4276-3p:Novel	hsa-miR-6869-5p
+hsa-miR-4281	
+hsa-miR-6081	
+hsa-miR-6130	
+hsa-miR-6805-5p	
+hsa-miR-922	
