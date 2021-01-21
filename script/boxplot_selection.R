@@ -51,6 +51,7 @@ colnames(box_mir)[9] <- "alcool_ua"
 
 ## Data
 t.cts <- as.data.frame(t(cts))
+colnames(t.cts) <- str_remove_all(colnames(t.cts), ":Novel")
 
 ## Legend
 sex_color <- brewer.pal(3, "Set1")[1:2]
