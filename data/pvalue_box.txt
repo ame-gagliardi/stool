@@ -38,10 +38,10 @@ hsa-miR-4452	physact	inactive	modAct	0.04504
 hsa-miR-4452	physact	modInact	modAct	0.03376	
 hsa-miR-378a-3p	physact	modInact	modAct	0.02966	
 hsa-miR-944-5p:Novel	physact	modInact	modAct	0.02966	
-hsa-miR-2110-3p	alcohol	heavy	abstemious	0.03717	
+hsa-miR-2110-3p:Novel	alcohol	heavy	abstemious	0.03717	
 hsa-miR-324-3p	alcohol	heavy	moderate	0.00766	
 hsa-miR-328-5p	alcohol	heavy	abstemious	0.03450	
 hsa-miR-4437	alcohol	heavy	moderate	0.04763	
 hsa-miR-608-3p:Novel	alcohol	heavy	moderate	0.02619	
-hsa-miR-6741-5p	alcohol	moderate 	abstemious	0.02	
+hsa-miR-6741-5p	alcohol	moderate	abstemious	0.02	
 hsa-miR-6741-5p	alcohol	heavy	abstemious	0.03450	
