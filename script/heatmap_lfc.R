@@ -1,4 +1,5 @@
-
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
 
 
 lfc <- read.table("C:/Users/amedeo/Desktop/df_lfc.csv", sep =";", row.names = 1, header = TRUE)
@@ -11,11 +12,6 @@ lfc$ID <- str_remove_all(lfc$ID, ":Novel")
 
 match <- lfc$ID %in% mirna$ID
 lfc <- lfc[match,]
-
-for(i in 1:length(colnames(lfc))){
-  print(sum(is.na(df[,i])))
-}
-
 
 mirna[,3:10] <- c("age","sex","smoke","cigs","alcohol","coffee","physact","bmi")
 colnames(mirna)[3:10] <- c("age","sex","smoke","cigs","alcohol","coffee","physact","bmi")
@@ -32,6 +28,19 @@ colnames(lfc) <- c("Age [37-53 vs <18]", "Age [>53 vs<18]", "Age [>53 vs 37-53]"
                    "Physical activity [Inactive vs Moderately active", "Physical activity [Moderately inactive vs Moderately active", "Physical activity [Inactive vs Moderately inactive",
                    "BMI [Obese vs Normal]", "BMI [Overweight vs Normal]", "BMI [Underweight vs Normal")
 
+# Antropometric LFC
+
+antro1 <- grep("Age", colnames(lfc))
+antro2 <- grep("Sex", colnames(lfc))
+antro <- c(antro1, antro2)
+lfc <- lfc[,antro]
+
+# Lifestyle LFC
+
+lfc <- lfc[,-antro]
+
+
+## Heatmap
 colnames(lfc)
 mat <- as.matrix(lfc)
 mat <- t(mat)
@@ -48,3 +57,4 @@ Heatmap(mat,
           annotation_height = max_text_width(cn)
         )
 )
+

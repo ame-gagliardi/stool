@@ -9,6 +9,7 @@ hsa-miR-7113-5p	age	53-81	18-37	0.013		-1.216
 hsa-miR-922	age	37-53	18-37	0.034		-1.050
 hsa-miR-12126-5p:Novel	menopausal	no	yes	0.026		1.951
 hsa-miR-192-5p	menopausal	no	yes	0.041		1.897
+hsa-miR-320d	menopausal	no	yes	0.00000519		2.163754
 hsa-miR-765-5p:Novel	bmi	obese	normal	0.016		1.355
 hsa-miR-1302	bmi	overweight	normal	0.015		-0.589
 hsa-miR-182-5p	bmi	overweight	normal	0.009		-1.222
