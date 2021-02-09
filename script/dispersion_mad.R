@@ -46,9 +46,16 @@ tmp[,"cv_position"] <- rep(c("top", "middle", "bottom"), times = c(20,279,13)) #
 tmp[,"cv_label"] <- ifelse(tmp$cv_position == "top" | tmp$cv_position == "bottom", TRUE, FALSE) # label for plot
 rownames(tmp) <- tmp$miRNA
 
-tmp[,"top"] <- ifelse(tmp$miRNA == "hsa-miR-647-3p:Novel" | tmp$miRNA == "hsa-miR-6075" | 
-                      tmp$miRNA == "hsa-miR-3125" | tmp$miRNA == "hsa-miR-320e-5p:Novel" |
-                      tmp$miRNA == "hsa-miR-1246-3p" | tmp$miRNA == "hsa-miR-607" | tmp$miRNA == "hsa-miR-1302", TRUE, FALSE)
+top <- tmp[1:10,"miRNA"]
+bottom <- tmp[303:312, "miRNA"]
+tolabel <- c(top, bottom)
+tmp[,"top"] <- ifelse()
+# tmp[,"top"] <- ifelse(tmp$miRNA == "hsa-miR-647-3p:Novel" | tmp$miRNA == "hsa-miR-6075" | 
+#                       tmp$miRNA == "hsa-miR-3125" | tmp$miRNA == "hsa-miR-320e-5p:Novel" |
+#                       tmp$miRNA == "hsa-miR-1246-3p" | tmp$miRNA == "hsa-miR-607" | tmp$miRNA == "hsa-miR-1302", TRUE, FALSE)
+
+
+
 
 tmp[,"italic"] <- ifelse(tmp$top == TRUE & str_detect(tmp$miRNA, ":Novel"),1,FALSE)
 

@@ -4,7 +4,7 @@ lapply(libraries, require, character.only = TRUE)
 ## Cambio il nome delle colonne nel questionario degli uomini ##
 
 # Questionario #
-donna <- read.csv("C:/Users/amedeo/Desktop/R_Projects/sdv_redo/data/acque/donna_acque_original.csv", sep = ";", header = TRUE)
+donna <- read.csv("C:/Users/amedeo/Desktop/R_Projects/stool/data/original_data/donna_acque_original.csv", sep = ";", header = TRUE)
 colnames(donna) <- tolower(colnames(donna))
 ## Mestruazioni ##
 

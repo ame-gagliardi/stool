@@ -227,8 +227,11 @@ levels(menopausal_mirna$group1) <- c("post")
 menopausal_mirna$group2 <- as.factor(menopausal_mirna$group2)
 levels(menopausal_mirna$group2) <- c("pre")
 
+levels(dt$menstruation)
+dt$menstruation <- factor(dt$menstruation, levels = c("pre", "post"))
+
 legend <- c("Menopausal Status")
-labels <- c("Post", "Pre")
+labels <- c("Pre", "Post")
 
 torm <- which(is.na(dt$menstruation))
 dt <- dt[-torm,]
@@ -798,5 +801,5 @@ pPhys <- ggarrange(p3,p1,p2, nrow = 1, common.legend = TRUE, legend = "right")
 pPhys <- annotate_figure(pPhys,
                            left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 ##
-pLife <-ggarrange(pAlco, pCigs, pCoffee, pPhys, nrow = 4, align = "v")
+pLife <-ggarrange(pCigs, pAlco, pCoffee, pPhys, nrow = 4, align = "v")
 ggsave(filename = "C:/Users/amedeo/Desktop/R_Projects/stool/results/figures/lifestyle_boxplot.png", pLife, width = 20, height = 19, units = "cm", dpi = 500)
