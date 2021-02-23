@@ -57,6 +57,7 @@ disp[,"italic2"] <- ifelse(str_detect(disp$miRNA, ":Novel") & disp$cv_lab == TRU
 disp[,"name"] <- ifelse(disp$cv_lab == "Top" | disp$cv_lab == "Bottom" | disp$circle == TRUE, TRUE, FALSE)
 disp[,"miRNA"] <- str_remove_all(disp$miRNA, "hsa-")
 disp[,"log10"] <- log10(disp$median)
+
 ## Versione no elenco ##
 
 cv_lab_col <- c("#ee0038", "#C0C0C0", "#041cea")
@@ -66,8 +67,8 @@ p <- ggplot() +
   geom_point(data=disp, aes(x=cv, y=log10, color=cv_lab), size = 2.3) +
   scale_color_manual(name="Coefficient of variation", labels=c("Lowest", "Highest"),breaks=c("Top", "Bottom"), values = cv_lab_col) +
   scale_fill_manual(name="", labels=c("miRNAs expressed \n in all samples"), values = NA) +
-  geom_text_repel(data=disp, aes(x=cv, y=log10,label=ifelse(name==TRUE & italic1==TRUE, str_remove_all(miRNA, ":Novel"), "")),fontface =3, size = 5,force = 1.5) +
-  geom_text_repel(data=disp, aes(x=cv, y=log10,label=ifelse(name==TRUE & italic1==FALSE, miRNA, "")),fontface = 1, size = 5,force = 1.5) +
+  geom_text_repel(data=disp, aes(x=cv, y=log10,label=ifelse(name==TRUE & italic1==TRUE, str_remove_all(miRNA, ":Novel"), "")),fontface =3, size = 4.8,force = 1.7) +
+  geom_text_repel(data=disp, aes(x=cv, y=log10,label=ifelse(name==TRUE & italic1==FALSE, miRNA, "")),fontface = 1, size = 4.8,force = 1.7) +
   xlab("Coefficient of variation") +
   ylab(bquote(~log[10]~ "(Median expression)")) +
   theme_classic() +

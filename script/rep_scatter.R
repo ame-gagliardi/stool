@@ -9,24 +9,24 @@ df <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/results/repeated_samples
 vov_cts <- cts[,1:6]
 cel_cts <- cts[,7:12]
 
-whole_cts <- bind_cols(vov_cts, cel_cts)
 
-filter <- as.data.frame(matrix(NA, nrow = length(rownames(whole_cts)), ncol = length(colnames(whole_cts))))
-rownames(filter) <- rownames(whole_cts)
-colnames(filter) <- colnames(whole_cts)
-
-for(i in 1:length(rownames(whole_cts))){
-  filter[i,] <- whole_cts[i,] > 10
-}
-
-filter[,"passed"] <- apply(filter,1,any)
-
-all.equal(rownames(whole_cts), rownames(filter))
-whole_cts[,"passed"] <- filter$passed
+# filter <- as.data.frame(matrix(NA, nrow = length(rownames(whole_cts)), ncol = length(colnames(whole_cts))))
+# rownames(filter) <- rownames(whole_cts)
+# colnames(filter) <- colnames(whole_cts)
+# 
+# for(i in 1:length(rownames(whole_cts))){
+#   filter[i,] <- whole_cts[i,] > 10
+# }
+# 
+# filter[,"passed"] <- apply(filter,1,any)
+# 
+# all.equal(rownames(whole_cts), rownames(filter))
+# whole_cts[,"passed"] <- filter$passed
 
 vov_cts[,"vov.mean"] <- apply(vov_cts, 1, mean, na.rm = TRUE)
 cel_cts[,"cel.mean"] <- apply(cel_cts, 1, mean, na.rm = TRUE)
 
+whole_cts <- bind_cols(vov_cts, cel_cts)
 xx <- cor.test(vov_cts$vov.mean, cel_cts$cel.mean)
 
 
@@ -55,7 +55,6 @@ for(i in 1:6){
   
   cts_plot <- whole_cts %>% 
     rownames_to_column() %>%
-    dplyr::filter(passed == TRUE) %>% 
     dplyr::rename(mirna = rowname) %>% 
     dplyr::select(mirna, df[i, "vov"], df[i, "cel"]) %>% 
     dplyr::mutate(name = df[i, "name"]) %>% 
@@ -71,11 +70,13 @@ for(i in 1:6){
            labs(x=bquote(~log[10]~ '(Average miRNA expression at '~T[0]~')'),
                 y=bquote(~log[10]~ '(Average miRNA expression at '~T[1]~')')) +
            theme_classic() +
-           theme(axis.title.x = element_text(size = 20),
-                 axis.title.y = element_text(size = 20),
-                 axis.text.x = element_text(size = 15),
-                 axis.text.y = element_text(size = 15)) +
+           theme(axis.title.x = element_blank(),
+                 axis.title.y = element_blank()) +
+           annotate("text", x = 4, y = 2, label = paste0("Subject ",i)) +
+           coord_cartesian(ylim = c(1, 3), clip = "off") +
            guides(alpha=FALSE))
 }
 
-ggarrange(A_2, A_5, A_6, A_4, ncol = 1, nrow = 4)
+annotate_figure(ggarrange(A_2, A_5, A_6, A_4, ncol = 1, nrow = 4),
+                bottom = text_grob(bquote(~log[10]~ '(Average miRNA expression at '~T[0]~')')), 
+                left = text_grob(bquote(~log[10]~ '(Average miRNA expression at '~T[1]~')'), rot = 90))
