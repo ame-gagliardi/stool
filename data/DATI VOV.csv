@@ -1,6 +1,14 @@
-id;età;sesso  ;bmi;dieta
-VOV005;59.6;M;24.2;O
-VOV089;37.6;F;19.9;VG
-VOV099;59.7;M;31.1;V
-VOV121;50.1;M;24.8;V
-VOV076;54.3;M;23;V
+id;age;sex;bmi;class
+VOV005;59.6;M;24.2;onnivori
+VOV089;37.6;F;19.9;vegetariani
+VOV099;59.7;M;31.1;vegani
+VOV121;50.1;M;24.8;vegani
+VOV076;54.3;M;23;vegani
+VOV049;30.8;F;21.2;vegetariani
+VOV066;33.1;F;24.6;vegetariani
+VOV103;67.6;F;26;vegetariani
+VOV118;34.2;F;25.2;vegetariani
+VOV120;64.4;F;21.8;vegetariani
+VOV138;47.7;F;24;vegetariani
+VOV128;26;F;21;vegetariani
+VOV086;72.4;F;26.6;onnivori

@@ -609,24 +609,45 @@ final_donna[,"sex"] <- 0
 ## MERGE DONNA UOMO ##
 
 df <- rbind(final_uomo, final_donna)
-cov <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/original_data/validation_bmiageAme.csv", sep = ";", header = T)
+vovData <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/DATI VOV.csv", sep = ";", header = TRUE)
+vovData$sex <- ifelse(vovData$sex == "M",1,0)
+celData <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/original_data/validation_bmiageAme.csv", sep = ";", header = T)
+celData <- celData[celData$id %in% df$id,]
 
-cov <- cov[cov$id %in% df$id,]
-df[,"bmi"] <- cov[match(rownames(df), cov$id, nomatch = NA), "bmi"]
-
+df[,"bmi"] <- celData[match(rownames(df), celData$id, nomatch = NA), "bmi"]
+df[,"age"] <- celData[match(rownames(df), celData$id, nomatch = NA), "age"]
+tmp <- grep("VOV", rownames(df))
+df[tmp,"study"] <- c("VOV")
+df[tmp,"bmi"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "bmi"]
+df[tmp,"age"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "age"]
+df[tmp,"sex"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "sex"]
+df["CMa_012", "age"] <- 26.1
+df["CMa_012", "bmi"] <- 19.96
+df["CMa_012", "sex"] <- 0
+df["CMa_006", "age"] <- 20
+df["CMa_006", "bmi"] <- NA
+df["CMa_006", "sex"] <- 0
+df[,"studente"] <- celData[match(rownames(df), celData$id, nomatch = NA), "studente"]
 
 
 ### attività fisica per bea ##
-padonna <- grep("pa", colnames(donna))
-padonna <- donna[,padonna]
-pauomo <- grep("pa", colnames(uomo))
-pauomo <- uomo[,pauomo]
 
-all.equal(rownames(pauomo), rownames(final_uomo))
-all.equal(rownames(padonna), rownames(final_donna))
+padonna <- df %>% 
+  dplyr::filter(sex == 0)
+all.equal(rownames(padonna), rownames(donna))
+pa <- grep("pa_", colnames(donna))
+pa <- donna[,pa]
+all.equal(rownames(padonna), rownames(pa))
+padonna <- cbind(padonna, pa)
 
-beauomo <- cbind(final_uomo, pauomo)
-beadonna <- cbind(final_donna, padonna)
 
-beauomo[,"age"] <- cov[match(rownames(beauomo), cov$id, nomatch = NA), "age"]
-beadonna[,"age"] <- cov[match(rownames(beadonna), cov$id, nomatch = NA), "age"]
+pauomo <- df %>% 
+  dplyr::filter(sex == 1)
+all.equal(rownames(pauomo), rownames(uomo))
+pa <- grep("pa_", colnames(uomo))
+pa <- uomo[,pa]
+all.equal(rownames(pauomo), rownames(pa))
+pauomo <- cbind(pauomo, pa)
+
+saveRDS(pauomo, file = "C:/Users/amedeo/Desktop/uomo_pa_bea.rds")
+saveRDS(padonna, file = "C:/Users/amedeo/Desktop/donna_pa_bea.rds")
