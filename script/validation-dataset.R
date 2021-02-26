@@ -253,7 +253,7 @@ rownames(final_uomo) <- final_uomo$id
 all.equal(rownames(uomo), rownames(final_uomo))
 
 final_uomo[,"study"][1:21] <- c("Celiac") 
-final_uomo[,"study"][22:26] <- c("VOV")
+final_uomo[,"study"][22:25] <- c("VOV")
 
 tmp <- lib[lib$id %in% final_uomo$id,]
 rownames(tmp) <- tmp$id
@@ -301,27 +301,9 @@ final_uomo["VOV076", "age"] <- 54.3
 final_uomo["VOV076", "sex"] <- 1
 
 
-
-
-
-## VOV UOMO ##
-
-vov <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/DATI VOV.csv", sep = ";", header = TRUE)
-
-
-## Cambio le classi di age e bmi ##
-
-uomo$age <- as.character(uomo$age)
-uomo$age <- str_replace(uomo$age, ",", ".")
-uomo$age <- as.numeric(uomo$age)
-uomo$age <- round(uomo$age)
-
-uomo$bmi <- as.character(uomo$bmi)
-uomo$bmi <- str_replace(uomo$bmi, ",", ".")
-uomo$bmi <- as.numeric(uomo$bmi)
-
-
+###################################
 ############## DONNA ##############
+###################################
 
 donna <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/original_data/validation_vita_donne.csv", sep = ";", header = TRUE)
 donna <- donna[donna$idpaziente %in% lib$id,]
@@ -590,8 +572,8 @@ i <- intersect(rownames(final_donna), rownames(tmp))
 final_donna <- final_donna[i,]
 tmp <- tmp[i,]
 all.equal(rownames(final_donna), rownames(tmp))
-final_donna[,"library"] <- tmp$library
 
+final_donna[,"library"] <- tmp$library
 final_donna[,"age"] <- tmp$age
 final_donna[,"sex"] <- tmp$sex
 final_donna[,"smoke"] <- donna$smk_smoke_status
@@ -617,6 +599,7 @@ celData <- celData[celData$id %in% df$id,]
 df[,"bmi"] <- celData[match(rownames(df), celData$id, nomatch = NA), "bmi"]
 df[,"age"] <- celData[match(rownames(df), celData$id, nomatch = NA), "age"]
 tmp <- grep("VOV", rownames(df))
+tmp.cel <- which(df$study == "Celiac")
 df[tmp,"study"] <- c("VOV")
 df[tmp,"bmi"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "bmi"]
 df[tmp,"age"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "age"]
@@ -628,6 +611,19 @@ df["CMa_006", "age"] <- 20
 df["CMa_006", "bmi"] <- NA
 df["CMa_006", "sex"] <- 0
 df[,"studente"] <- celData[match(rownames(df), celData$id, nomatch = NA), "studente"]
+df[tmp,"studente"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "studente"]
+df[tmp,"class"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "class"]
+df[tmp.cel, "class"] <- celData[match(rownames(df)[tmp.cel], celData$id, nomatch = NA), "patologia"]
+
+str(df)
+df$study <- as.factor(df$study)
+df$library <- as.factor(df$library)
+df$class <- as.factor(df$class)
+df$age_cat <- as.factor(df$age_cat)
+df$sex <- as.factor(df$sex)
+df$bmi <- round(as.numeric(df$bmi), 2)
+df$bmi_cat <- as.factor(df$bmi_cat)
+df[,c(13:19,21)] <- lapply(df[,13:19,21], as.factor)
 
 
 ### attività fisica per bea ##
@@ -639,6 +635,7 @@ pa <- grep("pa_", colnames(donna))
 pa <- donna[,pa]
 all.equal(rownames(padonna), rownames(pa))
 padonna <- cbind(padonna, pa)
+
 
 
 pauomo <- df %>% 
