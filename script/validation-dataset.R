@@ -646,5 +646,7 @@ pa <- uomo[,pa]
 all.equal(rownames(pauomo), rownames(pa))
 pauomo <- cbind(pauomo, pa)
 
-saveRDS(pauomo, file = "C:/Users/amedeo/Desktop/uomo_pa_bea.rds")
-saveRDS(padonna, file = "C:/Users/amedeo/Desktop/donna_pa_bea.rds")
+saveRDS(uomo, file = "C:/Users/amedeo/Desktop/uomo_pa_bea.rds")
+saveRDS(donna, file = "C:/Users/amedeo/Desktop/donna_pa_bea.rds")
+
+
