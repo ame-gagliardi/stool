@@ -1,12 +1,12 @@
 library(tidyverse)
 library(table1)
 
-df <- readRDS("data/db_table1.rds")
+df <- readRDS("data/clinical/sv_stool_both_samples_validation.rds")
 
 # Age
 table1::label(df$age) <- c("Age")
-levels(df$age_terz) <- c("18-37", "37-53", "53-81")
-table1::label(df$age_terz) <- c("Age (Tertiles)")
+levels(df$age_cat) <- c("18-37", "37-53", "53-81")
+table1::label(df$age_cat) <- c("Age (Tertiles)")
 
 #Sex
 table1::label(df$sex) <- c("Sex")
@@ -14,12 +14,12 @@ levels(df$sex) <- c("Female", "Male")
 
 #BMI
 table1::label(df$bmi) <- c("BMI")
-levels(df$bmi_cat) <- c("Normal", "Obese", "Overweight", "Underweight")
+# levels(df$bmi_cat) <- c("Normal", "Obese", "Overweight", "Underweight")
 table1::label(df$bmi_cat) <- c("Bmi (Class)")
 
 #Smoke
-levels(df$ncigs) <- c("<16 cigs/day", ">16 cigs/day", "Former", "Never")
-table1::label(df$ncigs) <- c("Smoking status")
+levels(df$cigs) <- c("<16 cigs/day", ">16 cigs/day", "Former", "Never")
+table1::label(df$cigs) <- c("Smoking status")
 
 #Alcool
 levels(df$alcool_28) <- c("Abstemious", "Habitual", "Occasional")

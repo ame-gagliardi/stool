@@ -588,16 +588,34 @@ levels(final_donna$cigs) <- c("never", "former", "_16", "_16", "_16", "16_", "16
 final_donna[,"menstruation"] <- donna$mestr_now
 final_donna[,"sex"] <- 0
 
+## Physical activity
+
+
+pauomo <- read.delim("data/original_data/validation_PA_INDEX_man.csv", sep = ";", header = T, row.names = 1)
+padonna <- read.delim("data/original_data/validation_PA_INDEX_women.csv", sep = ";", header = T, row.names = 1)
+
+colnames(pauomo) <- c("cat", "phys_act", "MET")
+pauomo <- pauomo[,c("phys_act", "MET")]
+colnames(padonna) <- c("MET", "phys_act")
+padonna <- padonna[,c("phys_act", "MET")]
+
+pa <- rbind(pauomo, padonna)
+
+
 ## MERGE DONNA UOMO ##
 
 df <- rbind(final_uomo, final_donna)
 vovData <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/DATI VOV.csv", sep = ";", header = TRUE)
 vovData$sex <- ifelse(vovData$sex == "M",1,0)
 celData <- read.delim("C:/Users/amedeo/Desktop/R_Projects/stool/data/original_data/validation_bmiageAme.csv", sep = ";", header = T)
-celData <- celData[celData$id %in% df$id,]
+celData <- celData[celData$id %in% rownames(df),]
+rownames(celData) <- celData$id
 
-df[,"bmi"] <- celData[match(rownames(df), celData$id, nomatch = NA), "bmi"]
-df[,"age"] <- celData[match(rownames(df), celData$id, nomatch = NA), "age"]
+df[,"phys_act"] <- pa[match(rownames(df), rownames(pa), nomatch = NA), "phys_act"]
+df[,"MET"] <- pa[match(rownames(df), rownames(pa), nomatch = NA), "MET"]
+i <- intersect(rownames(df), rownames(celData))
+df[i,"bmi"] <- celData[i, "bmi"]
+df[i,"age"] <- celData[i,"age"]
 tmp <- grep("VOV", rownames(df))
 tmp.cel <- which(df$study == "Celiac")
 df[tmp,"study"] <- c("VOV")
@@ -611,11 +629,14 @@ df["CMa_006", "age"] <- 20
 df["CMa_006", "bmi"] <- NA
 df["CMa_006", "sex"] <- 0
 df[,"studente"] <- celData[match(rownames(df), celData$id, nomatch = NA), "studente"]
-df[tmp,"studente"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "studente"]
+# df[tmp,"studente"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "studente"]
 df[tmp,"class"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "class"]
 df[tmp.cel, "class"] <- celData[match(rownames(df)[tmp.cel], celData$id, nomatch = NA), "patologia"]
 
-str(df)
+df["Cii_064", "cigs"] <- c("_16")
+df["Cii_039", "cigs"] <- c("_16")
+df["Cii_099", "cigs"] <- c("_16")
+
 df$study <- as.factor(df$study)
 df$library <- as.factor(df$library)
 df$class <- as.factor(df$class)
@@ -623,30 +644,56 @@ df$age_cat <- as.factor(df$age_cat)
 df$sex <- as.factor(df$sex)
 df$bmi <- round(as.numeric(df$bmi), 2)
 df$bmi_cat <- as.factor(df$bmi_cat)
-df[,c(13:19,21)] <- lapply(df[,13:19,21], as.factor)
+df$phys_act <- as.factor(df$phys_act)
+# df$studente <- NULL
+
+df$age <- round(df$age)
+vTert <-  quantile(df$age, c(0:3/3))
+df$age_cat <- with(df, cases("_37" = age <37,
+                             "37-53" = age>=37 & age<53,
+                             "53_" = age>=53))
+
+which(df$age < 18)
+df <- df[-c(17,75),]
+
+df$bmi_cat <- with(df, cases("underweight" = bmi<18.5,
+                                 "normal" = bmi>=18.5 & bmi<25,
+                                 "overweight" = bmi>=25 & bmi<30,
+                                 "obese" = bmi>=30))
+df$sex <- ifelse(df$sex == 1, "M", "F")
+
+df$class <- with(df, cases("dieta" = class == "0",
+                           "nuova" = class == "1",
+                           "controllo" = class == "2",
+                           "boh" = class == "3",
+                           "onnivori" = class == "onnivori",
+                           "vegani" = class == "vegani",
+                           "vegetariani" = class == "vegetariani"))
+
+saveRDS(df, "data/clinical/sv_stool_both_samples_validation.rds")
 
 
-### attività fisica per bea ##
-
-padonna <- df %>% 
-  dplyr::filter(sex == 0)
-all.equal(rownames(padonna), rownames(donna))
-pa <- grep("pa_", colnames(donna))
-pa <- donna[,pa]
-all.equal(rownames(padonna), rownames(pa))
-padonna <- cbind(padonna, pa)
-
-
-
-pauomo <- df %>% 
-  dplyr::filter(sex == 1)
-all.equal(rownames(pauomo), rownames(uomo))
-pa <- grep("pa_", colnames(uomo))
-pa <- uomo[,pa]
-all.equal(rownames(pauomo), rownames(pa))
-pauomo <- cbind(pauomo, pa)
-
-saveRDS(uomo, file = "C:/Users/amedeo/Desktop/uomo_pa_bea.rds")
-saveRDS(donna, file = "C:/Users/amedeo/Desktop/donna_pa_bea.rds")
+# ### attività fisica per bea ##
+# 
+# padonna <- df %>% 
+#   dplyr::filter(sex == 0)
+# all.equal(rownames(padonna), rownames(donna))
+# pa <- grep("pa_", colnames(donna))
+# pa <- donna[,pa]
+# all.equal(rownames(padonna), rownames(pa))
+# padonna <- cbind(padonna, pa)
+# 
+# 
+# 
+# pauomo <- df %>% 
+#   dplyr::filter(sex == 1)
+# all.equal(rownames(pauomo), rownames(uomo))
+# pa <- grep("pa_", colnames(uomo))
+# pa <- uomo[,pa]
+# all.equal(rownames(pauomo), rownames(pa))
+# pauomo <- cbind(pauomo, pa)
+# 
+# saveRDS(uomo, file = "C:/Users/amedeo/Desktop/uomo_pa_bea.rds")
+# saveRDS(donna, file = "C:/Users/amedeo/Desktop/donna_pa_bea.rds")
 
 
