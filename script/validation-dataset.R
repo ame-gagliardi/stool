@@ -628,14 +628,10 @@ df["CMa_012", "sex"] <- 0
 df["CMa_006", "age"] <- 20
 df["CMa_006", "bmi"] <- NA
 df["CMa_006", "sex"] <- 0
-df[,"studente"] <- celData[match(rownames(df), celData$id, nomatch = NA), "studente"]
+# df[,"studente"] <- celData[match(rownames(df), celData$id, nomatch = NA), "studente"]
 # df[tmp,"studente"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "studente"]
 df[tmp,"class"] <- vovData[match(rownames(df)[tmp], vovData$id, nomatch = NA), "class"]
 df[tmp.cel, "class"] <- celData[match(rownames(df)[tmp.cel], celData$id, nomatch = NA), "patologia"]
-
-df["Cii_064", "cigs"] <- c("_16")
-df["Cii_039", "cigs"] <- c("_16")
-df["Cii_099", "cigs"] <- c("_16")
 
 df$study <- as.factor(df$study)
 df$library <- as.factor(df$library)
@@ -645,16 +641,28 @@ df$sex <- as.factor(df$sex)
 df$bmi <- round(as.numeric(df$bmi), 2)
 df$bmi_cat <- as.factor(df$bmi_cat)
 df$phys_act <- as.factor(df$phys_act)
+
+
 # df$studente <- NULL
 
 df$age <- round(df$age)
-vTert <-  quantile(df$age, c(0:3/3))
 df$age_cat <- with(df, cases("_37" = age <37,
                              "37-53" = age>=37 & age<53,
                              "53_" = age>=53))
 
 which(df$age < 18)
 df <- df[-c(17,75),]
+
+df["CMa_012", "bmi"] <- 19.96
+df["CMa_006", "bmi"] <- NA
+df["Cii_074", "bmi"] <- 22.49
+df["Cii_044", "bmi"] <- 18.6
+df["438_SA", "bmi"] <- 21.87
+df["424_MM", "bmi"] <- 22.58
+df["421_FR", "bmi"] <- 21.09
+df["415_PM", "bmi"] <- 19.47
+df["388_SB", "bmi"] <- 19.23
+df["380_BR", "bmi"] <- 25.55
 
 df$bmi_cat <- with(df, cases("underweight" = bmi<18.5,
                                  "normal" = bmi>=18.5 & bmi<25,
@@ -665,12 +673,46 @@ df$sex <- ifelse(df$sex == 1, "M", "F")
 df$class <- with(df, cases("dieta" = class == "0",
                            "nuova" = class == "1",
                            "controllo" = class == "2",
-                           "boh" = class == "3",
+                           "dieta" = class == "3",
                            "onnivori" = class == "onnivori",
                            "vegani" = class == "vegani",
                            "vegetariani" = class == "vegetariani"))
 
+
+
+levels(df$cigs) <- c("_16", "_16", "_16", "former", "never", "_16", "16_")
+
+df["CMa_012", "class"] <- "dieta"
+df["CMa_006", "class"] <- "dieta"
+df["Cii_074", "class"] <- "dieta"
+df["Cii_044", "class"] <- "nuova"
+df["438_SA", "class"] <- "dieta"
+df["424_MM", "class"] <- "dieta"
+df["421_FR", "class"] <- "dieta"
+df["415_PM", "class"] <- "dieta"
+df["388_SB", "class"] <- "dieta"
+df["380_BR", "class"] <- "dieta"
+
 saveRDS(df, "data/clinical/sv_stool_both_samples_validation.rds")
+
+##à CONTE ###
+
+cts <- read.delim("data/ngs/original/Raw_counts_miRNA_validation.txt", row.names = 1)
+colnames(cts) <- str_remove_all(colnames(cts), "X")
+cts2 <- read.delim("data/ngs/original/all.counts_miRNA_CEL_Stool_validation.txt", row.names = 1)
+colnames(cts2) <- str_remove_all(colnames(cts2), "X")
+cts <- cbind(cts,cts2)
+
+df <- readRDS("data/clinical/sv_stool_both_samples_validation.rds")
+
+i <- intersect(rownames(df), colnames(cts))
+df <- df[i,]
+cts <- cts[,i]
+all.equal(rownames(df), colnames(cts))
+
+saveRDS(cts, file = "data/ngs/sv_stool_both_raw_counts_validation.rds")
+
+## Normalization
 
 
 # ### attività fisica per bea ##
