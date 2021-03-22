@@ -1,33 +1,27 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/functions.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
 
-refCov <- c("alcool_ua")                                  # Variable to study
-refDb <- c("female")                                        # Both, male, female
-refFold <- c("differential")                             # Folder to save results
-cts <- c("normalized")                                    # Count matrix (normalized or raw)
+# DATA LOADING
 
-dds.path <- paste0("results/", refFold, "/", refDb, "/dds/")                     # Dds object path
-result.path <- paste0("results/", refFold, "/", refDb, "/tables/")               # Path to save results
+r_folder <- getwd()
+folder <- c("/data/")
+project <- c("/8q24_") 
+tissue <- c("bladder_")
+biospecimen <- c("urine_")
+refCov <- c("caco")
+sex <- c("male_")
+ctsType <- c("raw_")
+cohort <- c("discovery")
 
+df.path <- paste0(r_folder, folder, "clinical", project, tissue, biospecimen, sex, "samples_", cohort, ".rds")
+cts.path <- paste0(r_folder, folder, "ngs", project, tissue, biospecimen, sex ,ctsType, "counts_", cohort, ".rds")
+result.path <- paste0(r_folder, "/results/differential")
+dds.path <- paste0(r_folder, "/results/differential/", project, tissue, biospecimen, refCov,"/", sex, cohort, ".rds")
 
-## Dataset load
-df <- readRDS(paste0("data/clinical/",refDb,"_samples.rds"))
-rownames(df) <- df$id
-cts <- readRDS(paste0("data/ngs/",cts,"_counts.rds"))
-
-i <- intersect(rownames(df), colnames(cts))
-cts <- cts[,i] 
-df <- df[i,]
-all.equal(rownames(df), colnames(cts))
-## DEseq analysis results
-
-dds <- readRDS(paste0(dds.path,refCov,".rds"))
-results(dds)
+df <- readRDS(df.path)
+cts <- readRDS(cts.path)
+dds <- readRDS(dds.path)
 
 ## Insert here case-by-case modification to the datasets - DELETE BEFORE CLOSING
-# levels(df$bmi_cat) <- c("normal", "over", "over", NA)
-# df$phys_act_2 <- as.factor(df$phys_act_2)
-# levels(df$phys_act_2) <- c("modAct", "inactive", "modAct", "modInact")
-##
 
 ## Comparison
 levName <- covarLevels(refCov, df)
@@ -58,8 +52,8 @@ for(i in 1:ncol(comp)){
         print("Rownames non equal: res and mean not merged")
       }
     
-  dir.create(paste0(result.path, refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
-  write.table(res, file = paste0(result.path,refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
+  dir.create(paste0(result.path, "/",refCov), recursive = TRUE) # Creo la cartella dove salvare i risultati
+  write.table(res, file = paste0(result.path, "/",refCov, "/DE_results_", cov2,"_vs_", cov1,".txt", sep = ""), sep = "\t", quote = F, row.names = F)
   }else{
     print("Rownames no equal")
   }
