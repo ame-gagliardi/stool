@@ -1,15 +1,21 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/functions.R")
-source("script/libraries.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
 
+# DATA LOADING
 
-# Data loading
+r_folder <- getwd()
+folder <- c("/data/")
+project <- c("/sv_") 
+tissue <- c("stool_")
+biospecimen <- c("stool_")
+sex <- c("female_")
+ctsType <- c("normalized_")
+species <- c("mirna_")
+cohort <- c("pooled")
 
-refDB <- "female"
-refCTS <- "normalized"
-
-
-df.path <- paste0("data/clinical/", refDB, "_samples.rds")
-cts.path <- paste0("data/ngs/", refCTS, "_counts.rds")
+df.path <- paste0(r_folder, folder, "clinical", project, tissue, biospecimen, sex, "samples_", cohort, ".rds")
+cts.path <- paste0(r_folder, folder, "ngs", project, tissue, biospecimen, sex ,ctsType, "counts_", species, cohort, ".rds")
+result.path <- paste0(r_folder, "/results/differential")
 
 df <- readRDS(df.path)
 cts <- readRDS(cts.path)
@@ -17,6 +23,7 @@ cts <- readRDS(cts.path)
 ## Filter on median at least 10
 median <- apply(cts, 1, median, na.rm = TRUE)
 cts <- cts[which(median >= 10),]
+
 ##
 
 i <- intersect(rownames(df), colnames(cts))
@@ -26,7 +33,7 @@ all.equal(rownames(df), colnames(cts))
 
 # Correlation
 
-varCor <- c("alcool_gr")
+varCor <- c("age")
 t.cts <- as.data.frame(t(cts))
 
 db <- df %>% 
@@ -63,8 +70,8 @@ for(i in 1:length(colnames(t.cts))){
 corr$SC.fdr <- p.adjust(corr$SC.p, method = "fdr")
 corr$PC.fdr <- p.adjust(corr$PC.p, method = "fdr")
 
-saveRDS(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_filtered_correlation.rds"))
-write.table(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/", varCor, "_", refDB, "_filtered_correlation.txt"),
+saveRDS(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/",biospecimen, tissue, sex, varCor,"_", cohort, "_correlation.rds"))
+write.table(corr, file = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/",biospecimen, tissue, sex, varCor,"_", cohort, "_correlation.txt"),
             quote = FALSE, row.names = FALSE, sep = "\t")
 
 rm(list = setdiff(ls(), lsf.str()))

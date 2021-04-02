@@ -1,54 +1,82 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/functions.R")
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/graphics_libraries.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
+source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
 
-refVar <- c("alcool_gr") # Variabile d'interesse
-refRes <- c("filtered") # All o filtered
+# DATA LOADING
 
+r_folder <- getwd()
+folder <- c("/data/")
+project <- c("/sv_") 
+tissue <- c("stool_")
+biospecimen <- c("stool_")
+sex <- c("female_")
+ctsType <- c("normalized_")
+species <- c("mirna_")
+cohort <- c("pooled")
+refVar <- c("BMI")
+df.path <- paste0(r_folder, folder, "clinical", project, tissue, biospecimen, sex, "samples_", cohort, ".rds")
+cts.path <- paste0(r_folder, folder, "ngs", project, tissue, biospecimen, sex ,ctsType, "counts_", species, cohort, ".rds")
+result.path <- paste0(r_folder, "/results/differential")
 
-all <- readRDS(paste0("results/correlation/", refVar, "_both_", refRes, "_correlation.rds"))
-male <- readRDS(paste0("results/correlation/", refVar, "_male_", refRes, "_correlation.rds"))
-female <- readRDS(paste0("results/correlation/", refVar, "_female_", refRes, "_correlation.rds"))
+df <- readRDS(df.path)
+cts <- readRDS(cts.path)
 
-all.equal(rownames(all), rownames(male))
-all.equal(rownames(all), rownames(female))
+## Correlation Dataset
 
-all <- all %>% 
+both <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/pooled/stool_stool_both_bmi_pooled_correlation.rds")
+male <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/pooled/stool_stool_male_bmi_pooled_correlation.rds")
+female <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/results/correlation/pooled/stool_stool_female_bmi_pooled_correlation.rds")
+
+both <- both %>% 
   dplyr::select(miRNA,SC, SC.p, SC.fdr) %>% 
-  dplyr::rename(sca = SC, sca.p = SC.p, sca.fd = SC.fdr)
+  dplyr::mutate(index = seq(1:length(rownames(both)))) %>% 
+  dplyr::mutate(fdr.treshold = ifelse(SC.fdr < 0.05, T,F)) %>% 
+  dplyr::mutate(fdr.treshold = ifelse(SC.fdr < 0.05, T,F), dataset = "Both")
 
 male <- male %>% 
-  dplyr::select(SC, SC.p, SC.fdr) %>% 
-  dplyr::rename(scm = SC, scm.p = SC.p, scm.fd = SC.fdr)
+  dplyr::select(miRNA,SC, SC.p, SC.fdr) %>% 
+  dplyr::mutate(index = seq(1:length(rownames(male)))) %>% 
+  dplyr::mutate(fdr.treshold = ifelse(SC.fdr < 0.05, T,F)) %>% 
+  dplyr::mutate(fdr.treshold = ifelse(SC.fdr < 0.05, T,F), dataset = "Male")
 
 female <- female %>% 
-  dplyr::select(SC, SC.p, SC.fdr) %>% 
-  dplyr::rename(scf = SC, scf.p = SC.p, scf.fd = SC.fdr)
+  dplyr::select(miRNA,SC, SC.p, SC.fdr) %>% 
+  dplyr::mutate(index = seq(1:length(rownames(female)))) %>% 
+  dplyr::mutate(fdr.treshold = ifelse(SC.fdr < 0.05, T,F), dataset = "Female")
 
-df <- bind_cols(all, male, female)
-df[,"index"] <- seq(1:length(rownames(df)))
-
-db <- df %>% 
-  tidyr::pivot_longer(cols = c(2,5,8), names_to = "name", values_to = "SC")
-
-db$name <- as.factor(db$name)
-levels(db$name) <- c("All samples", "Females", "Males")
-db$dataset <- db$name
-
-p <- ggplot(db, aes(x = index, y = SC)) +
-  geom_point(aes(col = dataset)) +
-  geom_hline(yintercept = -0.2) + 
+a <- ggplot(both, aes(x = index, y = SC, color = fdr.treshold)) +
+  geom_point() +
+  geom_hline(yintercept = -0.2) +
   geom_hline(yintercept = 0.2) +
-  ylim(-1,1) +
-  labs(title = paste0(firstup(refVar), " Spearman correlation in different datasets"), y = "Spearman correlation", x = "miRNA index") +
-  geom_label_repel(aes(label = ifelse(SC < -0.2 & sca.fd < 0.05 & dataset == "All samples" | 
-                                      SC > 0.2 & sca.fd < 0.05 & dataset == "All samples" , as.character(miRNA), ''), 
-                       fill = dataset, fontface = "bold")) +
-  geom_label_repel(aes(label = ifelse(SC < -0.2 & scm.fd < 0.05 & dataset == "Males" | 
-                                      SC > 0.2 & scm.fd < 0.05 & dataset == "Males" , as.character(miRNA), ''),
-                       fill = dataset, fontface = "bold"))  +
-  geom_label_repel(aes(label = ifelse(SC < -0.2 & scf.fd < 0.05 & dataset == "Females" | 
-                                      SC > 0.2 & scf.fd < 0.05 & dataset == "Females" , as.character(miRNA), ''), 
-                       fill = dataset, fontface = "bold"))
+  ylim(-0.8, 0.8) +
+  scale_color_discrete(name = "FDR", labels = c("<0.05", "Not significant")) +
+  ggrepel::geom_label_repel(aes(label = ifelse(SC < -0.2 & SC.fdr < 0.05 | SC > 0.2 & SC.fdr < 0.05 , rownames(both), "")), color = "blue",
+                            min.segment.length = 0, box.padding = 0.5) +
+  labs(title = paste0(firstup(refVar), " Spearman correlation in both sexes"), y = "Spearman correlation", x = "miRNA index") +
+  theme_classic()
+
+m <- ggplot(male, aes(x = index, y = SC, color = fdr.treshold)) +
+  geom_point() +
+  geom_hline(yintercept = -0.2) +
+  geom_hline(yintercept = 0.2) +
+  ylim(-0.8, 0.8) +
+  scale_color_discrete(name = "FDR", labels = c("<0.05", "Not significant")) +
+  ggrepel::geom_label_repel(aes(label = ifelse(SC < -0.2 & SC.fdr < 0.05 | SC > 0.2 & SC.fdr < 0.05 , rownames(both), "")), color = "blue",
+                            min.segment.length = 0, box.padding = 0.5) +
+  labs(title = paste0(firstup(refVar), " Spearman correlation in males"), y = "Spearman correlation", x = "miRNA index") +
+  theme_classic()
+
+f <- ggplot(female, aes(x = index, y = SC, color = fdr.treshold)) +
+  geom_point() +
+  geom_hline(yintercept = -0.2) +
+  geom_hline(yintercept = 0.2) +
+  ylim(-0.8, 0.8) +
+  scale_color_discrete(name = "FDR", labels = c("<0.05", "Not significant")) +
+  ggrepel::geom_label_repel(aes(label = ifelse(SC < -0.2 & SC.fdr < 0.05 | SC > 0.2 & SC.fdr < 0.05 , rownames(both), "")), color = "blue",
+                            min.segment.length = 0, box.padding = 0.5) +
+  labs(title = paste0(firstup(refVar), " Spearman correlation in females"), y = "Spearman correlation", x = "miRNA index") +
+  theme_classic()
+
+
 
 ggsave(p, filename = paste0("results/figures/", refVar, "_both_", refRes, "_correlation.jpg"), width = 12, height = 14, units = "in")
 
