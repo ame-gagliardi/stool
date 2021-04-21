@@ -1,0 +1,23 @@
+ID;variable;group_1;group_2;p_adj;logFC;
+hsa-miR-324-5p;sex;male;female;0.002;1.27;
+hsa-miR-4326;sex;male;female;0.047;-0.764;
+hsa-miR-4418;sex;male;female;0.003;-0.931;
+hsa-miR-3169;age;>53;<37;0.03;0.802;
+hsa-miR-4276-3p:Novel;age; 37-53;<37;0.027;-0.739;
+hsa-miR-4505-3p:Novel;age;>53; 37-53;0.027;0.778;
+hsa-miR-194-3p;BMI;obese;normal;0.03;-1.337;
+hsa-miR-200b-3p;BMI;obese;normal;0.041;-1.524;
+hsa-miR-4748-3p:Novel;BMI;obese;normal;0.009;1.632;
+hsa-miR-12136;smoke ;> 16 cigs/day;former;0.004;1.26;
+hsa-miR-12136-3p:Novel;smoke ;> 16 cigs/day;former;0.002;1.212;
+hsa-miR-143-3p;smoke ;> 16 cigs/day;< 16 cigs/day;0.003;1.599;
+hsa-miR-181c-3p;smoke ;> 16 cigs/day;never;0.009;-1.429;
+hsa-miR-194-3p;smoke ;> 16 cigs/day;< 16 cigs/day;0;2.656;
+hsa-miR-302c-5p;smoke ;> 16 cigs/day;former;0.027;1.471;
+hsa-miR-3127-5p;smoke ;> 16 cigs/day;< 16 cigs/day;0.001;1.614;
+hsa-miR-3619-3p;smoke ;> 16 cigs/day;< 16 cigs/day;0.023;-2.247;
+hsa-miR-4698;smoke ;> 16 cigs/day;< 16 cigs/day;0;2.392;
+hsa-miR-615-5p;smoke ;> 16 cigs/day;< 16 cigs/day;0.003;2.544;
+hsa-miR-6829-5p;smoke ;> 16 cigs/day;< 16 cigs/day;0;2.387;ok x figura
+hsa-miR-8075;smoke ;former;never;0;-1.319;
+hsa-miR-8075-5p:Novel;smoke ;former;never;0;-1.462;
