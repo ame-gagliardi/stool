@@ -1,5 +1,5 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
+source("C:/Users/amega/Desktop/R_Projects/general/libraries_functions.R")
+source("C:/Users/amega/Desktop/R_Projects/general/libraries_graph.R")
 
 cts <- readRDS("data/ngs/sv_stool_stool_both_normalized_counts_mirna_pooled.rds")
 df <- readRDS("data/clinical/sv_stool_stool_both_samples_pooled.rds")
@@ -48,7 +48,7 @@ samples_annotation <- as.data.frame(matrix(NA, ncol = 1, nrow = length(rownames(
 colnames(samples_annotation) <- c("n_mirna")
 rownames(samples_annotation) <- rownames(df)
 
-mirna <- read.delim("C:/Users/amedeo/Desktop/Filexame.csv", header = F)
+mirna <- read.delim("C:/Users/amega/Desktop/Filexame.csv", header = F)
 colnames(mirna) <- c("mirna")
 mirna$check <- TRUE
 
@@ -78,6 +78,7 @@ row_ha <- rowAnnotation(barplot = anno_barplot(mirna_annotation$n_samples,
 
 colcor <- colorRampPalette(brewer.pal(9,"Blues"))(100)
 
+Sys.time()
 Heatmap(mat, 
         name = "mat", 
         top_annotation = column_ha,
@@ -92,3 +93,4 @@ Heatmap(mat,
         show_column_dend = F,
         col=colorRamp2(breaks=c(0,2,4,6), colors=c("white", colcor[50], colcor[75], colcor[100])),
         heatmap_legend_param = list(title = "log10 \n", title_position = "topcenter"))
+Sys.time()
