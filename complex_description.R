@@ -63,7 +63,14 @@ mirna_annotation[,"check"] <- ifelse(is.na(mirna_annotation$color), F, T)
 mat <- as.matrix(log10(cts+1))
 
 column_ha <- HeatmapAnnotation(miRNAs = anno_barplot(samples_annotation$n_mirna,
-                                                     gp = gpar(fill = "black", col = "black")), annotation_label = c(""))
+                                                     gp = gpar(fill = "black", col = "black")),
+                               annotation_label = c("# miRNAs"),
+                               annotation_name_side = "left",
+                               annotation_name_gp = gpar(cex = 0.75))
+                               
+                               
+                               
+                               
 row_ha <- rowAnnotation(barplot = anno_barplot(mirna_annotation$n_samples, 
                                                    gp = gpar(col = ifelse(mirna_annotation$check == T, "red", "grey"),
                                                              fill = ifelse(mirna_annotation$check == T, "red", "grey")),
@@ -75,7 +82,8 @@ Heatmap(mat,
         name = "mat", 
         top_annotation = column_ha,
         right_annotation = row_ha,
-        column_title = c("Numbers of detected miRNAs"),
+        column_title = c("Samples"),
+        column_title_side = "bottom",
         row_title = c("Numbers of samples for each miRNA"),
         row_title_side = "right",
         show_row_names = F,
