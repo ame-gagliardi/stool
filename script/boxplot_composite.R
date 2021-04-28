@@ -806,7 +806,7 @@ data <- phys_mirna[phys_mirna$mirna == phys1,]
 p1 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Smoking status", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "Physical activity", labels = labels, values = phys_color) +
   scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -829,7 +829,7 @@ data <- phys_mirna[phys_mirna$mirna == phys2,]
 p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Smoking status", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "Physical activity", labels = labels, values = phys_color) +
   scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -852,7 +852,7 @@ data <- phys_mirna[phys_mirna$mirna == phys3,]
 p3 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Smoking status", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "Physical activity", labels = labels, values = phys_color) +
   scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
