@@ -1,5 +1,5 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
+source("D:/R_Projects/general/libraries_functions.R")
+source("D:/R_Projects/general/libraries_graph.R")
 library(memisc)
 
 ## BOXPLOT ARRANGE
@@ -30,13 +30,15 @@ df <- df[i,]
 # miRNA selection
 
 mirna <- read.delim("data/downstream/pooled_box_to_composite.csv", sep =";")
+filter <- read.delim("data/downstream/pooled_boxplot.txt", header = F, col.names = c("mirna"))
+
+mirna <- mirna[mirna$ID %in% filter$mirna,]
+
 mirna$variable <- str_remove_all(mirna$variable, " ") 
 mirna <- mirna %>% 
-  dplyr::filter(variable != "smoke") %>% 
-  dplyr::select(-X) %>% 
   dplyr::rename(mirna = ID ,padj = p_adj, group1 = group_1, group2 = group_2)
 
-mirna[7:9,"variable"] <- "bmi"
+mirna[which(mirna$variable == "BMI"),"variable"] <- "bmi"
 mirna[, "group1"] <- tolower(mirna$group1)
 mirna[, "group2"] <- tolower(mirna$group2)
 
@@ -52,6 +54,7 @@ rownames(cts) <- str_remove_all(rownames(cts), "hsa-")
 
 totrim <- colnames(mirna)
 mirna[,totrim] <- lapply(mirna[,totrim], trimws)
+
 ####################################################################################################################################################
 ####################################################################################################################################################
 ##############################################    ANTROPOMETRIC COMBINED PLOT    ###################################################################
@@ -557,14 +560,20 @@ pAlco <- annotate_figure(pAlco,
 ###################
 
 ncigs_color <- brewer.pal(9, "Greys")[c(1,3,4,5)]
-ncigs_mirna <- mirna[mirna$var=="ncigs",]
+ncigs_mirna <- mirna[mirna$var=="smoke",]
+
+which(ncigs_mirna$mirna == "miR-194-3p")
+ncigs_mirna <- ncigs_mirna[-3,]
+
 ncigs_cts <- as.data.frame(t(cts[rownames(cts) %in% ncigs_mirna$mirna,]))
 all.equal(ncigs_mirna$mirna, colnames(ncigs_cts))
 
 dt <- df
 levels(dt$cigs) <- c("never", "former", "<16", ">16")
 ncigs_mirna$group1 <- as.factor(ncigs_mirna$group1)
+levels(ncigs_mirna$group1) <- c(">16")
 ncigs_mirna$group2 <- as.factor(ncigs_mirna$group2)
+levels(ncigs_mirna$group2) <- c("former", "never")
 
 legend <- c("Smoking status")
 labels <- c("Never", "Former", "<16 cigs/day", ">16 cigs/day")
@@ -579,73 +588,81 @@ if(length(torm) >0){
   all.equal(rownames(ncigs_cts), rownames(dt))
 }
 
-## hsa-miR-3127-5p ##
+## hsa-miR-12136-3p ## Pooled
 
 ncigs1 <- ncigs_mirna[1,1]
 db <- dt
 db[,ncigs1] <- ncigs_cts[,ncigs1]
-colnames(db)[24] <- "mirna"
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- ncigs_mirna[ncigs_mirna$mirna == ncigs1,]
 
 p1 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "   Smoking \n    status", labels = labels, values = ncigs_color) +
+  scale_fill_manual(name = "Smoking status", labels = labels, values = ncigs_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(ncigs1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 
-## hsa-miR-4533 ##
+## hsa-miR-181c-3p ## Pooled
 
 ncigs2 <- ncigs_mirna[2,1]
 db <- dt
 db[,ncigs2] <- ncigs_cts[,ncigs2]
-colnames(db)[24] <- "mirna"
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- ncigs_mirna[ncigs_mirna$mirna == ncigs2,]
 
 p2 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "   Smoking \n    status", labels = labels, values = ncigs_color) +
+  scale_fill_manual(name = "Smoking status", labels = labels, values = ncigs_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(ncigs2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-8075 ##
+## hsa-miR-302c-5p ## Pooled
 
-ncigs3 <- ncigs_mirna[4,1]
+ncigs3 <- ncigs_mirna[3,1]
 db <- dt
 db[,ncigs3] <- ncigs_cts[,ncigs3]
-colnames(db)[24] <- "mirna"
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- ncigs_mirna[ncigs_mirna$mirna == ncigs3,]
 
 p3 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "   Smoking \n    status", labels = labels, values = ncigs_color) +
+  scale_fill_manual(name = "Smoking status", labels = labels, values = ncigs_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(ncigs3, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-pCigs <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
+ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
+
+pCigs <- ggarrange(p2,p3,p1, nrow = 1, common.legend = TRUE, legend = "right")
 pCigs <- annotate_figure(pCigs,
-                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 
 ##############################
 ### COFFEE STRATIFIED MIRNA ##
@@ -754,18 +771,19 @@ pCoffee <- annotate_figure(pCoffee,
 ### PHYSICAL ACTIVITY MIRNA ###
 ###############################
 
-phys_color <- rev(brewer.pal(11, "PRGn")[2:4])
-phys_mirna <- mirna[mirna$var == "physact",]
+phys_color <- rev(brewer.pal(11, "PRGn")[2:5])
+phys_mirna <- mirna[mirna$var == "phys_act",]
 phys_cts <- as.data.frame(t(cts[rownames(cts) %in% phys_mirna$mirna,]))
 all.equal(phys_mirna$mirna, colnames(phys_cts))
 
 dt <- df
-levels(dt$phys_act) <- c("inactive", "modInact", "modAct")
+levels(dt$phys_act) <- c("inactive", "modInact", "modAct", "active")
 phys_mirna$group1 <- as.factor(phys_mirna$group1)
+levels(phys_mirna$group1) <- c("inactive", "modInact")
 phys_mirna$group2 <- as.factor(phys_mirna$group2)
 
 legend <- c("Physical activity")
-labels <- c("Inactive", "Moderately \n Inactive", "Moderately \n Active/Active")
+labels <- c("Inactive", "Moderately Inactive", "Moderately Active", "Active")
 
 torm <- which(is.na(dt$phys_act))
 
@@ -777,72 +795,83 @@ if(length(torm) >0){
   all.equal(rownames(phys_cts), rownames(dt))
 }
 
-## hsa-mir-2110
+## hsa-mir-4493 ## Pooled
 
 phys1 <- phys_mirna[1,1]
 db <- dt
-db[,"mirna"] <- phys_cts[,phys1]
-colnames(db)[24] <- "mirna"
+db[,phys1] <- phys_cts[,phys1]
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- phys_mirna[phys_mirna$mirna == phys1,]
 
 p1 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "    Physical \n     activity", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "Smoking status", labels = labels, values = phys_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(phys1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-mir-4452
+## hsa-mir-4700-5p ## Pooled
 
-phys2 <- phys_mirna[3,1]
+phys2 <- phys_mirna[2,1]
 db <- dt
-db[,"mirna"] <- phys_cts[,phys2]
-colnames(db)[24] <- "mirna"
+db[,phys2] <- phys_cts[,phys2]
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- phys_mirna[phys_mirna$mirna == phys2,]
 
 p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "    Physical \n     activity", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "Smoking status", labels = labels, values = phys_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(phys2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## hsa-mir-944-5p
 
-phys3 <- phys_mirna[5,1]
+phys3 <- phys_mirna[3,1]
 db <- dt
-db[,"mirna"] <- phys_cts[,phys3]
-colnames(db)[24] <- "mirna"
+db[,phys3] <- phys_cts[,phys3]
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- phys_mirna[phys_mirna$mirna == phys3,]
 
 p3 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "    Physical \n     activity", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "Smoking status", labels = labels, values = phys_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(phys3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+
 #
-pPhys <- ggarrange(p3,p1,p2, nrow = 1, common.legend = TRUE, legend = "right")
+ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
+
+pPhys <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
 pPhys <- annotate_figure(pPhys,
-                           left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+##
+##
 ##
 pLife <-ggarrange(pCigs, pAlco, pCoffee, pPhys, nrow = 4, align = "v")
 ggsave(filename = "C:/Users/amedeo/Desktop/R_Projects/stool/results/figures/lifestyle_boxplot.png", pLife, width = 20, height = 19, units = "cm", dpi = 500)

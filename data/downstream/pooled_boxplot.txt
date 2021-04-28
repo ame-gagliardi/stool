@@ -1,0 +1,15 @@
+hsa-miR-3169
+hsa-miR-4276-3p:Novel
+hsa-miR-8074
+hsa-miR-194-3p
+hsa-miR-200b-3p
+hsa-miR-4748-3p:Novel
+hsa-miR-181c-3p
+hsa-miR-302c-5p
+hsa-miR-12136-3p:Novel
+hsa-miR-324-5p
+hsa-miR-4326
+hsa-miR-4418
+hsa-miR-4493
+hsa-miR-4700-5p
+hsa-miR-5100
