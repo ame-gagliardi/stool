@@ -1,0 +1,5 @@
+"database","mature_mirna_id","target_symbol","target_entrez","target_ensembl","experiment","pubmed_id"
+"mirecords","hsa-miR-375-3p","YAP1","10413","ENSG00000137693","","20100814"
+"mirecords","hsa-miR-375-3p","YWHAZ","7534","ENSG00000164924","Western blot","20215506"
+"mirecords","hsa-miR-375-3p","JAK2","3717","ENSG00000096968","Western blot//Luciferase activity assay","20548334"
+"mirecords","hsa-miR-375-3p","JAK2","3717","ENSG00000096968","Western blot//Luciferase activity assay","20548334"
