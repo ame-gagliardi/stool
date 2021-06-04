@@ -1,5 +1,5 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
+source("D:/R_Projects/general/libraries_functions.R")
+source("D:/R_Projects/general/libraries_graph.R")
 
 
 # DATA LOADING
@@ -10,25 +10,27 @@ project <- c("/sv_")
 tissue <- c("stool_")
 biospecimen <- c("stool_")
 sex <- c("both_")
+sex_cts <- c("both_")
 ctsType <- c("normalized_")
 species <- c("mirna_")
 cohort <- c("pooled")
 
 df.path <- paste0(r_folder, folder, "clinical", project, tissue, biospecimen, sex, "samples_", cohort, ".rds")
-cts.path <- paste0(r_folder, folder, "ngs", project, tissue, biospecimen, sex ,ctsType, "counts_", species, cohort, ".rds")
+cts.path <- paste0(r_folder, folder, "ngs", project, tissue, biospecimen, sex_cts ,ctsType, "counts_", species, cohort, ".rds")
 result.path <- paste0(r_folder, "/results/differential")
 
 df <- readRDS(df.path)
 cts <- readRDS(cts.path)
 
+
 i <- intersect(rownames(df), colnames(cts))
 cts <- cts[,i]
 df <- df[i,]
-
+all.equal(rownames(df), colnames(cts))
 
 # External data
 
-box_mir <- read.delim("C:/Users/amedeo/Desktop/pooled_boxplot_selection.csv", sep = ";")
+box_mir <- read.delim("D:/R_Projects/stool/data/downstream/mirna_to_box_select_040621.csv", sep = ";")
 
 
 # Df mods
@@ -48,11 +50,11 @@ box_mir <- read.delim("C:/Users/amedeo/Desktop/pooled_boxplot_selection.csv", se
 # levels(df$alcool_ua)
 
 # colnames(box_mir)[3] <- "menstruation"
-colnames(box_mir)[2] <- "age_cat"
-colnames(box_mir)[3] <- "bmi_cat"
-colnames(box_mir)[5] <- "cigs"
-colnames(box_mir)[8] <- "phys_act"
-colnames(box_mir)[9] <- "alcool_ua"
+# colnames(box_mir)[2] <- "age_cat"
+# colnames(box_mir)[3] <- "bmi_cat"
+# colnames(box_mir)[5] <- "cigs"
+# colnames(box_mir)[8] <- "phys_act"
+# colnames(box_mir)[9] <- "alcool_ua"
 
 # Boxplot
 
@@ -71,9 +73,9 @@ coffee_color <- brewer.pal(10, "BrBG")[c(2,3,5)]
 phys_color <- brewer.pal(3, "YlOrRd")
 alcohol_color <- brewer.pal(3, "PuRd")
 
-var <- c("sex")
-name <- c("Sex")
-labels <- c("Female", "Male")
+var <- c("alcohol")
+name <- c("Alcohol")
+labels <- c("no", "low", "high")
 tmp <- length(box_mir[,var]) - sum(is.na(box_mir[,var]))
 
 for(i in 1:tmp){
@@ -83,11 +85,11 @@ for(i in 1:tmp){
   
   title <- mirX
   
-  p <- ggplot(db, aes(x=sex, y=log(mirna), fill=sex)) +
+  p <- ggplot(db, aes(x=alcohol, y=log(mirna), fill=alcohol)) +
   geom_boxplot(outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1) +
   stat_summary(fun = median, geom = "smooth", aes(group = 1), color = "red") +
-  scale_fill_manual(name = name, labels = labels, values = sex_color) +
+  scale_fill_manual(name = name, labels = labels, values = alcohol_color) +
   ylab(bquote(~Log[10]~ 'expression level')) +
   theme_classic() +
   theme(axis.title.x = element_blank(),
@@ -96,7 +98,7 @@ for(i in 1:tmp){
   ggtitle(title)
   
   mirX <- str_replace(mirX, ":Novel", "-Novel")
-  ggsave(p, filename = paste0("C:/Users/amedeo/Desktop/R_Projects/stool/results/figures/pooled/to_select/",var,"/", mirX, ".png"))
+  ggsave(p, filename = paste0("D:/R_Projects/stool/results/figures/pooled/to_select/",var,"/", mirX, ".png"))
 }
 
 ## Sex
@@ -179,3 +181,14 @@ k <- intersect(rownames(db), rownames(t.cts))
 n.cts <- t.cts[k,]
 db <- db[k,]
 all.equal(rownames(db), rownames(n.cts))
+
+## Coffee
+xx <- which(is.na(df$alcohol))
+db <- df
+db <- db[-xx,]
+k <- intersect(rownames(db), rownames(t.cts))
+n.cts <- t.cts[k,]
+db <- db[k,]
+all.equal(rownames(db), rownames(n.cts))
+
+

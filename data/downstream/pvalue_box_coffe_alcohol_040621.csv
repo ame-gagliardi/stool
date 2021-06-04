@@ -1,0 +1,17 @@
+mirna;var;group_1;group_2;padj;logFC
+hsa-miR-1231;coffee;low;no;0.033;-0.535
+hsa-miR-622;coffee;low;no;0.023;-0.755
+hsa-miR-8053;coffee;low;no;0.013;-0.715
+hsa-miR-3169-3p:Novel;coffee;high;no;0.001;-0.981
+hsa-miR-320c;coffee;high;no;0.002;-0.847
+hsa-miR-320d;coffee;high;no;0.001;-0.914
+hsa-miR-4254-5p:Novel;coffee;high;no;0.033;-1.177
+hsa-miR-4453-3p:Novel;coffee;high;no;0.024;-0.679
+hsa-miR-483-5p;coffee;high;no;0.024;-0.840
+hsa-miR-638-3p:Novel;coffee;high;no;0.005;-0.953
+hsa-miR-645;coffee;high;no;0.024;-0.990
+hsa-miR-6717-5p;coffee;high;no;0.001;-1.037
+hsa-miR-7113-5p;coffee;high;no;0.047;-0.794
+hsa-miR-8085;coffee;high;no;0.020;-0.693
+hsa-miR-4254-5p:Novel;alcohol;low;no;0.033;-1.646
+hsa-miR-3972;alcohol;high;no;0.022;-1.193

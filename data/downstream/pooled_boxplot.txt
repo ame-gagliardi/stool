@@ -13,3 +13,9 @@ hsa-miR-4418
 hsa-miR-4493
 hsa-miR-4700-5p
 hsa-miR-5100
+hsa-miR-483-5p
+hsa-miR-622
+hsa-miR-645
+hsa-miR-4254-5p:Novel
+hsa-miR-3972
+hsa-miR-6895-3p

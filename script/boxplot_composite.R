@@ -26,6 +26,7 @@ cts <- readRDS(cts.path)
 i <- intersect(rownames(df), colnames(cts))
 cts <- cts[,i]
 df <- df[i,]
+all.equal(rownames(df), colnames(cts))
 
 # miRNA selection
 
@@ -42,9 +43,9 @@ mirna[which(mirna$variable == "BMI"),"variable"] <- "bmi"
 mirna[, "group1"] <- tolower(mirna$group1)
 mirna[, "group2"] <- tolower(mirna$group2)
 
-mirna$psymb <- with(mirna, cases("*" = padj <0.05 & padj > 0.01,
-                                 "**" = padj <0.01 & padj > 0.001,
-                                 "***" = padj <0.001 & padj > 0.0001,
+mirna$psymb <- with(mirna, cases("*" = padj <=0.05 & padj > 0.01,
+                                 "**" = padj <=0.01 & padj > 0.001,
+                                 "***" = padj <=0.001 & padj > 0.0001,
                                  "****" = padj <= 0.0001))
 
 mirna$mirna <- str_replace_all(mirna$mirna, ":Novel", "-N")
@@ -54,6 +55,8 @@ rownames(cts) <- str_remove_all(rownames(cts), "hsa-")
 
 totrim <- colnames(mirna)
 mirna[,totrim] <- lapply(mirna[,totrim], trimws)
+torm <- grep("X", colnames(mirna))
+mirna <- mirna[,-torm]
 
 ####################################################################################################################################################
 ####################################################################################################################################################
@@ -463,21 +466,25 @@ rm(data, db, dt, meno1, meno2, meno3, menopausal_color, menopausal_cts, menopaus
 alco_color <- brewer.pal(3, "PuRd")
 alco_mirna <- mirna[mirna$var == "alcohol",]
 alco_cts <- as.data.frame(t(cts[rownames(cts) %in% alco_mirna$mirna,]))
+rownames(alco_mirna) <- alco_mirna$mirna
+i <- intersect(rownames(alco_mirna), colnames(alco_cts))
+alco_mirna <- alco_mirna[i,]
+alco_cts <- alco_cts[,i]
 all.equal(alco_mirna$mirna, colnames(alco_cts))
 
 dt <- df
-levels(dt$alcool_ua) <- c("non_drinker", "low", "high")
+# levels(dt$alcohol) <- c("no", "low", "high")
 
 alco_mirna$group1 <- as.factor(alco_mirna$group1)
 levels(alco_mirna$group1) <- c("high", "low")
 alco_mirna$group2 <- as.factor(alco_mirna$group2)
-levels(alco_mirna$group2) <- c("non_drinker", "low")
+levels(alco_mirna$group2) <- c("no")
 
 
 legend <- c("Alcohol consumption")
 labels <- c("Non drinker", "Low intake", "High intake")
 
-torm <- which(is.na(dt$alcool_ua))
+torm <- which(is.na(dt$alcohol))
 
 if(length(torm) >0){
   dt <- dt[-torm,]
@@ -492,67 +499,74 @@ if(length(torm) >0){
 alco1 <- alco_mirna[1,1]
 db <- dt
 db[,"mirna"] <- alco_cts[,alco1]
-colnames(db)[24] <- "mirna"
+colnames(db)[20] <- "mirna"
 data <- alco_mirna[alco_mirna$mirna == alco1,]
 
-p1 <- ggplot(db, aes(x = alcool_ua, y = log(mirna))) +
-  geom_boxplot(aes(fill = alcool_ua), outlier.shape = 1) +
+p1 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
+  geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "    Alcohol \n     intake", labels = labels, values = alco_color) +
+  scale_fill_manual(name = "Alcohol consumption", labels = labels, values = alco_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(alco1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
-
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## hsa-miR-608-3p
 
 alco2 <- alco_mirna[2,1]
 db <- dt
 db[,"mirna"] <- alco_cts[,alco2]
-colnames(db)[24] <- "mirna"
+colnames(db)[20] <- "mirna"
 data <- alco_mirna[alco_mirna$mirna == alco2,]
 
-p2 <- ggplot(db, aes(x = alcool_ua, y = log(mirna))) +
-  geom_boxplot(aes(fill = alcool_ua), outlier.shape = 1) +
+p2 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
+  geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "    Alcohol \n     intake", labels = labels, values = alco_color) +
+  scale_fill_manual(name = "Alcohol consumption", labels = labels, values = alco_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(alco2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## hsa-miR-6741-5p
 
 alco3 <- alco_mirna[3,1]
 db <- dt
 db[,"mirna"] <- alco_cts[,alco3]
-colnames(db)[24] <- "mirna"
+colnames(db)[20] <- "mirna"
 data <- alco_mirna[alco_mirna$mirna == alco3,]
 
-p3 <- ggplot(db, aes(x = alcool_ua, y = log(mirna))) +
-  geom_boxplot(aes(fill = alcool_ua), outlier.shape = 1) +
+p3 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
+  geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "    Alcohol \n     intake", labels = labels, values = alco_color) +
+  scale_fill_manual(name = "Alcohol consumption", labels = labels, values = alco_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(alco3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-pAlco <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
-pAlco <- annotate_figure(pAlco,
+ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
+
+pAlc <- ggarrange(p2,p1,p3, nrow = 1, common.legend = TRUE, legend = "right")
+pAlc <- annotate_figure(pAlc,
                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 
 ###################
@@ -669,16 +683,19 @@ pCigs <- annotate_figure(pCigs,
 ##############################
 
 coffee_color <- rev(brewer.pal(10, "BrBG")[c(2,3,5)])
-coffee_mirna <- mirna[mirna$group1=="heavy" & mirna$var == "coffee",]
+coffee_mirna <- mirna[mirna$var == "coffee",]
 coffee_cts <- as.data.frame(t(cts[rownames(cts) %in% coffee_mirna$mirna,]))
 all.equal(coffee_mirna$mirna, colnames(coffee_cts))
 
+which(coffee_mirna$mirna == "miR-4254-5p-N")
+coffee_mirna <- coffee_mirna[-2,]
+
 dt <- df
-levels(dt$coffee) <- c("no_drinker", "light_drinker", "heavy_drinker")
+# levels(dt$coffee) <- c("no_drinker", "light_drinker", "heavy_drinker")
 coffee_mirna$group1 <- as.factor(coffee_mirna$group1)
-levels(coffee_mirna$group1) <- c("heavy_drinker")
+levels(coffee_mirna$group1) <- c("high", "low")
 coffee_mirna$group2 <- as.factor(coffee_mirna$group2)
-levels(coffee_mirna$group2) <- c("no_drinker")
+levels(coffee_mirna$group2) <- c("no")
 
 legend <- c("Coffee consumption")
 labels <- c("Non drinker", "Low intake", "High intake")
@@ -694,85 +711,87 @@ if(length(torm) >0){
 }
 
 
-## hsa-miR-125b-5p ##
+## P1 ## 
 
 coffee1 <- coffee_mirna[1,1]
 db <- dt
 db[,coffee1] <- coffee_cts[,coffee1]
-colnames(db)[24] <- "mirna"
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- coffee_mirna[coffee_mirna$mirna == coffee1,]
-
-check(coffee1,db,coffee_cts,data)
 
 p1 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name ="     Coffee \n consumption", labels = labels, values = coffee_color) +
+  scale_fill_manual(name = "Coffee consumption", labels = labels, values = coffee_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(coffee1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-8053 ##
+
+
+## P2 ##
 
 coffee2 <- coffee_mirna[2,1]
 db <- dt
 db[,coffee2] <- coffee_cts[,coffee2]
-colnames(db)[24] <- "mirna"
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- coffee_mirna[coffee_mirna$mirna == coffee2,]
-
-check(coffee2,db,coffee_cts,data)
 
 p2 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name ="     Coffee \n consumption", labels = labels, values = coffee_color) +
+  scale_fill_manual(name = "Coffee consumption", labels = labels, values = coffee_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(coffee2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-622 ##
-
+## P3 ##
 coffee3 <- coffee_mirna[3,1]
 db <- dt
 db[,coffee3] <- coffee_cts[,coffee3]
-colnames(db)[24] <- "mirna"
+colnames(db)[length(colnames(db))] <- "mirna"
 data <- coffee_mirna[coffee_mirna$mirna == coffee3,]
-
-check(coffee3,db,coffee_cts,data)
 
 p3 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name ="     Coffee \n consumption", labels = labels, values = coffee_color) +
+  scale_fill_manual(name = "Coffee consumption", labels = labels, values = coffee_color) +
+  scale_y_continuous(breaks = pretty_breaks()) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(coffee3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.05, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-pCoffee <- ggarrange(p1,p3,p2, nrow = 1, common.legend = TRUE, legend = "right")
+ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
+
+pCoffee <- ggarrange(p2,p1,p3, nrow = 1, common.legend = TRUE, legend = "right")
 pCoffee <- annotate_figure(pCoffee,
                          left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
-
 ###############################
 ### PHYSICAL ACTIVITY MIRNA ###
 ###############################
 
 phys_color <- rev(brewer.pal(11, "PRGn")[2:5])
-phys_mirna <- mirna[mirna$var == "phys_act",]
+phys_mirna <- mirna[mirna$var == "p_activity",]
 phys_cts <- as.data.frame(t(cts[rownames(cts) %in% phys_mirna$mirna,]))
 all.equal(phys_mirna$mirna, colnames(phys_cts))
 
@@ -795,7 +814,7 @@ if(length(torm) >0){
   all.equal(rownames(phys_cts), rownames(dt))
 }
 
-## hsa-mir-4493 ## Pooled
+## P1 ##
 
 phys1 <- phys_mirna[1,1]
 db <- dt
@@ -818,7 +837,7 @@ p1 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   ggtitle(str_remove(phys1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-mir-4700-5p ## Pooled
+## P2 ##
 
 phys2 <- phys_mirna[2,1]
 db <- dt
@@ -841,7 +860,7 @@ p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   ggtitle(str_remove(phys2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-mir-944-5p
+## P3 ##
 
 phys3 <- phys_mirna[3,1]
 db <- dt
@@ -873,5 +892,5 @@ pPhys <- annotate_figure(pPhys,
 ##
 ##
 ##
-pLife <-ggarrange(pCigs, pAlco, pCoffee, pPhys, nrow = 4, align = "v")
-ggsave(filename = "C:/Users/amedeo/Desktop/R_Projects/stool/results/figures/lifestyle_boxplot.png", pLife, width = 20, height = 19, units = "cm", dpi = 500)
+pLife <-ggarrange(pCigs, pAlc, pCoffee, pPhys, nrow = 4, align = "v")
+ggsave(filename = "D:/R_Projects/stool/results/figures/pooled/lifestyle_boxplot.png", pLife, width = 20, height = 19, units = "cm", dpi = 500)
