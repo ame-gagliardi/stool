@@ -1,5 +1,8 @@
-covariate <- c("phys_act")
-mirna <- read.delim("data/downstream/enrichment_mirna_list.txt")
+library(tidyverse)
+library(xlsx)
+
+covariate <- c("coffee")
+mirna <- read.delim("data/downstream/enrichment_mirna_list.csv", sep = ";")
 enrichment_files <- list.files("D:/R_Projects/stool/results/enrichment_pooled/enrichment_table/") 
 comparison <- unique(mirna$test[which(mirna$covariate == covariate)])
 
@@ -39,6 +42,10 @@ tmp_3[,"library"] <- ifelse(tmp_3$Library == "c2.cp.kegg.v7.1", "KEGG",
                             ifelse(tmp_3$Library == "c2.cp.reactome.v7.1", "REACTOME", "GO"))
 tmp_3[,"covariate"] <- covariate
 
+tmp_3 <- tmp_3[,c("GS", "covariate", "expression", "comparison", "loss", "gene.tested", "coef", "std.err",
+                  "t.value", "p.value", "adj.p.val", "Target_Gene", "library", "Library")]
+
+
 enrichment_libraries <- c("KEGG", "REACTOME", "GO")
 
 for(i in 1:length(enrichment_libraries)){
@@ -55,9 +62,9 @@ sheet_GO <- createSheet(wb, "Enrichment_GO")
 sheet_KEGG <- createSheet(wb, "Enrichment_KEGG")
 sheet_REACTOME <- createSheet(wb, "Enrichment_REACTOME")
 
-addDataFrame(phys_act_GO, sheet=sheet_GO, startColumn=1, row.names=FALSE)
-addDataFrame(phys_act_KEGG, sheet=sheet_KEGG, startColumn=1, row.names=FALSE)
-addDataFrame(phys_act_REACTOME, sheet=sheet_REACTOME, startColumn=1, row.names=FALSE)
+addDataFrame(coffee_GO, sheet=sheet_GO, startColumn=1, row.names=FALSE)
+addDataFrame(coffee_KEGG, sheet=sheet_KEGG, startColumn=1, row.names=FALSE)
+addDataFrame(coffee_REACTOME, sheet=sheet_REACTOME, startColumn=1, row.names=FALSE)
 
 
 saveWorkbook(wb, paste0(covariate, "_enrichment.xlsx"))
