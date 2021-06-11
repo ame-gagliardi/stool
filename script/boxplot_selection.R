@@ -45,13 +45,13 @@ age_color <- brewer.pal(3, "Blues")
 meno_color <- brewer.pal(3, "Pastel2")[1:2]
 bmi_color <- brewer.pal(4, "Greens")
 smoke_color <- brewer.pal(3, "OrRd")
-cigs_color <- brewer.pal(4, "OrRd")
+cigs_color <- brewer.pal(8, "Greys")[c(3,4,5,6)]
 coffee_color <- brewer.pal(10, "BrBG")[c(2,3,5)]
 phys_color <- brewer.pal(4, "YlOrRd")
 alcohol_color <- brewer.pal(3, "PuRd")
 ##
-var <- c("phys_act")
-name <- c("Physical activity")
+var <- c("cigs")
+name <- c("Smoking status")
 labels <- levels(df[,var])
 tmp <- length(box_mir[,var]) - sum(is.na(box_mir[,var]))
 #
@@ -78,11 +78,11 @@ for(i in 1:tmp){
   
   title <- mirX
   
-  p <- ggplot(db, aes(x=phys_act, y=log(mirna), fill=phys_act)) +
+  p <- ggplot(db, aes(x=cigs, y=log(mirna), fill=cigs)) +
   geom_boxplot(outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1) +
   stat_summary(fun = median, geom = "smooth", aes(group = 1), color = "red") +
-  scale_fill_manual(name = name, labels = labels, values = phys_color) +
+  scale_fill_manual(name = name, labels = labels, values = cigs_color) +
   ylab(bquote(~Log[10]~ 'expression level')) +
   theme_classic() +
   theme(axis.title.x = element_blank(),

@@ -30,16 +30,20 @@ all.equal(rownames(df), colnames(cts))
 
 # miRNA selection
 
-mirna <- read.delim("data/downstream/pooled_box_to_composite.csv", sep =";")
-filter <- read.delim("data/downstream/pooled_boxplot.txt", header = F, col.names = c("mirna"))
+mirna <- read.delim("data/downstream/boxplot_mirna_to_plot.csv", sep = ";")
+torm <- grep("X", colnames(mirna))
+mirna <- mirna[,-torm]
 
-mirna <- mirna[mirna$ID %in% filter$mirna,]
+# filter <- read.delim("data/downstream/pooled_boxplot.txt", header = F, col.names = c("mirna"))
+# 
+# mirna <- mirna[mirna$ID %in% filter$mirna,]
+# 
+# mirna$variable <- str_remove_all(mirna$variable, " ") 
+# mirna <- mirna %>% 
+#   dplyr::rename(mirna = ID ,padj = p_adj, group1 = group_1, group2 = group_2)
 
-mirna$variable <- str_remove_all(mirna$variable, " ") 
-mirna <- mirna %>% 
-  dplyr::rename(mirna = ID ,padj = p_adj, group1 = group_1, group2 = group_2)
-
-mirna[which(mirna$variable == "BMI"),"variable"] <- "bmi"
+colnames(mirna)[1] <- "mirna"
+mirna[which(mirna$variable == "bmi_cat"),"variable"] <- "bmi"
 mirna[, "group1"] <- tolower(mirna$group1)
 mirna[, "group2"] <- tolower(mirna$group2)
 
@@ -55,8 +59,6 @@ rownames(cts) <- str_remove_all(rownames(cts), "hsa-")
 
 totrim <- colnames(mirna)
 mirna[,totrim] <- lapply(mirna[,totrim], trimws)
-torm <- grep("X", colnames(mirna))
-mirna <- mirna[,-torm]
 
 ####################################################################################################################################################
 ####################################################################################################################################################
@@ -494,7 +496,7 @@ if(length(torm) >0){
   all.equal(rownames(alco_cts), rownames(dt))
 }
 
-## hsa-miR-324-3p
+## P1 ##
 
 alco1 <- alco_mirna[1,1]
 db <- dt
@@ -517,7 +519,7 @@ p1 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
   ggtitle(str_remove(alco1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-608-3p
+## P2 ##
 
 alco2 <- alco_mirna[2,1]
 db <- dt
@@ -540,7 +542,7 @@ p2 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
   ggtitle(str_remove(alco2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-6741-5p
+## P3 ##
 
 alco3 <- alco_mirna[3,1]
 db <- dt
@@ -565,7 +567,7 @@ p3 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
-pAlc <- ggarrange(p2,p1,p3, nrow = 1, common.legend = TRUE, legend = "right")
+pAlc <- ggarrange(p3,p1,p1, nrow = 1, common.legend = TRUE, legend = "right")
 pAlc <- annotate_figure(pAlc,
                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 
@@ -574,10 +576,10 @@ pAlc <- annotate_figure(pAlc,
 ###################
 
 ncigs_color <- brewer.pal(9, "Greys")[c(1,3,4,5)]
-ncigs_mirna <- mirna[mirna$var=="smoke",]
+ncigs_mirna <- mirna[mirna$var=="cigs",]
 
-which(ncigs_mirna$mirna == "miR-194-3p")
-ncigs_mirna <- ncigs_mirna[-3,]
+# which(ncigs_mirna$mirna == "miR-194-3p")
+# ncigs_mirna <- ncigs_mirna[-3,]
 
 ncigs_cts <- as.data.frame(t(cts[rownames(cts) %in% ncigs_mirna$mirna,]))
 all.equal(ncigs_mirna$mirna, colnames(ncigs_cts))
@@ -585,9 +587,9 @@ all.equal(ncigs_mirna$mirna, colnames(ncigs_cts))
 dt <- df
 levels(dt$cigs) <- c("never", "former", "<16", ">16")
 ncigs_mirna$group1 <- as.factor(ncigs_mirna$group1)
-levels(ncigs_mirna$group1) <- c(">16")
+levels(ncigs_mirna$group1) <- c("<16", ">16", "former")
 ncigs_mirna$group2 <- as.factor(ncigs_mirna$group2)
-levels(ncigs_mirna$group2) <- c("former", "never")
+levels(ncigs_mirna$group2) <- c("never")
 
 legend <- c("Smoking status")
 labels <- c("Never", "Former", "<16 cigs/day", ">16 cigs/day")
@@ -602,7 +604,7 @@ if(length(torm) >0){
   all.equal(rownames(ncigs_cts), rownames(dt))
 }
 
-## hsa-miR-12136-3p ## Pooled
+## P1 ##
 
 ncigs1 <- ncigs_mirna[1,1]
 db <- dt
@@ -626,7 +628,7 @@ p1 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 
-## hsa-miR-181c-3p ## Pooled
+## P2 ##
 
 ncigs2 <- ncigs_mirna[2,1]
 db <- dt
@@ -649,7 +651,7 @@ p2 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   ggtitle(str_remove(ncigs2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-302c-5p ## Pooled
+## P3 ##
 
 ncigs3 <- ncigs_mirna[3,1]
 db <- dt
@@ -674,7 +676,7 @@ p3 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
-pCigs <- ggarrange(p2,p3,p1, nrow = 1, common.legend = TRUE, legend = "right")
+pCigs <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
 pCigs <- annotate_figure(pCigs,
                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 
@@ -687,8 +689,8 @@ coffee_mirna <- mirna[mirna$var == "coffee",]
 coffee_cts <- as.data.frame(t(cts[rownames(cts) %in% coffee_mirna$mirna,]))
 all.equal(coffee_mirna$mirna, colnames(coffee_cts))
 
-which(coffee_mirna$mirna == "miR-4254-5p-N")
-coffee_mirna <- coffee_mirna[-2,]
+# which(coffee_mirna$mirna == "miR-4254-5p-N")
+# coffee_mirna <- coffee_mirna[-2,]
 
 dt <- df
 # levels(dt$coffee) <- c("no_drinker", "light_drinker", "heavy_drinker")
@@ -738,7 +740,7 @@ p1 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
 
 ## P2 ##
 
-coffee2 <- coffee_mirna[2,1]
+coffee2 <- coffee_mirna[3,1]
 db <- dt
 db[,coffee2] <- coffee_cts[,coffee2]
 colnames(db)[length(colnames(db))] <- "mirna"
@@ -760,7 +762,7 @@ p2 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
-coffee3 <- coffee_mirna[3,1]
+coffee3 <- coffee_mirna[4,1]
 db <- dt
 db[,coffee3] <- coffee_cts[,coffee3]
 colnames(db)[length(colnames(db))] <- "mirna"
@@ -783,7 +785,7 @@ p3 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
-pCoffee <- ggarrange(p2,p1,p3, nrow = 1, common.legend = TRUE, legend = "right")
+pCoffee <- ggarrange(p3,p1,p2, nrow = 1, common.legend = TRUE, legend = "right")
 pCoffee <- annotate_figure(pCoffee,
                          left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 ###############################
@@ -791,14 +793,14 @@ pCoffee <- annotate_figure(pCoffee,
 ###############################
 
 phys_color <- rev(brewer.pal(11, "PRGn")[2:5])
-phys_mirna <- mirna[mirna$var == "p_activity",]
+phys_mirna <- mirna[mirna$var == "phys_act",]
 phys_cts <- as.data.frame(t(cts[rownames(cts) %in% phys_mirna$mirna,]))
 all.equal(phys_mirna$mirna, colnames(phys_cts))
 
 dt <- df
 levels(dt$phys_act) <- c("inactive", "modInact", "modAct", "active")
 phys_mirna$group1 <- as.factor(phys_mirna$group1)
-levels(phys_mirna$group1) <- c("inactive", "modInact")
+levels(phys_mirna$group1) <- c("inactive", "modact", "modinact")
 phys_mirna$group2 <- as.factor(phys_mirna$group2)
 
 legend <- c("Physical activity")
@@ -862,7 +864,7 @@ p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
 
 ## P3 ##
 
-phys3 <- phys_mirna[3,1]
+phys3 <- phys_mirna[4,1]
 db <- dt
 db[,phys3] <- phys_cts[,phys3]
 colnames(db)[length(colnames(db))] <- "mirna"

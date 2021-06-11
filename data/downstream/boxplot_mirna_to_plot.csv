@@ -1,0 +1,28 @@
+ID;variable;group1;group2;logFC;padj;;11/06/2021
+hsa-miR-324-5p;sex;M;F;1.270;0.002;;
+hsa-miR-4326;sex;M;F;-0.764;0.047;;
+hsa-miR-4418;sex;M;F;-0.931;0.003;;
+hsa-miR-3169;age_cat;>53;<37;0.802;0.030;;
+hsa-miR-4276-3p:Novel ;age_cat;37-53;<37;-0.739;0.027;;
+hsa-miR-4276-3p:Novel ;age_cat;>53;<37;-0.792;0.030;;
+hsa-miR-4505-3p:Novel;age_cat;>53;37-53;0.778;0.027;;
+hsa-miR-194-3p;bmi_cat;obese;normal;-1.337;0.030;;
+hsa-miR-194-3p;bmi_cat;overweight;normal;-0.677;0.028;;
+hsa-miR-200b-3p;bmi_cat;obese;normal;-1.524;0.041;;
+hsa-miR-4748-3p:Novel ;bmi_cat;obese;normal;1.632;0.009;;
+hsa-miR-4748-3p:Novel ;bmi_cat;underweight;normal;-1.198;0.040;;
+hsa-miR-302c-5p;cigs;>16;never;1.396;0.030;;
+hsa-miR-4508-3p:Novel ;cigs;>16;never;1.178;0.044;;
+hsa-miR-6724-5p;cigs;former;never;-0.543;0.043;;
+hsa-miR-6724-5p;cigs;<16;never;-0.898;0.009;;
+hsa-miR-4493;phys_act;inactive;active;-1.528;0.036;;
+hsa-miR-4700-5p;phys_act;modInact;active;-1.637;0.017;;
+hsa-miR-4700-5p;phys_act;modAct;active;-1.582;0.039;;
+hsa-miR-5100;phys_act;modInact;active;1.239;0.044;;
+hsa-miR-622;coffee;low;no;-0.755;0.023;;
+hsa-miR-622;coffee;high;no;-1.035;0.010;;
+hsa-miR-4453-3p:Novel;coffee;high;no;-0.679;0.024;;
+hsa-miR-483-5p;coffee;high;no;-0.840;0.024;;
+hsa-miR-4254;alcohol;low ;no;-0.933;0.018;;
+hsa-miR-4254-5p:Novel;alcohol;low;no;-1.646;0.033;;
+hsa-miR-3972;alcohol;high;no;-1.193;0.022;;
