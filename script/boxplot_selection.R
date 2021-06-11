@@ -30,31 +30,8 @@ all.equal(rownames(df), colnames(cts))
 
 # External data
 
-box_mir <- read.delim("D:/R_Projects/stool/data/downstream/mirna_to_box_select_040621.csv", sep = ";")
+box_mir <- read.delim("data/downstream/boxplot_mirna_to_select.csv", sep = ";")
 
-
-# Df mods
-
-# levels(df$bmi_cat)
-# df$bmi_cat <- factor(df$bmi_cat, levels = c("underweight", "normal", "overweight", "obese"))
-# levels(df$smoke)
-# levels(df$cigs)
-# df$smoke <- factor(df$smoke, levels = c("never", "former", "current"))
-# df$cigs <- factor(df$cigs, levels = c("never", "former", "_16", "16_"))
-# levels(df$coffee)
-# df$coffee <- factor(df$coffee, levels = c("no_coffee", "light_drinker", "heavy_drinker"))
-# df$phys_act <- as.factor(df$phys_act)
-# levels(df$phys_act)
-# df$phys_act <- factor(df$phys_act, levels = c("Inactive", "Moderately inactive", "Moderately active", "Active"))
-# levels(df$phys_act) <- c("Inactive", "Moderately inactive", "Moderately active", "Moderately active")
-# levels(df$alcool_ua)
-
-# colnames(box_mir)[3] <- "menstruation"
-# colnames(box_mir)[2] <- "age_cat"
-# colnames(box_mir)[3] <- "bmi_cat"
-# colnames(box_mir)[5] <- "cigs"
-# colnames(box_mir)[8] <- "phys_act"
-# colnames(box_mir)[9] <- "alcool_ua"
 
 # Boxplot
 
@@ -70,13 +47,29 @@ bmi_color <- brewer.pal(4, "Greens")
 smoke_color <- brewer.pal(3, "OrRd")
 cigs_color <- brewer.pal(4, "OrRd")
 coffee_color <- brewer.pal(10, "BrBG")[c(2,3,5)]
-phys_color <- brewer.pal(3, "YlOrRd")
+phys_color <- brewer.pal(4, "YlOrRd")
 alcohol_color <- brewer.pal(3, "PuRd")
-
-var <- c("alcohol")
-name <- c("Alcohol")
-labels <- c("no", "low", "high")
+##
+var <- c("phys_act")
+name <- c("Physical activity")
+labels <- levels(df[,var])
 tmp <- length(box_mir[,var]) - sum(is.na(box_mir[,var]))
+#
+db <- df
+xx <- which(is.na(db[,var]))
+if(length(xx) > 0){
+  db <- db[-xx,]
+  k <- intersect(rownames(db), rownames(t.cts))
+  n.cts <- t.cts[k,]
+  db <- db[k,]
+  all.equal(rownames(db), rownames(n.cts))
+}else{
+  k <- intersect(rownames(db), rownames(t.cts))
+  n.cts <- t.cts[k,]
+  db <- db[k,]
+}
+all.equal(rownames(db), rownames(n.cts))
+#
 
 for(i in 1:tmp){
   mirX <- box_mir[i,var]
@@ -85,11 +78,11 @@ for(i in 1:tmp){
   
   title <- mirX
   
-  p <- ggplot(db, aes(x=alcohol, y=log(mirna), fill=alcohol)) +
+  p <- ggplot(db, aes(x=phys_act, y=log(mirna), fill=phys_act)) +
   geom_boxplot(outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1) +
   stat_summary(fun = median, geom = "smooth", aes(group = 1), color = "red") +
-  scale_fill_manual(name = name, labels = labels, values = alcohol_color) +
+  scale_fill_manual(name = name, labels = labels, values = phys_color) +
   ylab(bquote(~Log[10]~ 'expression level')) +
   theme_classic() +
   theme(axis.title.x = element_blank(),
@@ -100,95 +93,5 @@ for(i in 1:tmp){
   mirX <- str_replace(mirX, ":Novel", "-Novel")
   ggsave(p, filename = paste0("D:/R_Projects/stool/results/figures/pooled/to_select/",var,"/", mirX, ".png"))
 }
-
-## Sex
-db <- df
-xx <- which(is.na(db$sex))
-if(length(xx) > 0){
-  db <- db[-xx,]
-  k <- intersect(rownames(db), rownames(t.cts))
-  n.cts <- t.cts[k,]
-  db <- db[k,]
-  all.equal(rownames(db), rownames(n.cts))
-}else{
-  k <- intersect(rownames(db), rownames(t.cts))
-  n.cts <- t.cts[k,]
-  db <- db[k,]
-}
-all.equal(rownames(db), rownames(n.cts))
-
-## Age
-
-db <- df
-xx <- which(is.na(db$age_cat))
-if(length(xx) > 0){
-  db <- db[-xx,]
-  k <- intersect(rownames(db), rownames(t.cts))
-  n.cts <- t.cts[k,]
-  db <- db[k,]
-  all.equal(rownames(db), rownames(n.cts))
-}else{
-  k <- intersect(rownames(db), rownames(t.cts))
-  n.cts <- t.cts[k,]
-  db <- db[k,]
-}
-all.equal(rownames(db), rownames(n.cts))
-
-
-
-## Menopausal
-db <- df
-xx <- which(is.na(db$menstruation))
-db <- db[-xx,]
-k <- intersect(rownames(db), rownames(t.cts))
-n.cts <- t.cts[k,]
-db <- db[k,]
-all.equal(rownames(db), rownames(n.cts))
-
-## BMI
-xx <- which(is.na(df$bmi_cat))
-db <- df
-db <- db[-xx,]
-db$bmi_cat <- droplevels(db$bmi_cat)
-k <- intersect(rownames(db), rownames(t.cts))
-n.cts <- t.cts[k,]
-db <- db[k,]
-all.equal(rownames(db), rownames(n.cts))
-
-## Smoke
-xx <- which(is.na(df$smoke))
-db <- df
-db <- db[-xx,]
-k <- intersect(rownames(db), rownames(t.cts))
-n.cts <- t.cts[k,]
-db <- db[k,]
-all.equal(rownames(db), rownames(n.cts))
-
-## Cigs
-xx <- which(is.na(df$cigs))
-db <- df
-db <- db[-xx,]
-k <- intersect(rownames(db), rownames(t.cts))
-n.cts <- t.cts[k,]
-db <- db[k,]
-all.equal(rownames(db), rownames(n.cts))
-
-## P
-xx <- which(is.na(df$phys_act))
-db <- df
-db <- db[-xx,]
-k <- intersect(rownames(db), rownames(t.cts))
-n.cts <- t.cts[k,]
-db <- db[k,]
-all.equal(rownames(db), rownames(n.cts))
-
-## Coffee
-xx <- which(is.na(df$alcohol))
-db <- df
-db <- db[-xx,]
-k <- intersect(rownames(db), rownames(t.cts))
-n.cts <- t.cts[k,]
-db <- db[k,]
-all.equal(rownames(db), rownames(n.cts))
 
 
