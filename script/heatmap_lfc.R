@@ -1,5 +1,5 @@
-source("D:/R_Projects/general/libraries_functions.R")
-source("D:/R_Projects/general/libraries_graph.R")
+source("C:/Users/UappaSguappa/Desktop/R_projects/general_script/libraries_functions.R")
+source("C:/Users/UappaSguappa/Desktop/R_projects/general_script/libraries_graph.R")
 
 
 ## Heatmap data ##
@@ -43,7 +43,7 @@ rm(list=ls())
 ## Carico tutti i dds in modo da avere una matrice con tutti gli lfc per ogni confronto ##
 
 fileNames <- list.files("data/downstream/")
-fileNames <- fileNames[grep("lfcHM", fileNames)]
+fileNames <- fileNames[grep("LFC", fileNames)]
 
 for(i in 1:length(fileNames)){
         nam <- paste0("A_", i)
@@ -60,9 +60,10 @@ lfc <- lfc %>% mutate_if(is.numeric, ~round(.,3))
 saveRDS(lfc, file = "data/downstream/lfc_dataset.dds")
 
 ## Filtro per tenere solamente i miRNA significativi (non ripetuti)
-lfc <- readRDS("data/downstream/lfc_dataset.dds")
+lfc <- readRDS("data/downstream/heatmap_LFC_dataset.dds")
 
-filter <- read.delim("data/downstream/HM_filter_mirna.csv", sep =";", header = T)
+filter <- read.delim("data/downstream/heatmap_LFC_filter_mirna.txt", sep ="\n", header = F)
+colnames(filter) <- "miRNA"
 filter$miRNA <- trimws(filter$miRNA)
 tokeep <- filter %>% dplyr::distinct(miRNA)
 tokeep$miRNA[!(tokeep$miRNA %in% rownames(lfc))] <- paste0(tokeep$miRNA[!(tokeep$miRNA %in% rownames(lfc))], ":Novel")
@@ -70,22 +71,20 @@ tokeep <- tokeep %>% dplyr::distinct(miRNA)
 rownames(tokeep) <- tokeep$miRNA
 
 lfc <- lfc[rownames(lfc) %in% rownames(tokeep),]
-lfc$`BMI[Normal vs Underweight` <- lfc$`BMI[Normal vs Underweight` * -1
-colnames(lfc)[6] <- c("BMI[Underweight vs Normal]")
 
-
-
-## Filtro per tenere i miRNA significativi in almeno due confronti
-lfc <- readRDS("data/downstream/lfc_dataset.dds")
-filter <- read.delim("data/downstream/HM_filter_mirna.csv", sep =";", header = T)
-filter$miRNA <- trimws(filter$miRNA)
-
-mirna_rep <- data.frame(table(filter$miRNA))
-mirna_rep <- mirna_rep[mirna_rep$Freq>1,]
-colnames(mirna_rep) <- c("mirna", "freq")
-rownames(mirna_rep) <- mirna_rep$mirna
-rownames(mirna_rep)[!(rownames(mirna_rep) %in% rownames(lfc))] <- paste0(rownames(mirna_rep)[!(rownames(mirna_rep) %in% rownames(lfc))], ":Novel")
-lfc <- lfc[rownames(lfc) %in% rownames(mirna_rep),]
+# ## Filtro per tenere i miRNA significativi in almeno due confronti
+# lfc <- readRDS("data/downstream/heatmap_LFC_dataset.dds")
+# filter <- read.delim("data/downstream/heatmap_LFC_filter_mirna.txt", sep =";", header = F)
+# colnames(filter) <- "miRNA"
+# filter$miRNA <- trimws(filter$miRNA)
+# 
+# # mirna_rep <- data.frame(table(filter$miRNA))
+# # mirna_rep <- mirna_rep[mirna_rep$Freq>1,]
+# # colnames(mirna_rep) <- c("mirna", "freq")
+# # rownames(mirna_rep) <- mirna_rep$mirna
+# 
+# rownames(mirna_rep)[!(rownames(mirna_rep) %in% rownames(lfc))] <- paste0(rownames(mirna_rep)[!(rownames(mirna_rep) %in% rownames(lfc))], ":Novel")
+# lfc <- lfc[rownames(lfc) %in% rownames(mirna_rep),]
 
 lfc$normal_vs_underweight <- lfc$normal_vs_underweight * -1
 
@@ -95,13 +94,13 @@ lfc$normal_vs_underweight <- lfc$normal_vs_underweight * -1
 
 # Rename delle colonne #
 
-colnames(lfc) <- c("Age[>53 vs <37]", "Age[>53 vs 37-53", "Age[37-53 vs <37",
+colnames(lfc) <- c("Age[>53 vs <37]", "Age[>53 vs 37-53]", "Age[37-53 vs <37]",
                    "Alcohol[High vs No]", "Alcohol[Low vs No]",
                    "BMI[Underweight vs Normal]", "BMI[Obese vs Normal]", "BMI[Overweight vs Normal]",
-                   "Smoke[<16 cigs/day vs Never", "Smoke[>16 cigs/day vs never]", "Smoke[Former vs Never]", 
+                   "Smoke[<16 cigs/day vs Never]", "Smoke[>16 cigs/day vs never]", "Smoke[Former vs Never]", 
                    "Coffee[High vs No]", "Coffee[Low vs No]", 
                    "Physical activity[Inactive vs Active]", "Physical activity[Moderately Active vs Active]", "Physical Activity[Moderately Inactive vs Active]",
-                   "Sex[Male vs Female")
+                   "Sex[Male vs Female]")
 
 # Heatmap ##
 
