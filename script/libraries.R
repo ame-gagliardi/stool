@@ -1,5 +1,0 @@
-library(tidyverse)
-library(ggpubr)
-library(DESeq2)
-library(ggfortify)
-library(energy)
