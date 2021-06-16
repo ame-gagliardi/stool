@@ -1,8 +1,12 @@
-source("C:/Users/UappaSguappa/Desktop/R_projects/general_script/libraries_functions.R")
-source("C:/Users/UappaSguappa/Desktop/R_projects/general_script/libraries_graph.R")
+## Script per mettere più boxplot insieme ##
+
+candiolo <- c("D:/R_Projects/general/")
+casa <- c("C:/Users/UappaSguappa/Desktop/R_projects/general")
+
+source(paste0(candiolo, "FUNCTION_custom.R"))
+source(paste0(candiolo, "GRAPH_libraries.R"))
 library(memisc)
 library(scales)
-## BOXPLOT ARRANGE
 
 # DATA LOADING
 
@@ -34,14 +38,6 @@ mirna <- read.delim("data/downstream/boxplot_mirna_to_plot.csv", sep = ";")
 torm <- grep("X", colnames(mirna))
 mirna <- mirna[,-torm]
 
-# filter <- read.delim("data/downstream/pooled_boxplot.txt", header = F, col.names = c("mirna"))
-# 
-# mirna <- mirna[mirna$ID %in% filter$mirna,]
-# 
-# mirna$variable <- str_remove_all(mirna$variable, " ") 
-# mirna <- mirna %>% 
-#   dplyr::rename(mirna = ID ,padj = p_adj, group1 = group_1, group2 = group_2)
-
 colnames(mirna)[1] <- "mirna"
 mirna[which(mirna$variable == "bmi_cat"),"variable"] <- "bmi"
 mirna[, "group1"] <- tolower(mirna$group1)
@@ -71,22 +67,20 @@ mirna[,totrim] <- lapply(mirna[,totrim], trimws)
 #################
 
 age_color <- brewer.pal(3, "Blues") 
-age_mirna <- mirna[mirna$var=="age",]
+age_mirna <- mirna[mirna$var=="age_cat",]
 age_cts <- as.data.frame(t(cts[rownames(cts) %in% age_mirna$mirna,]))
-all.equal(age_mirna$mirna, colnames(age_cts))
 
 dt <- df
-# levels(dt$age_cat) <- c("<37", "37-53", ">53")
 age_mirna$group1 <- as.factor(age_mirna$group1)
-# levels(age_mirna$group1) <- c("37-53", ">53")
+#levels(age_mirna$group1) <- c("37-53", ">53")
 age_mirna$group2 <- as.factor(age_mirna$group2)
-# levels(age_mirna$group2) <- c("<37", "")
+#levels(age_mirna$group2) <- c("<37", "")
 
 legend <- c("Age")
 labels <- c("<37", "37-53", ">53")
 
 
-## hsa-miR-3169 ## POOLED 1
+## P1 ##
 
 age1 <- age_mirna[1,1]
 db <- dt
@@ -97,8 +91,8 @@ data <- age_mirna[age_mirna$mirna == age1,]
 p1 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Age class \n  (years)", labels = labels, values = age_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_fill_manual(name = "Age class \n (years) ", labels = labels, values = age_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -109,7 +103,7 @@ p1 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   ggtitle(str_remove(age1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-4276-3p ## Pooled
+## P2 ##
 
 age2 <- age_mirna[2,1]
 db <- dt
@@ -117,12 +111,13 @@ db[,age2] <- age_cts[,age2]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- age_mirna[age_mirna$mirna == age2,]
 age2 <- str_remove(age2, "-N")
+
 p2 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Age class \n  (years)", labels = labels, values = age_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
-  xlab("Age class") +
+  scale_fill_manual(name = "Age class \n (years) ", labels = labels, values = age_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
@@ -132,9 +127,9 @@ p2 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   ggtitle(str_remove(age2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-4505-3p ## Pooled
+## P3 ##
 
-age3 <- age_mirna[3,1]
+age3 <- age_mirna[4,1]
 db <- dt
 db[,age3] <- age_cts[,age3]
 colnames(db)[length(colnames(db))] <- "mirna"
@@ -143,8 +138,9 @@ data <- age_mirna[age_mirna$mirna == age3,]
 p3 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Age class \n  (years)", labels = labels, values = age_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_fill_manual(name = "Age class \n (years) ", labels = labels, values = age_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
@@ -153,7 +149,8 @@ p3 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
         legend.title.align = 0.5) +
   ggtitle(str_remove(age3, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
-#
+
+# Combine AGE plots #
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
@@ -171,11 +168,11 @@ sex_cts <- as.data.frame(t(cts[rownames(cts) %in% sex_mirna$mirna,]))
 all.equal(sex_mirna$mirna, colnames(sex_cts))
 
 dt <- df
-levels(dt$sex) <- c("female", "male")
+levels(dt$sex) <- c("f", "m")
 legend <- c("Sex")
 labels <- c("Female", "Male")
 
-##  hsa-miR-324-5p ## Pooled
+## P1 ##
 
 sex1 <- sex_mirna[1,1]
 db <- dt
@@ -187,7 +184,8 @@ p1 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "Sex", labels = labels, values = sex_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
@@ -197,7 +195,7 @@ p1 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   ggtitle(str_remove(sex1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-4326 ## Pooled
+## P2 ##
 
 sex2 <- sex_mirna[2,1]
 db <- dt
@@ -209,7 +207,8 @@ p2 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "Sex", labels = labels, values = sex_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
@@ -219,7 +218,7 @@ p2 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   ggtitle(str_remove(sex2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-4418 ## Pooled
+## P3 ##
 
 sex3 <- sex_mirna[3,1]
 db <- dt
@@ -231,7 +230,8 @@ p3 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "Sex", labels = labels, values = sex_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
@@ -241,7 +241,8 @@ p3 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   ggtitle(str_remove(sex3, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-#
+# Combine SEX plots #
+
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 
@@ -249,28 +250,28 @@ pSex <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
 pSex <- annotate_figure(pSex,
                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 
-rm(p1,p2,p3,sex_cts,sex_mirna,db,dt,sex_color,sex1,sex2,sex3)
 
 ########################
 ### MENOPAUSAL MIRNA ###
 ########################
 
-menopausal_color_1 <- brewer.pal(10, "Set3")[6]
-menopausal_color_2 <- brewer.pal(8, "Accent")[6]
-menopausal_color <- c(menopausal_color_1, menopausal_color_2)
-menopausal_mirna <- mirna[mirna$var=="menopausal",]
-menopausal_cts <- as.data.frame(t(cts[rownames(cts) %in% menopausal_mirna$mirna,]))
-all.equal(menopausal_mirna$mirna, colnames(menopausal_cts))
-
-dt <- df
-levels(dt$menstruation) <- c("post", "pre") # Ho cambiato i livelli della variabile: Menstruation no -> post(Menopausa), Menstruation yes -> pre(meno)
-menopausal_mirna$group1 <- as.factor(menopausal_mirna$group1)
-levels(menopausal_mirna$group1) <- c("post")
-menopausal_mirna$group2 <- as.factor(menopausal_mirna$group2)
-levels(menopausal_mirna$group2) <- c("pre")
-
-levels(dt$menstruation)
-dt$menstruation <- factor(dt$menstruation, levels = c("pre", "post"))
+# DA RICONTROLLARE
+# menopausal_color_1 <- brewer.pal(10, "Set3")[6]
+# menopausal_color_2 <- brewer.pal(8, "Accent")[6]
+# menopausal_color <- c(menopausal_color_1, menopausal_color_2)
+# menopausal_mirna <- mirna[mirna$var=="menopausal",]
+# menopausal_cts <- as.data.frame(t(cts[rownames(cts) %in% menopausal_mirna$mirna,]))
+# all.equal(menopausal_mirna$mirna, colnames(menopausal_cts))
+# 
+# dt <- df
+# levels(dt$menstruation) <- c("post", "pre") # Ho cambiato i livelli della variabile: Menstruation no -> post(Menopausa), Menstruation yes -> pre(meno)
+# menopausal_mirna$group1 <- as.factor(menopausal_mirna$group1)
+# levels(menopausal_mirna$group1) <- c("post")
+# menopausal_mirna$group2 <- as.factor(menopausal_mirna$group2)
+# levels(menopausal_mirna$group2) <- c("pre")
+# 
+# levels(dt$menstruation)
+# dt$menstruation <- factor(dt$menstruation, levels = c("pre", "post"))
 
 legend <- c("Menopausal Status")
 labels <- c("Pre", "Post")
@@ -282,7 +283,7 @@ dt <- dt[k,]
 menopausal_cts <- menopausal_cts[k,]
 all.equal(rownames(menopausal_cts), rownames(dt))
 
-## hsa-miR-12126-5p ##
+## P1 ##
 
 meno1 <- menopausal_mirna[1,1]
 db <- dt
@@ -293,17 +294,19 @@ data <- menopausal_mirna[menopausal_mirna$mirna == meno1,]
 p1 <- ggplot(db, aes(x = menstruation, y = log(mirna))) +
   geom_boxplot(aes(fill = menstruation), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Menopausal \n status", labels = labels, values = menopausal_color) +
+  scale_fill_manual(name = "Menopausal \n status ", labels = labels, values = menopausal_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(meno1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-
-## hsa-miR-192-5p ##
+## P2 ##
 
 meno2 <- menopausal_mirna[2,1]
 db <- dt
@@ -314,16 +317,20 @@ data <- menopausal_mirna[menopausal_mirna$mirna == meno2,]
 p2 <- ggplot(db, aes(x = menstruation, y = log(mirna))) +
   geom_boxplot(aes(fill = menstruation), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Menopausal \n status", labels = labels, values = menopausal_color) +
+  scale_fill_manual(name = "Menopausal \n status ", labels = labels, values = menopausal_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
   ggtitle(str_remove(meno2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-320d ##
+
+## P3 ##
 
 meno3 <- menopausal_mirna[3,1]
 db <- dt
@@ -334,15 +341,20 @@ data <- menopausal_mirna[menopausal_mirna$mirna == meno3,]
 p3 <- ggplot(db, aes(x = menstruation, y = log(mirna))) +
   geom_boxplot(aes(fill = menstruation), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Menopausal \n status", labels = labels, values = menopausal_color) +
+  scale_fill_manual(name = "Menopausal \n status ", labels = labels, values = menopausal_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8)) +
+  ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        plot.title = element_text(hjust = 0.5)) +
-  ggtitle(str_remove(meno3, "-N")) +
+        plot.title = element_text(hjust = 0.5),
+        legend.title.align = 0.5) +
+  ggtitle(str_remove(meno1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
-#
+
+# Combine menopausal plots
+
 pMeno <- ggarrange(p2,p3,p1, nrow = 1, common.legend = TRUE, legend = "right")
 pMeno <- annotate_figure(pMeno,
                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
@@ -354,7 +366,6 @@ pMeno <- annotate_figure(pMeno,
 bmi_color <- brewer.pal(4, "Greens")
 bmi_mirna <- mirna[mirna$var=="bmi",]
 bmi_cts <- as.data.frame(t(cts[rownames(cts) %in% bmi_mirna$mirna,]))
-all.equal(bmi_mirna$mirna, colnames(bmi_cts))
 
 dt <- df
 bmi_mirna$group1 <- as.factor(bmi_mirna$group1)
@@ -373,7 +384,7 @@ if(length(torm) >0){
 }
 
 
-## hsa-miR-194-3p ## Pooled
+## P1 ##
 
 bmi1 <- bmi_mirna[1,1]
 db <- dt
@@ -384,8 +395,8 @@ data <- bmi_mirna[bmi_mirna$mirna == bmi1,]
 p1 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "BMI class", labels = labels, values = bmi_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_fill_manual(name = "BMI ", labels = labels, values = bmi_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -396,9 +407,9 @@ p1 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   ggtitle(str_remove(bmi1, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-200b-3p ## Pooled
+## P2 ##
 
-bmi2 <- bmi_mirna[2,1]
+bmi2 <- bmi_mirna[3,1]
 db <- dt
 db[,bmi2] <- bmi_cts[,bmi2]
 colnames(db)[length(colnames(db))] <- "mirna"
@@ -407,8 +418,8 @@ data <- bmi_mirna[bmi_mirna$mirna == bmi2,]
 p2 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "BMI class", labels = labels, values = bmi_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_fill_manual(name = "BMI ", labels = labels, values = bmi_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -419,9 +430,9 @@ p2 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   ggtitle(str_remove(bmi2, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## hsa-miR-4748-3p ## Pooled
+## P3 ##
 
-bmi3 <- bmi_mirna[3,1]
+bmi3 <- bmi_mirna[4,1]
 db <- dt
 db[,bmi3] <- bmi_cts[,bmi3]
 colnames(db)[length(colnames(db))] <- "mirna"
@@ -430,8 +441,8 @@ data <- bmi_mirna[bmi_mirna$mirna == bmi3,]
 p3 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "BMI class", labels = labels, values = bmi_color) +
-  scale_y_continuous(breaks = pretty_breaks()) +
+  scale_fill_manual(name = "BMI ", labels = labels, values = bmi_color) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -441,7 +452,9 @@ p3 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
         legend.title.align = 0.5) +
   ggtitle(str_remove(bmi3, "-N")) +
   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
-##
+
+# Combine BMI plots #
+
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 pBMI <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
@@ -450,10 +463,12 @@ pBMI <- annotate_figure(pBMI,
 ##
 
 
-pAntro <-ggarrange(pSex, pAge, pBMI, nrow = 3, align = "v") #pMeno
-ggsave(filename = "C:/Users/amedeo/Desktop/R_Projects/stool/results/figures/pooled/antropometric_boxplot.png", pAntro, width = 20, height = 19, units = "cm", dpi = 500)
-rm(data, db, dt, meno1, meno2, meno3, menopausal_color, menopausal_cts, menopausal_mirna, p1,p2,p3,pAge,pMeno,pSex,bmi1,bmi2,bmi3,bmi_color,bmi_cts,
-   bmi_mirna,age1,age2,age3,age_cts,age_mirna,pBMI)
+pAntro <-ggarrange(pSex, pAge, pBMI, nrow = 3, align = "v")
+
+
+ggsave(pAntro, filename = "D:/R_Projects/stool/antropometric_boxplot.png", 
+       width = 20, height = 19, units = "cm", dpi = 500)
+
 
 ####################################################################################################################################################
 ####################################################################################################################################################
