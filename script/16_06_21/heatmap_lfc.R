@@ -94,13 +94,13 @@ lfc$normal_vs_underweight <- lfc$normal_vs_underweight * -1
 
 # Rename delle colonne #
 
-colnames(lfc) <- c("Age[>53 vs <37]", "Age[>53 vs 37-53]", "Age[37-53 vs <37]",
-                   "Alcohol[High vs No]", "Alcohol[Low vs No]",
-                   "BMI[Underweight vs Normal]", "BMI[Obese vs Normal]", "BMI[Overweight vs Normal]",
-                   "Smoke[<16 cigs/day vs Never]", "Smoke[>16 cigs/day vs never]", "Smoke[Former vs Never]", 
-                   "Coffee[High vs No]", "Coffee[Low vs No]", 
-                   "Physical activity[Inactive vs Active]", "Physical activity[Moderately Active vs Active]", "Physical Activity[Moderately Inactive vs Active]",
-                   "Sex[Male vs Female]")
+colnames(lfc) <- c("Age [>53 vs <37]", "Age [>53 vs 37-53]", "Age [37-53 vs <37]",
+                   "Alcohol [High vs No]", "Alcohol [Low vs No]",
+                   "BMI [Underweight vs Normal]", "BMI [Obese vs Normal]", "BMI [Overweight vs Normal]",
+                   "Smoke [<16 cigs/day vs Never]", "Smoke [>16 cigs/day vs never]", "Smoke [Former vs Never]", 
+                   "Coffee [High vs No]", "Coffee [Low vs No]", 
+                   "Physical activity [Inactive vs Active]", "Physical activity [Moderately Active vs Active]", "Physical Activity [Moderately Inactive vs Active]",
+                   "Sex [Male vs Female]")
 
 # Heatmap ##
 
