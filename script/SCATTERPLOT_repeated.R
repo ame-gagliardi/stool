@@ -1,10 +1,13 @@
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_functions.R")
-source("C:/Users/amedeo/Desktop/R_Projects/general_script/libraries_graph.R")
+candiolo <- c("D:/R_Projects/general/")
+casa <- c("C:/Users/UappaSguappa/Desktop/R_projects/general")
+
+source(paste0(candiolo, "FUNCTION_custom.R"))
+source(paste0(candiolo, "GRAPH_libraries.R"))
 
 ## Repeated plot ##
 
-cts <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/results/repeated_samples/repeated_cts_norm.rds")
-df <- readRDS("C:/Users/amedeo/Desktop/R_Projects/stool/results/repeated_samples/repeated_df.rds")
+cts <- readRDS("D:/R_Projects/stool/results/repeated_samples/repeated_cts_norm.rds")
+df <- readRDS("D:/R_Projects/stool/results/repeated_samples/repeated_df.rds")
 
 vov_cts <- cts[,1:6]
 cel_cts <- cts[,7:12]
@@ -66,17 +69,19 @@ for(i in 1:6){
   assign(nam, p <- ggplot(cts_plot, aes(z,k)) +
            geom_point(aes(alpha=0.6)) +
            geom_smooth(method = "lm", se = TRUE) +
-           stat_cor(method = "pearson", size = 10) +
-           labs(x=bquote(~log[10]~ '(Average miRNA expression at '~T[0]~')'),
-                y=bquote(~log[10]~ '(Average miRNA expression at '~T[1]~')')) +
+           stat_cor(method = "pearson", size = 2.5) +
+           labs(x=paste0("Subject ", i), y=bquote(~log[10]~ '(Average miRNA expression at '~T[1]~')')) +
            theme_classic() +
-           theme(axis.title.x = element_blank(),
-                 axis.title.y = element_blank()) +
-           annotate("text", x = 4, y = 2, label = paste0("Subject ",i)) +
-           coord_cartesian(ylim = c(1, 3), clip = "off") +
+           theme(axis.title.y = element_blank()) +
+           scale_y_continuous(expand = expansion(mult = c(0, .1))) +
            guides(alpha=FALSE))
 }
 
-annotate_figure(ggarrange(A_2, A_5, A_6, A_4, ncol = 1, nrow = 4),
+p <- annotate_figure(ggarrange(A_2, A_5, A_6, A_4, ncol = 4, nrow = 1),
                 bottom = text_grob(bquote(~log[10]~ '(Average miRNA expression at '~T[0]~')')), 
                 left = text_grob(bquote(~log[10]~ '(Average miRNA expression at '~T[1]~')'), rot = 90))
+
+
+
+ggsave(p, filename = "C:/Users/amega/Desktop/scatter.png", width = 40, height = 10, units = "cm", dpi = 500)
+ggsave(p, filename = "C:/Users/amega/Desktop/scatter.svg", width = 40, height = 10, units = "cm", dpi = 500)

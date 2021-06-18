@@ -92,7 +92,7 @@ data <- age_mirna[age_mirna$mirna == age1,]
 p1 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Age class \n (years) ", labels = labels, values = age_color) +
+  scale_fill_manual(name = "", labels = "", values = age_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -116,7 +116,7 @@ age2 <- str_remove(age2, "-N")
 p2 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Age class \n (years) ", labels = labels, values = age_color) +
+  scale_fill_manual(name = "", labels = "", values = age_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -139,7 +139,7 @@ data <- age_mirna[age_mirna$mirna == age3,]
 p3 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Age class \n (years) ", labels = labels, values = age_color) +
+  scale_fill_manual(name = "", labels = "", values = age_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -157,7 +157,7 @@ ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["ti
 
 pAge <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
 pAge <- annotate_figure(pAge,
-                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 20))
 
 #################
 ### SEX MIRNA ###
@@ -184,7 +184,7 @@ data <- sex_mirna[sex_mirna$mirna == sex1,]
 p1 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Sex", labels = labels, values = sex_color) +
+  scale_fill_manual(name = "", labels = "", values = sex_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -207,7 +207,7 @@ data <- sex_mirna[sex_mirna$mirna == sex2,]
 p2 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Sex", labels = labels, values = sex_color) +
+  scale_fill_manual(name = "", labels = "", values = sex_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -230,7 +230,7 @@ data <- sex_mirna[sex_mirna$mirna == sex3,]
 p3 <- ggplot(db, aes(x = sex, y = log(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Sex", labels = labels, values = sex_color) +
+  scale_fill_manual(name = "", labels = "", values = sex_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -248,8 +248,9 @@ ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["ti
 
 
 pSex <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
-pSex <- annotate_figure(pSex,
-                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+pSex <- annotate_figure(pSex, left = "")
+
+# pSex <- annotate_figure(pSex, left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 15))
 
 
 ########################
@@ -396,7 +397,7 @@ data <- bmi_mirna[bmi_mirna$mirna == bmi1,]
 p1 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "BMI ", labels = labels, values = bmi_color) +
+  scale_fill_manual(name = "", labels = "", values = bmi_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10), c(0, 2.5, 5.0, 7.5, 10.0)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -419,7 +420,7 @@ data <- bmi_mirna[bmi_mirna$mirna == bmi2,]
 p2 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "BMI ", labels = labels, values = bmi_color) +
+  scale_fill_manual(name = "", labels = "", values = bmi_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10), c(0, 2.5, 5.0, 7.5, 10.0)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -442,7 +443,7 @@ data <- bmi_mirna[bmi_mirna$mirna == bmi3,]
 p3 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "BMI ", labels = labels, values = bmi_color) +
+  scale_fill_manual(name = "", labels = "", values = bmi_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10), c(0, 2.5, 5.0, 7.5, 10.0)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -459,8 +460,8 @@ p3 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 pBMI <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
-pBMI <- annotate_figure(pBMI,
-                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+pBMI <- annotate_figure(pBMI, left = text_grob(""))
+# pBMI <- annotate_figure(pBMI, left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 ##
 
 
@@ -523,7 +524,7 @@ data <- alco_mirna[alco_mirna$mirna == alco1,]
 p1 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
   geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Alcohol \n   consumption", labels = labels, values = alco_color) +
+  scale_fill_manual(name = "", labels = "", values = alco_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -546,7 +547,7 @@ data <- alco_mirna[alco_mirna$mirna == alco2,]
 p2 <-ggplot(db, aes(x = alcohol, y = log(mirna))) +
   geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Alcohol \n  consumption", labels = labels, values = alco_color) +
+  scale_fill_manual(name = "", labels = "", values = alco_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -569,7 +570,7 @@ data <- alco_mirna[alco_mirna$mirna == alco3,]
 p3 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
   geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Alcohol \n  consumption", labels = labels, values = alco_color) +
+  scale_fill_manual(name = "", labels = "", values = alco_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -585,7 +586,7 @@ ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["ti
 
 pAlc <- ggarrange(p3,p1,p2, nrow = 1, common.legend = TRUE, legend = "right")
 pAlc <- annotate_figure(pAlc,
-                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 20))
 
 ###################
 ### NCIGS miRNA ###
@@ -631,7 +632,7 @@ data <- ncigs_mirna[ncigs_mirna$mirna == ncigs1,]
 p1 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Smoking \n  status", labels = labels, values = ncigs_color) +
+  scale_fill_manual(name = "", labels = "", values = ncigs_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -654,7 +655,7 @@ data <- ncigs_mirna[ncigs_mirna$mirna == ncigs2,]
 p2 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Smoking \n  status", labels = labels, values = ncigs_color) +
+  scale_fill_manual(name = "", labels = "", values = ncigs_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -677,7 +678,7 @@ data <- ncigs_mirna[ncigs_mirna$mirna == ncigs3,]
 p3 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Smoking \n  status", labels = labels, values = ncigs_color) +
+  scale_fill_manual(name = "", labels = "", values = ncigs_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -692,8 +693,8 @@ p3 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 pCigs <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
-pCigs <- annotate_figure(pCigs,
-                        left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+pCigs <- annotate_figure(pCigs,left = text_grob(bquote("")))
+# pCigs <- annotate_figure(pCigs,left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 
 ##############################
 ### COFFEE STRATIFIED MIRNA ##
@@ -739,7 +740,7 @@ data <- coffee_mirna[coffee_mirna$mirna == coffee1,]
 p1 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Coffee \n  consumption", labels = labels, values = coffee_color) +
+  scale_fill_manual(name = "", labels = "", values = coffee_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 9.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -765,7 +766,7 @@ data <- coffee_mirna[coffee_mirna$mirna == coffee2,]
 p2 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Coffee \n  consumption", labels = labels, values = coffee_color) +
+  scale_fill_manual(name = "", labels = "", values = coffee_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 9.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -788,7 +789,7 @@ data <- coffee_mirna[coffee_mirna$mirna == coffee3,]
 p3 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Coffee \n  consumption", labels = labels, values = coffee_color) +
+  scale_fill_manual(name = "", labels = "", values = coffee_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 9.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -803,8 +804,8 @@ p3 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 pCoffee <- ggarrange(p1,p3,p2, nrow = 1, common.legend = TRUE, legend = "right")
-pCoffee <- annotate_figure(pCoffee,
-                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+pCoffee <- annotate_figure(pCoffee, left = text_grob(bquote("")))
+# pCoffee <- annotate_figure(pCoffee, left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 ###############################
 ### PHYSICAL ACTIVITY MIRNA ###
 ###############################
@@ -844,7 +845,7 @@ data <- phys_mirna[phys_mirna$mirna == phys1,]
 p1 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Physical \n  activity", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "", labels = "", values = phys_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 11.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -867,7 +868,7 @@ data <- phys_mirna[phys_mirna$mirna == phys2,]
 p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Physical \n  activity", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "", labels = "", values = phys_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 11.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -890,7 +891,7 @@ data <- phys_mirna[phys_mirna$mirna == phys3,]
 p3 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
-  scale_fill_manual(name = "Physical \n  activity", labels = labels, values = phys_color) +
+  scale_fill_manual(name = "", labels = "", values = phys_color) +
   scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 11.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
@@ -906,8 +907,8 @@ p3 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 pPhys <- ggarrange(p1,p2,p3, nrow = 1, common.legend = TRUE, legend = "right")
-pPhys <- annotate_figure(pPhys,
-                         left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+pPhys <- annotate_figure(pPhys, left = text_grob(bquote("")))
+# pPhys <- annotate_figure(pPhys, left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
 ##
 ##
 ##

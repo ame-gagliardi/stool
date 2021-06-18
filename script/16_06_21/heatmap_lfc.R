@@ -1,11 +1,22 @@
-source("C:/Users/UappaSguappa/Desktop/R_projects/general_script/libraries_functions.R")
-source("C:/Users/UappaSguappa/Desktop/R_projects/general_script/libraries_graph.R")
+## Script per creare una heatmap con tutti i miRNA significativi in almeno due confronti ##
+## Ogni riga è un miRNA, ogni colonna un confronto e la cella il LFC ##
+###########################################################################################
 
+candiolo <- c("D:/R_Projects/general/")
+casa <- c("C:/Users/UappaSguappa/Desktop/R_projects/general")
 
+source(paste0(candiolo, "FUNCTION_custom.R"))
+source(paste0(candiolo, "GRAPH_libraries.R"))
+
+##################
 ## Heatmap data ##
-## Creo un dds per ogni variabile con tutti i mirna e i corrispetivi lfc##
+##################
 
-var <- c("phys_act")
+##########################################################################
+## Creo un dds per ogni variabile con tutti i mirna e i corrispetivi lfc##
+##########################################################################
+
+var <- c("bmi_cat")
 
 fileName <- list.files(paste0("results/differential/tables/pooled/",var))
 fileName <- fileName[grep("both", fileName)]
@@ -40,7 +51,9 @@ A <- cbind(A_1, A_2, A_3)
 saveRDS(A, file = paste0("data/downstream/lfcHM_", var,".dds"))
 rm(list=ls())
 
+##########################################################################################
 ## Carico tutti i dds in modo da avere una matrice con tutti gli lfc per ogni confronto ##
+##########################################################################################
 
 fileNames <- list.files("data/downstream/")
 fileNames <- fileNames[grep("LFC", fileNames)]
@@ -59,45 +72,36 @@ lfc <- lfc %>% mutate_if(is.numeric, ~round(.,3))
 
 saveRDS(lfc, file = "data/downstream/lfc_dataset.dds")
 
-## Filtro per tenere solamente i miRNA significativi (non ripetuti)
-lfc <- readRDS("data/downstream/heatmap_LFC_dataset.dds")
 
-filter <- read.delim("data/downstream/heatmap_LFC_filter_mirna.txt", sep ="\n", header = F)
+######################################
+############ HEATMAP DATA ############
+######################################
+
+lfc <- readRDS("data/downstream/heatmap_LFC_dataset.dds") # File con tutti i logFC
+
+filter <- read.delim("data/downstream/heatmap_LFC_filter_mirna.txt", sep ="\n", header = F) # File con i miRNA da filtrare
 colnames(filter) <- "miRNA"
 filter$miRNA <- trimws(filter$miRNA)
 tokeep <- filter %>% dplyr::distinct(miRNA)
 tokeep$miRNA[!(tokeep$miRNA %in% rownames(lfc))] <- paste0(tokeep$miRNA[!(tokeep$miRNA %in% rownames(lfc))], ":Novel")
 tokeep <- tokeep %>% dplyr::distinct(miRNA)
 rownames(tokeep) <- tokeep$miRNA
-
 lfc <- lfc[rownames(lfc) %in% rownames(tokeep),]
 
-# ## Filtro per tenere i miRNA significativi in almeno due confronti
-# lfc <- readRDS("data/downstream/heatmap_LFC_dataset.dds")
-# filter <- read.delim("data/downstream/heatmap_LFC_filter_mirna.txt", sep =";", header = F)
-# colnames(filter) <- "miRNA"
-# filter$miRNA <- trimws(filter$miRNA)
-# 
-# # mirna_rep <- data.frame(table(filter$miRNA))
-# # mirna_rep <- mirna_rep[mirna_rep$Freq>1,]
-# # colnames(mirna_rep) <- c("mirna", "freq")
-# # rownames(mirna_rep) <- mirna_rep$mirna
-# 
-# rownames(mirna_rep)[!(rownames(mirna_rep) %in% rownames(lfc))] <- paste0(rownames(mirna_rep)[!(rownames(mirna_rep) %in% rownames(lfc))], ":Novel")
-# lfc <- lfc[rownames(lfc) %in% rownames(mirna_rep),]
 
-lfc$normal_vs_underweight <- lfc$normal_vs_underweight * -1
+# lfc$normal_vs_underweight <- lfc$normal_vs_underweight * -1 
+# colnames(lfc)[6] <- "underweight_vs_normal"
 
-###########################################
-################ Heatmap 1 ################
-###########################################
+##################################
+############ HEATMAP  ############
+##################################
 
 # Rename delle colonne #
 
 colnames(lfc) <- c("Age [>53 vs <37]", "Age [>53 vs 37-53]", "Age [37-53 vs <37]",
                    "Alcohol [High vs No]", "Alcohol [Low vs No]",
                    "BMI [Underweight vs Normal]", "BMI [Obese vs Normal]", "BMI [Overweight vs Normal]",
-                   "Smoke [<16 cigs/day vs Never]", "Smoke [>16 cigs/day vs never]", "Smoke [Former vs Never]", 
+                   "Smoke [<16 cigs/day vs Never]", paste0("Smoke [", "\u2265 16", " cigs/day vs never]"), "Smoke [Former vs Never]", 
                    "Coffee [High vs No]", "Coffee [Low vs No]", 
                    "Physical activity [Inactive vs Active]", "Physical activity [Moderately Active vs Active]", "Physical Activity [Moderately Inactive vs Active]",
                    "Sex [Male vs Female]")
@@ -114,25 +118,40 @@ rn$V1 <- str_remove_all(rn$V1, "hsa-")
 colcor <- rev(colorRampPalette(brewer.pal(11, "RdBu"))(256))
 
 anno_df <- data.frame(var=colnames(mat), Covariate=NA, Class=NA)
-anno_df[,"Covariate"] <- c("Age", "Age", "Age", "Alcohol", "Alcohol", "BMI", "BMI", "BMI", "Smoke", "Smoke", "Smoke",
-                           "Coffee", "Coffee", "Physical Activity", "Physical Activity", "Physical Activity", "Sex")
+anno_df[,"Covariate"] <- c("Age", "Age", "Age", "Alcohol consumption", "Alcohol consumption", "BMI", "BMI", "BMI",
+                           "Smoking status", "Smoking status", "Smoking status",
+                           "Coffee consumption", "Coffee consumption", 
+                           "Physical Activity", "Physical Activity", "Physical Activity", "Sex")
 
-anno_df[,"Class"] <-  c("Antropometric", "Antropometric", "Antropometric", "Lifestyle", "Lifestyle", "Antropometric", "Antropometric",
-                        "Antropometric", "Lifestyle", "Lifestyle", "Lifestyle", "Lifestyle",
-                        "Lifestyle", "Lifestyle", "Lifestyle", "Lifestyle", "Antropometric")
+anno_df[,"Class"] <-  c("Anthropometric", "Anthropometric", "Anthropometric", "Lifestyle", "Lifestyle", "Anthropometric", "Anthropometric",
+                        "Anthropometric", "Lifestyle", "Lifestyle", "Lifestyle", "Lifestyle",
+                        "Lifestyle", "Lifestyle", "Lifestyle", "Lifestyle", "Anthropometric")
 
 col_ha <- HeatmapAnnotation(df = anno_df,
                             col = list(Covariate = c("Age" = "#3182BD", 
-                                                     "Smoke" = "#969696", 
-                                                     "Alcohol" = "#DD1C77",
-                                                     "Coffee" = "#F6E8C3", 
+                                                     "Smoking status" = "#969696", 
+                                                     "Alcohol consumption" = "#DD1C77",
+                                                     "Coffee consumption" = "#F6E8C3", 
                                                      "Physical Activity" = "#C2A5CF", 
                                                      "BMI" = "#238B45", 
                                                      "Sex" = "#E41A1C"),
                                        
-                                       Class = c("Antropometric" = "#f0fc03", "Lifestyle" = "#1c03fc")))
+                                       Class = c("Anthropometric" = "#f0fc03", "Lifestyle" = "#1c03fc")),
+                            annotation_legend_param = list(
+                                    Covariate = list(
+                                            title = "Covariate",
+                                            title_gp = gpar(fontsize = 16),
+                                            labels_gp = gpar(fontsize = 15)
+                                    ),
+                                    Class = list(
+                                            title = "Class",
+                                            title_gp = gpar(fontsize = 16),
+                                            labels_gp = gpar(fontsize = 15)
+                                    )
+                            ))
 
-hm1 <- Heatmap(mat,
+
+hm <- Heatmap(mat,
         column_names_rot = 30,
         column_names_side = "top",
         column_dend_side = "bottom",
@@ -142,7 +161,8 @@ hm1 <- Heatmap(mat,
         name = "Log2FC",
         col=colorRamp2(breaks=c(-4,-2,0,2,4), colors=c(colcor[1], colcor[64], "white", colcor[192], colcor[256])), 
         top_annotation = col_ha[,c(2,3)],
-        show_row_dend = F)
-
-
-
+        show_row_dend = F, 
+        heatmap_legend_param = list(
+                title = "log2FC",
+                title_gp = gpar(fontsize = 16),
+                labels_gp = gpar(fontsize = 14)))
