@@ -89,11 +89,11 @@ db[,age1] <- age_cts[,age1]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- age_mirna[age_mirna$mirna == age1,]
 
-p1 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = age_cat, y = log10(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = age_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -102,7 +102,7 @@ p1 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(age1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P2 ##
 
@@ -113,11 +113,11 @@ colnames(db)[length(colnames(db))] <- "mirna"
 data <- age_mirna[age_mirna$mirna == age2,]
 age2 <- str_remove(age2, "-N")
 
-p2 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = age_cat, y = log10(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = age_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -126,7 +126,7 @@ p2 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(age2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
 
@@ -136,11 +136,11 @@ db[,age3] <- age_cts[,age3]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- age_mirna[age_mirna$mirna == age3,]
 
-p3 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = age_cat, y = log10(mirna))) +
   geom_boxplot(aes(fill = age_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = age_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -149,7 +149,7 @@ p3 <- ggplot(db, aes(x = age_cat, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(age3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 # Combine AGE plots #
 
@@ -181,11 +181,11 @@ db[,sex1] <- sex_cts[,sex1]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- sex_mirna[sex_mirna$mirna == sex1,]
 
-p1 <- ggplot(db, aes(x = sex, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = sex, y = log10(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = sex_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -194,9 +194,9 @@ p1 <- ggplot(db, aes(x = sex, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(sex1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
-## P2 ##
+2## P2 ##
 
 sex2 <- sex_mirna[2,1]
 db <- dt
@@ -204,11 +204,11 @@ db[,sex2] <- sex_cts[,sex2]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- sex_mirna[sex_mirna$mirna == sex2,]
 
-p2 <- ggplot(db, aes(x = sex, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = sex, y = log10(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = sex_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -217,7 +217,7 @@ p2 <- ggplot(db, aes(x = sex, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(sex2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
 
@@ -227,11 +227,11 @@ db[,sex3] <- sex_cts[,sex3]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- sex_mirna[sex_mirna$mirna == sex3,]
 
-p3 <- ggplot(db, aes(x = sex, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = sex, y = log10(mirna))) +
   geom_boxplot(aes(fill = sex), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = sex_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -240,7 +240,7 @@ p3 <- ggplot(db, aes(x = sex, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(sex3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 # Combine SEX plots #
 
@@ -293,7 +293,7 @@ pSex <- annotate_figure(pSex, left = "")
 # colnames(db)[24] <- "mirna"
 # data <- menopausal_mirna[menopausal_mirna$mirna == meno1,]
 # 
-# p1 <- ggplot(db, aes(x = menstruation, y = log(mirna))) +
+# p1 <- ggplot(db, aes(x = menstruation, y = log10(mirna))) +
 #   geom_boxplot(aes(fill = menstruation), outlier.shape = 1) +
 #   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
 #   scale_fill_manual(name = "Menopausal \n status ", labels = labels, values = menopausal_color) +
@@ -306,7 +306,7 @@ pSex <- annotate_figure(pSex, left = "")
 #         plot.title = element_text(hjust = 0.5),
 #         legend.title.align = 0.5) +
 #   ggtitle(str_remove(meno1, "-N")) +
-#   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+#   stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 # 
 # ## P2 ##
 # 
@@ -316,7 +316,7 @@ pSex <- annotate_figure(pSex, left = "")
 # colnames(db)[24] <- "mirna"
 # data <- menopausal_mirna[menopausal_mirna$mirna == meno2,]
 # 
-# p2 <- ggplot(db, aes(x = menstruation, y = log(mirna))) +
+# p2 <- ggplot(db, aes(x = menstruation, y = log10(mirna))) +
 #   geom_boxplot(aes(fill = menstruation), outlier.shape = 1) +
 #   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
 #   scale_fill_manual(name = "Menopausal \n status ", labels = labels, values = menopausal_color) +
@@ -329,7 +329,7 @@ pSex <- annotate_figure(pSex, left = "")
 #         plot.title = element_text(hjust = 0.5),
 #         legend.title.align = 0.5) +
 #   ggtitle(str_remove(meno2, "-N")) +
-#   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+#   stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 # 
 # 
 # ## P3 ##
@@ -340,7 +340,7 @@ pSex <- annotate_figure(pSex, left = "")
 # colnames(db)[24] <- "mirna"
 # data <- menopausal_mirna[menopausal_mirna$mirna == meno3,]
 # 
-# p3 <- ggplot(db, aes(x = menstruation, y = log(mirna))) +
+# p3 <- ggplot(db, aes(x = menstruation, y = log10(mirna))) +
 #   geom_boxplot(aes(fill = menstruation), outlier.shape = 1) +
 #   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
 #   scale_fill_manual(name = "Menopausal \n status ", labels = labels, values = menopausal_color) +
@@ -353,7 +353,7 @@ pSex <- annotate_figure(pSex, left = "")
 #         plot.title = element_text(hjust = 0.5),
 #         legend.title.align = 0.5) +
 #   ggtitle(str_remove(meno1, "-N")) +
-#   stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+#   stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.3), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 # 
 # # Combine menopausal plots
 # 
@@ -394,11 +394,11 @@ db[,bmi1] <- bmi_cts[,bmi1]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- bmi_mirna[bmi_mirna$mirna == bmi1,]
 
-p1 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = bmi_cat, y = log10(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = bmi_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10), c(0, 2.5, 5.0, 7.5, 10.0)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 5), c(0, 2.5, 5.0, 7.5, 10.0)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -407,7 +407,7 @@ p1 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(bmi1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P2 ##
 
@@ -417,11 +417,11 @@ db[,bmi2] <- bmi_cts[,bmi2]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- bmi_mirna[bmi_mirna$mirna == bmi2,]
 
-p2 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = bmi_cat, y = log10(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = bmi_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10), c(0, 2.5, 5.0, 7.5, 10.0)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 5), c(0, 2.5, 5.0, 7.5, 10.0)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -430,7 +430,7 @@ p2 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(bmi2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
 
@@ -440,11 +440,11 @@ db[,bmi3] <- bmi_cts[,bmi3]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- bmi_mirna[bmi_mirna$mirna == bmi3,]
 
-p3 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = bmi_cat, y = log10(mirna))) +
   geom_boxplot(aes(fill = bmi_cat), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = bmi_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 10), c(0, 2.5, 5.0, 7.5, 10.0)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 5), c(0, 2.5, 5.0, 7.5, 10.0)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -453,7 +453,7 @@ p3 <- ggplot(db, aes(x = bmi_cat, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(bmi3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 # Combine BMI plots #
 
@@ -468,7 +468,7 @@ pBMI <- annotate_figure(pBMI, left = text_grob(""))
 pAntro <-ggarrange(pSex, pAge, pBMI, nrow = 3, align = "v")
 
 
-ggsave(pAntro, filename = "D:/R_Projects/stool/results/figures/pooled/antropometric_boxplot.svg", 
+ggsave(pAntro, filename = "D:/R_Projects/stool/results/figures/pooled/antropometric_boxplot_logRevised.svg", 
        width = 20, height = 19, units = "cm", dpi = 500)
 
 
@@ -521,11 +521,11 @@ db[,"mirna"] <- alco_cts[,alco1]
 colnames(db)[20] <- "mirna"
 data <- alco_mirna[alco_mirna$mirna == alco1,]
 
-p1 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = alcohol, y = log10(mirna))) +
   geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = alco_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -534,7 +534,7 @@ p1 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(alco1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P2 ##
 
@@ -544,11 +544,11 @@ db[,"mirna"] <- alco_cts[,alco2]
 colnames(db)[20] <- "mirna"
 data <- alco_mirna[alco_mirna$mirna == alco2,]
 
-p2 <-ggplot(db, aes(x = alcohol, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = alcohol, y = log10(mirna))) +
   geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = alco_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -557,7 +557,7 @@ p2 <-ggplot(db, aes(x = alcohol, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(alco2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
 
@@ -567,11 +567,11 @@ db[,"mirna"] <- alco_cts[,alco3]
 colnames(db)[20] <- "mirna"
 data <- alco_mirna[alco_mirna$mirna == alco3,]
 
-p3 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = alcohol, y = log10(mirna))) +
   geom_boxplot(aes(fill = alcohol), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = alco_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -580,7 +580,7 @@ p3 <- ggplot(db, aes(x = alcohol, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(alco3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
@@ -629,11 +629,11 @@ db[,ncigs1] <- ncigs_cts[,ncigs1]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- ncigs_mirna[ncigs_mirna$mirna == ncigs1,]
 
-p1 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = cigs, y = log10(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = ncigs_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 3.8)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -642,7 +642,7 @@ p1 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(ncigs1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P2 ##
 
@@ -652,11 +652,11 @@ db[,ncigs2] <- ncigs_cts[,ncigs2]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- ncigs_mirna[ncigs_mirna$mirna == ncigs2,]
 
-p2 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = cigs, y = log10(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = ncigs_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 3.8)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -665,7 +665,7 @@ p2 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(ncigs2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
 
@@ -675,11 +675,11 @@ db[,ncigs3] <- ncigs_cts[,ncigs3]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- ncigs_mirna[ncigs_mirna$mirna == ncigs3,]
 
-p3 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = cigs, y = log10(mirna))) +
   geom_boxplot(aes(fill = cigs), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = ncigs_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 8.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 3.8)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -688,7 +688,7 @@ p3 <- ggplot(db, aes(x = cigs, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(ncigs3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
@@ -737,11 +737,11 @@ db[,coffee1] <- coffee_cts[,coffee1]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- coffee_mirna[coffee_mirna$mirna == coffee1,]
 
-p1 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = coffee, y = log10(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = coffee_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 9.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -750,7 +750,7 @@ p1 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(coffee1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 
 
@@ -763,11 +763,11 @@ db[,coffee2] <- coffee_cts[,coffee2]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- coffee_mirna[coffee_mirna$mirna == coffee2,]
 
-p2 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = coffee, y = log10(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = coffee_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 9.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -776,7 +776,7 @@ p2 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(coffee2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 
 ## P3 ##
@@ -786,11 +786,11 @@ db[,coffee3] <- coffee_cts[,coffee3]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- coffee_mirna[coffee_mirna$mirna == coffee3,]
 
-p3 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = coffee, y = log10(mirna))) +
   geom_boxplot(aes(fill = coffee), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = coffee_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 9.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -799,13 +799,14 @@ p3 <- ggplot(db, aes(x = coffee, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(coffee3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
 
 pCoffee <- ggarrange(p1,p3,p2, nrow = 1, common.legend = TRUE, legend = "right")
 pCoffee <- annotate_figure(pCoffee, left = text_grob(bquote("")))
 # pCoffee <- annotate_figure(pCoffee, left = text_grob(bquote(~Log[10]~ '(expression levels)'), rot = 90, size = 8))
+
 ###############################
 ### PHYSICAL ACTIVITY MIRNA ###
 ###############################
@@ -842,11 +843,11 @@ db[,phys1] <- phys_cts[,phys1]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- phys_mirna[phys_mirna$mirna == phys1,]
 
-p1 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
+p1 <- ggplot(db, aes(x = phys_act, y = log10(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = phys_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 11.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -855,7 +856,7 @@ p1 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(phys1, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P2 ##
 
@@ -865,11 +866,11 @@ db[,phys2] <- phys_cts[,phys2]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- phys_mirna[phys_mirna$mirna == phys2,]
 
-p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
+p2 <- ggplot(db, aes(x = phys_act, y = log10(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = phys_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 11.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -878,7 +879,7 @@ p2 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(phys2, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.1), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.05), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 ## P3 ##
 
@@ -888,11 +889,11 @@ db[,phys3] <- phys_cts[,phys3]
 colnames(db)[length(colnames(db))] <- "mirna"
 data <- phys_mirna[phys_mirna$mirna == phys3,]
 
-p3 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
+p3 <- ggplot(db, aes(x = phys_act, y = log10(mirna))) +
   geom_boxplot(aes(fill = phys_act), outlier.shape = 1) +
   geom_jitter(width = 0.1, size = 1, alpha = 0.5) +
   scale_fill_manual(name = "", labels = "", values = phys_color) +
-  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 11.5)) +
+  scale_y_continuous(expand = expansion(mult = c(0, .1)), limits = c(0, 4.5)) +
   ylab(bquote(~Log[10]~ 'expression levels')) +
   theme_classic() +
   theme(axis.text.x = element_blank(),
@@ -901,7 +902,7 @@ p3 <- ggplot(db, aes(x = phys_act, y = log(mirna))) +
         plot.title = element_text(hjust = 0.5),
         legend.title.align = 0.5) +
   ggtitle(str_remove(phys3, "-N")) +
-  stat_pvalue_manual(data, y.position = max(log(db$mirna)+0.5), step.increase = 0.1, tip.length = 0.01, label = "psymb")
+  stat_pvalue_manual(data, y.position = max(log10(db$mirna)+0.05), step.increase = 0.1, tip.length = 0.01, label = "psymb")
 
 #
 ord <- c(p1[["labels"]][["title"]],p2[["labels"]][["title"]],p3[["labels"]][["title"]])
@@ -914,6 +915,6 @@ pPhys <- annotate_figure(pPhys, left = text_grob(bquote("")))
 ##
 pLife <-ggarrange(pCigs, pAlc, pCoffee, pPhys, nrow = 4, align = "v")
 
-ggsave(filename = "D:/R_Projects/stool/results/figures/pooled/lifestyle_boxplot.svg", pLife, width = 20, height = 19, units = "cm", dpi = 500)
+ggsave(filename = "D:/R_Projects/stool/results/figures/pooled/lifestyle_boxplot_logRevised.svg", pLife, width = 20, height = 19, units = "cm", dpi = 500)
 
 ggsave(pLife, filename = "C:/Users/UappaSguappa/Desktop/R_projects/stool/results/figures/pooled/lifestyle_boxplot.png", width = 21, height = 20, units = "cm", dpi = 500)
