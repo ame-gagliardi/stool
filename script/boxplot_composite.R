@@ -2,6 +2,7 @@
 
 candiolo <- c("D:/R_Projects/general/")
 casa <- c("C:/Users/UappaSguappa/Desktop/R_projects/general")
+prova
 
 source(paste0(candiolo, "FUNCTION_custom.R"))
 source(paste0(candiolo, "GRAPH_libraries.R"))
